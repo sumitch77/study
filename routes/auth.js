@@ -38,26 +38,12 @@ router2.get("/logout", TimeLimiter, (req, res) => {
   });
 });
 
-router2.get(
-  "/login",
-  login,
-  generalLimiter,
-  extremeLimiter,
-  login,
-  (req, res) => {
-    res.sendFile(path.join(__dirname, "../views/login.html"));
-  },
-);
-router2.get(
-  "/signup",
-  login,
-  generalLimiter,
-  extremeLimiter,
-  login,
-  (req, res) => {
-    res.sendFile(path.join(__dirname, "../views/signup.html"));
-  },
-);
+router2.get("/login", login, generalLimiter, extremeLimiter, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/login.html"));
+});
+router2.get("/signup", login, generalLimiter, extremeLimiter, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views/signup.html"));
+});
 
 router2.post(
   "/login",
