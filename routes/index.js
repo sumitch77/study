@@ -44,7 +44,7 @@ router.get(
     return res.sendFile(path.join(__dirname, "../views/books.html"));
   },
 );
-router.get("/userinfo", async (req, res) => {
+router.get("/userTable", async (req, res) => {
   if (!req.session.userId) {
     return res.status(401).json({ success: false, message: "Unauthorized" });
   }

@@ -60,7 +60,7 @@ passport.use(
         // 1. Query Supabase (matching table 'allusers' and column 'googleid')
         let { data: user, error } = await supabase
           .schema("study")
-          .from("userinfo")
+          .from("userTable")
           .select("*")
           .eq("email", email)
           .maybeSingle();
@@ -74,7 +74,7 @@ passport.use(
         if (!user) {
           const { data: newUser, error: insertError } = await supabase
             .schema("study")
-            .from("userinfo")
+            .from("userTable")
             .insert([
               {
                 googleid: googleId,

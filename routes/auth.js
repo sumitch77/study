@@ -319,7 +319,7 @@ router2.get("/linklogin", generalLimiter, login, async (req, res) => {
 
     const { data: user, error: userError } = await supabase
       .schema("study")
-      .from("userinfo")
+      .from("userTable")
       .update({ role: "user" })
       .eq("email", data.email)
       .select()

@@ -77,7 +77,7 @@ router8.post(
     }
     const { data, error } = await supabase
       .schema("study")
-      .from("userinfo")
+      .from("userTable")
       .select("email, username")
       .eq("email", email)
       .maybeSingle();
@@ -560,7 +560,7 @@ router8.post("/resetpassword", async (req, res) => {
     // 4. update the user's password
     const { data: updatedUsers, error: userError } = await supabase
       .schema("study")
-      .from("userinfo")
+      .from("userTable")
       .update({
         password: hashedPassword,
       })
