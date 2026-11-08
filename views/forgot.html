@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reset Password</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2" />
+    <meta name="description" content="This page helps you reset your password " />
+    <link rel="stylesheet" href="/output.css" />
+  </head>
+
+  <body>
+    <div class="flex min-h-screen flex-col bg-radial from-neutral-900 via-neutral-950 to-black text-white">
+      <header class="flex items-center gap-0.5 px-6 py-5">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" class="h-6 w-6">
+          <path d="M12 3 2.5 21h19L12 3Z" />
+          <path d="m12 9-4 12M12 9l4 12" />
+        </svg>
+        <span class="text-xl font-medium tracking-tight">Highkey</span>
+      </header>
+
+      <main class="flex flex-1 items-center justify-center px-1 py-4">
+        <form class="w-full max-w-sm rounded-3xl border border-white/10 bg-linear-to-b from-white/15 via-white/5 to-white/5 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl">
+          <h1 class="text-2xl font-semibold tracking-tight">Reset Password</h1>
+          <p class="mt-2 mb-6 text-sm text-neutral-400">Enter your new password below.</p>
+
+          <!-- New password -->
+          <div class="relative mb-4">
+            <span class="absolute top-1/2 left-3 -translate-y-1/2 text-neutral-500">
+              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17 9V7a5 5 0 0 0-10 0v2a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3zM9 7a3 3 0 0 1 6 0v2H9V7z" />
+              </svg>
+            </span>
+            <input
+              id="password"
+              type="password"
+              placeholder="New password"
+              class="w-full rounded-xl border border-white/5 bg-black/40 py-3 pr-11 pl-10 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-white/30"
+            />
+            <button
+              id="togglePassword"
+              type="button"
+              aria-label="Show password"
+              class="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-neutral-400 transition hover:text-white"
+            >
+              <svg id="eyePassword" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"></svg>
+            </button>
+          </div>
+
+          <!-- Confirm password -->
+          <div class="relative mb-4">
+            <span class="absolute top-1/2 left-3 -translate-y-1/2 text-neutral-500">
+              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M17 9V7a5 5 0 0 0-10 0v2a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3zM9 7a3 3 0 0 1 6 0v2H9V7z" />
+              </svg>
+            </span>
+            <input
+              id="confirmPassword"
+              type="password"
+              placeholder="Confirm new password"
+              class="w-full rounded-xl border border-white/5 bg-black/40 py-3 pr-11 pl-10 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-white/30"
+            />
+            <button
+              id="toggleConfirmPassword"
+              type="button"
+              aria-label="Show password"
+              class="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-neutral-400 transition hover:text-white"
+            >
+              <svg id="eyeConfirm" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"></svg>
+            </button>
+          </div>
+
+          <div id="message" class="my-3 min-h-5 text-sm text-red-500"></div>
+
+          <button
+            id="reset"
+            class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-linear-to-b from-white to-slate-200 py-3 text-sm font-medium text-black transition hover:from-slate-100 hover:to-slate-300"
+          >
+            Reset Password
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
+
+          <p class="mt-5 text-center text-xs text-neutral-400">Your password should be at least 6 characters.</p>
+          <p class="mt-2 text-center text-xs text-neutral-400">
+            you can check our
+            <a class="text-indigo-300 hover:text-indigo-200" href="/policy">Privacy policy</a>
+            and
+            <a class="text-indigo-300 hover:text-indigo-200" href="/terms">Terms &amp; conditions</a>
+          </p>
+        </form>
+      </main>
+
+      <footer class="px-6 py-5 text-xs text-neutral-500">© 2026 Highkey. All rights reserved.</footer>
+    </div>
+
+    <script>
+      const password = document.getElementById('password');
+      const confirmPassword = document.getElementById('confirmPassword');
+      const reset = document.getElementById('reset');
+      const msg = document.getElementById('message');
+
+      const togglePassword = document.getElementById('togglePassword');
+      const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+      const eyePassword = document.getElementById('eyePassword');
+      const eyeConfirm = document.getElementById('eyeConfirm');
+
+      const token = new URLSearchParams(window.location.search).get('token');
+
+      const EYE_OPEN = `<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" />`;
+      const EYE_CLOSED = `<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" /><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" /><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" /><path d="m2 2 20 20" />`;
+
+      eyePassword.innerHTML = EYE_CLOSED;
+      eyeConfirm.innerHTML = EYE_CLOSED;
+
+
+      togglePassword.addEventListener('click', () => {
+        password.type = password.type === 'password' ? 'text' : 'password';
+        eyePassword.innerHTML = password.type === 'password' ? EYE_CLOSED : EYE_OPEN;
+        togglePassword.setAttribute('aria-label', password.type === 'password' ? 'Show password' : 'Hide password');
+      });
+
+
+      toggleConfirmPassword.addEventListener('click', () => {
+        confirmPassword.type =
+          confirmPassword.type === 'password' ? 'text' : 'password';
+        eyeConfirm.innerHTML = confirmPassword.type === 'password' ? EYE_CLOSED : EYE_OPEN;
+        toggleConfirmPassword.setAttribute('aria-label', confirmPassword.type === 'password' ? 'Show password' : 'Hide password');
+      });
+
+
+      reset.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        if (!token) {
+          msg.innerText = 'Invalid reset link';
+          return;
+        }
+
+        if (!password.value || !confirmPassword.value) {
+          msg.innerText = 'Please fill all fields';
+
+          setTimeout(() => {
+            msg.innerText = '';
+          }, 4000);
+
+          return;
+        }
+
+        if (password.value.length < 6) {
+          msg.innerText = 'Password should be more than 6 characters';
+
+          setTimeout(() => {
+            msg.innerText = '';
+          }, 4000);
+
+          return;
+        }
+
+        if (password.value !== confirmPassword.value) {
+          msg.innerText = 'Passwords do not match';
+
+          setTimeout(() => {
+            msg.innerText = '';
+          }, 4000);
+
+          return;
+        }
+
+        const response = await fetch('/resetpassword', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            token: token,
+            password: password.value
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+
+          msg.classList.replace('text-red-500', 'text-green-500');
+          msg.innerText = 'Password reset successfully';
+
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 1200);
+
+        } else {
+
+          msg.innerText = data.message;
+
+          setTimeout(() => {
+            msg.innerText = '';
+          }, 4000);
+
+        }
+
+      });
+    </script>
+  </body>
+</html>

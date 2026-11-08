@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign up - Highkey</title>
+    <link rel="stylesheet" href="/output.css" />
+  </head>
+  <body>
+    <div class="flex min-h-screen flex-col bg-radial from-neutral-900 via-neutral-950 to-black text-white">
+      <header class="flex items-center gap-0.5 px-6 py-5">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" class="h-6 w-6">
+          <path d="M12 3 2.5 21h19L12 3Z" />
+          <path d="m12 9-4 12M12 9l4 12" />
+        </svg>
+        <span class="text-xl font-medium tracking-tight">Highkey</span>
+      </header>
+
+      <main class="flex flex-1 items-center justify-center px-1 py-4">
+        <form id="signupForm" class="w-full max-w-sm rounded-3xl border border-white/10 bg-linear-to-b from-white/15 via-white/5 to-white/5 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl">
+          <h1 class="text-2xl font-semibold tracking-tight">Create your account</h1>
+          <p class="mt-2 mb-6 text-sm text-neutral-400">Your space for whats next. Make it yours.</p>
+
+          <label for="email" class="mb-2 block text-xs font-medium">Email</label>
+          <input
+            id="email"
+            type="email"
+            name="email"
+            placeholder="Enter your email address"
+            class="mb-4 w-full rounded-xl border border-white/5 bg-black/40 px-3 py-3 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-white/30"
+          />
+
+          <label for="username" class="mb-2 block text-xs font-medium">Username</label>
+          <input
+            id="username"
+            type="text"
+            name="username"
+            placeholder="Choose a username"
+            class="mb-4 w-full rounded-xl border border-white/5 bg-black/40 px-3 py-3 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-white/30"
+          />
+
+          <label for="password" class="mb-2 block text-xs font-medium">Password</label>
+          <div class="relative mb-4">
+            <input
+              id="password"
+              type="password"
+              name="password"
+              placeholder="Create a password"
+              class="w-full rounded-xl border border-white/5 bg-black/40 py-3 pr-11 pl-3 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-white/30"
+            />
+            <button
+              type="button"
+              data-toggle="password"
+              aria-label="Show password"
+              class="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-neutral-400 transition hover:text-white"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye h-5 w-5"></svg>
+            </button>
+          </div>
+
+          <label for="confirmPassword" class="mb-2 block text-xs font-medium">Confirm password</label>
+          <div class="relative mb-4">
+            <input
+              id="confirmPassword"
+              type="password"
+              name="confirmPassword"
+              placeholder="Re-enter your password"
+              class="w-full rounded-xl border border-white/5 bg-black/40 py-3 pr-11 pl-3 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-white/30"
+            />
+            <button
+              type="button"
+              data-toggle="confirmPassword"
+              aria-label="Show password"
+              class="absolute top-1/2 right-3 -translate-y-1/2 cursor-pointer text-neutral-400 transition hover:text-white"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="eye h-5 w-5"></svg>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2 text-xs text-neutral-400">
+            <input id="terms" type="checkbox" name="terms" class="h-4 w-4 cursor-pointer accent-white" />
+            <label for="terms">
+              Please read our
+              <a href="/policy" class="text-indigo-300 hover:text-indigo-200">Privacy Policy</a>
+              and
+              <a href="/terms" class="text-indigo-300 hover:text-indigo-200">Terms and Conditions</a>.
+            </label>
+          </div>
+
+          <p id="message" class="my-3 min-h-5 text-sm text-red-500"></p>
+
+          <button
+            id="signupBtn"
+            type="submit"
+            class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-linear-to-b from-white to-slate-200 py-3 text-sm font-medium text-black transition hover:from-slate-100 hover:to-slate-300 disabled:cursor-not-allowed disabled:from-neutral-500 disabled:to-neutral-600 disabled:text-neutral-300 disabled:opacity-60 disabled:hover:from-neutral-500 disabled:hover:to-neutral-600"
+          >
+            Sign up
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
+
+          <div class="my-5 flex items-center gap-3 text-xs text-neutral-500">
+            <div class="h-px flex-1 bg-white/10"></div>
+            or continue with
+            <div class="h-px flex-1 bg-white/10"></div>
+          </div>
+
+          <a
+            id="googleBtn"
+            href="/auth/google"
+            class="flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 py-3 text-sm font-medium text-white transition hover:bg-white/10 aria-disabled:cursor-not-allowed aria-disabled:opacity-40 aria-disabled:hover:bg-white/5"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="h-4 w-4 fill-current">
+              <path d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
+              <path d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z" />
+              <path d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z" />
+              <path d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z" />
+            </svg>
+            Sign up with Google
+          </a>
+
+          <p class="mt-5 text-center text-xs text-neutral-400">
+            Already have an account?
+            <a href="/login" class="text-indigo-300 hover:text-indigo-200">Log in</a>
+          </p>
+        </form>
+      </main>
+
+      <footer class="px-6 py-5 text-xs text-neutral-500">© 2026 Highkey. All rights reserved.</footer>
+    </div>
+
+    <script>
+  
+
+      const SIGNUP_COOLDOWN = 7000; // 7 sec
+      const GOOGLE_COOLDOWN = 4000; // 4 sec
+
+      const form = document.getElementById("signupForm");
+      const messageEl = document.getElementById("message");
+      const signupBtn = document.getElementById("signupBtn");
+      const googleBtn = document.getElementById("googleBtn");
+
+      const EYE_OPEN = `<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" />`;
+      const EYE_CLOSED = `<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" /><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" /><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" /><path d="m2 2 20 20" />`;
+
+      // ---- error message ----
+      let msgTimer = null;
+      function showMessage(text) {
+        clearTimeout(msgTimer);
+        messageEl.textContent = text;
+        msgTimer = setTimeout(() => (messageEl.textContent = ""), 5000);
+      }
+
+      // ---- show / hide password (both fields) ----
+      document.querySelectorAll("[data-toggle]").forEach((btn) => {
+        const input = document.getElementById(btn.dataset.toggle);
+        const icon = btn.querySelector(".eye");
+        icon.innerHTML = EYE_CLOSED;
+
+        btn.addEventListener("click", () => {
+          const show = input.type === "password";
+          input.type = show ? "text" : "password";
+          icon.innerHTML = show ? EYE_OPEN : EYE_CLOSED;
+          btn.setAttribute("aria-label", show ? "Hide password" : "Show password");
+        });
+      });
+
+      // ---- cooldown helpers ----
+      function cooldownButton(btn, ms) {
+        btn.disabled = true;
+        setTimeout(() => (btn.disabled = false), ms);
+      }
+
+      let googleLocked = false;
+      function cooldownLink(link, ms) {
+        googleLocked = true;
+        link.setAttribute("aria-disabled", "true");
+        setTimeout(() => {
+          googleLocked = false;
+          link.removeAttribute("aria-disabled");
+        }, ms);
+      }
+
+      // ---- signup ----
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        if (signupBtn.disabled) return;
+
+        cooldownButton(signupBtn, SIGNUP_COOLDOWN);
+
+        const body = Object.fromEntries(new FormData(form).entries());
+
+        if (
+          !body.email?.trim() ||
+          !body.username?.trim() ||
+          !body.password?.trim() ||
+          !body.confirmPassword?.trim()
+        ) {
+          showMessage("Please fill all fields");
+          return;
+        }
+
+        if (!body.terms) {
+          showMessage("Please accept the Privacy Policy and Terms and Conditions");
+          return;
+        }
+
+        if (body.password !== body.confirmPassword) {
+          showMessage("Passwords do not match");
+          return;
+        }
+        
+        const token = await new Promise((resolve, reject) => {
+            grecaptcha.ready(() => {
+                grecaptcha.execute('6LdP1VwtAAAAAHvsT_314e0rpmoDW0qvFySxuNmC', { action: 'signup' })
+                    .then(resolve)
+                    .catch(reject);
+            });
+        });
+
+        const captchaResponse = await fetch('/captcha', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: email.value,
+                token
+            })
+        });
+        const result2 = await captchaResponse.json();
+        if(!result2.success){
+          msg.innerText = "captcha verification failed , Please Reload site before trying again";
+          return;
+        }
+
+        try {
+          const res = await fetch(`/signup`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(body),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            window.location.href = "/";
+          } else {
+            showMessage(data.message);
+          }
+        } catch (err) {
+          showMessage("Something went wrong. Please try again.");
+        }
+      });
+
+      // ---- google signup ----
+      googleBtn.addEventListener("click", (e) => {
+        if (googleLocked) {
+          e.preventDefault();
+          return;
+        }
+        cooldownLink(googleBtn, GOOGLE_COOLDOWN);
+      });
+
+      // re-enable if the user returns via back button (page restored from cache)
+      window.addEventListener("pageshow", (e) => {
+        if (e.persisted) {
+          signupBtn.disabled = false;
+          googleLocked = false;
+          googleBtn.removeAttribute("aria-disabled");
+        }
+      });
+    </script>
+  </body>
+</html>

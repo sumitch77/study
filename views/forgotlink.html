@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Reset Password</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2" />
+    <meta name="description" content="Reset your account password by clicking on link sent" />
+    <link rel="stylesheet" href="/output.css" />
+  </head>
+
+  <body>
+    <div class="flex min-h-screen flex-col bg-radial from-neutral-900 via-neutral-950 to-black text-white">
+      <header class="flex items-center gap-0.5 px-6 py-5">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" class="h-6 w-6">
+          <path d="M12 3 2.5 21h19L12 3Z" />
+          <path d="m12 9-4 12M12 9l4 12" />
+        </svg>
+        <span class="text-xl font-medium tracking-tight">Highkey</span>
+      </header>
+
+      <main class="flex flex-1 items-center justify-center px-1 py-4">
+        <form class="w-full max-w-sm rounded-3xl border border-white/10 bg-linear-to-b from-white/15 via-white/5 to-white/5 p-6 shadow-2xl shadow-black/50 backdrop-blur-xl">
+          <h1 class="text-2xl font-semibold tracking-tight">Reset Password</h1>
+          <p class="mt-2 mb-6 text-sm text-neutral-400">Enter your email below.</p>
+
+          <div class="relative">
+            <span class="absolute top-1/2 left-3 -translate-y-1/2 text-neutral-500">
+              <svg class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z" />
+              </svg>
+            </span>
+            <input
+              type="text"
+              id="email"
+              placeholder="Email"
+              class="w-full rounded-xl border border-white/5 bg-black/40 py-3 pr-3 pl-10 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-white/30"
+            />
+          </div>
+
+          <div id="message" class="my-3 min-h-5 text-sm text-red-500"></div>
+
+          <button
+            id="reset"
+            class="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-linear-to-b from-white to-slate-200 py-3 text-sm font-medium text-black transition hover:from-slate-100 hover:to-slate-300"
+          >
+            Send Reset Link
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </button>
+
+          <p class="mt-5 text-center text-xs text-neutral-400">
+            you can check our
+            <a class="text-indigo-300 hover:text-indigo-200" href="/policy">Privacy policy</a>
+            and
+            <a class="text-indigo-300 hover:text-indigo-200" href="/terms">Terms &amp; conditions</a>
+          </p>
+        </form>
+      </main>
+
+      <footer class="px-6 py-5 text-xs text-neutral-500">© 2026 Highkey. All rights reserved.</footer>
+    </div>
+
+    <script>
+      const email = document.getElementById('email');
+      const reset = document.getElementById('reset');
+      const msg = document.getElementById('message');
+
+
+
+
+      reset.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+
+        if (!email.value) {
+          msg.innerText = 'Please fill all fields';
+
+          setTimeout(() => {
+            msg.innerText = '';
+          }, 4000);
+
+          return;
+        }
+
+        const response = await fetch('/forgot', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: email.value
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+
+          msg.classList.replace('text-red-500', 'text-green-500');
+          msg.innerText = data.message;
+
+
+
+        } else {
+
+          msg.innerText = data.message;
+
+          setTimeout(() => {
+            msg.innerText = '';
+          }, 4000);
+
+        }
+
+      });
+    </script>
+  </body>
+</html>
