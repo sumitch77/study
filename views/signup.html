@@ -246,7 +246,7 @@
           const data = await res.json();
 
           if (data.success) {
-            window.location.href = "/";
+            showMessage(data.message);
           } else {
             showMessage(data.message);
           }

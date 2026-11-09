@@ -190,12 +190,118 @@ router2.post(
 
     try {
       const loginLink = `https://sumit7.website/linklogin?token=${token}`;
+
       await resendClient.emails.send({
-        from: "Sumit <Sumit@sumit7.website>",
+        from: "Highkey <Sumit@sumit7.website>",
         to: email,
-        subject: "Sign in to Cloud",
-        html: `Hello , this is your login token , it will expire in 10min \n 
-        {loginLink}`,
+        subject: "Your Highkey sign-in link",
+
+        html: `
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
+    <title>Sign in to Highkey</title>
+  </head>
+  <body style="margin:0;padding:0;background:#0a0a0a;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;">
+
+    <!-- preview text shown in the inbox list -->
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#0a0a0a;">
+      Your sign-in link is ready. It expires in 10 minutes.
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0a0a0a;">
+      <tr>
+        <td align="center" style="padding:40px 16px;">
+
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:480px;">
+
+            <!-- logo -->
+            <tr>
+              <td align="center" style="padding-bottom:24px;">
+                <span style="font-size:24px;font-weight:600;letter-spacing:-0.5px;color:#ffffff;">
+                  &#9650; Highkey
+                </span>
+              </td>
+            </tr>
+
+            <!-- card -->
+            <tr>
+              <td style="background:#171717;border:1px solid #2a2a2a;border-radius:24px;padding:40px 32px;text-align:center;">
+
+                <h1 style="margin:0 0 12px;font-size:24px;font-weight:600;letter-spacing:-0.3px;color:#ffffff;">
+                  Sign in to Highkey
+                </h1>
+
+                <p style="margin:0 0 28px;font-size:15px;line-height:1.6;color:#a3a3a3;">
+                  Good to see you again. Tap the button below to sign in.
+                  No password needed.
+                </p>
+
+                <!-- button -->
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center">
+                  <tr>
+                    <td align="center" bgcolor="#ffffff" style="border-radius:12px;">
+                      <a href="${loginLink}"
+                         style="display:inline-block;padding:14px 36px;font-size:15px;font-weight:600;color:#000000;text-decoration:none;border-radius:12px;background:linear-gradient(180deg,#ffffff,#e2e8f0);">
+                        Sign in &rarr;
+                      </a>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- expiry -->
+                <p style="margin:28px 0 0;font-size:13px;line-height:1.5;color:#737373;">
+                  &#9201; This link expires in <strong style="color:#d4d4d4;">10 minutes</strong>
+                  and can only be used once.
+                </p>
+
+                <!-- fallback link -->
+                <div style="margin-top:28px;padding-top:24px;border-top:1px solid #2a2a2a;">
+                  <p style="margin:0 0 8px;font-size:12px;color:#737373;">
+                    Button not working? Copy and paste this link into your browser:
+                  </p>
+                  <a href="${loginLink}" style="font-size:12px;color:#a5b4fc;word-break:break-all;text-decoration:underline;">
+                    ${loginLink}
+                  </a>
+                </div>
+
+              </td>
+            </tr>
+
+            <!-- footer -->
+            <tr>
+              <td align="center" style="padding:24px 16px 0;">
+                <p style="margin:0 0 6px;font-size:12px;line-height:1.5;color:#737373;">
+                  If you didn&rsquo;t request this email, you can safely ignore it.
+                  Nobody can sign in without this link.
+                </p>
+                <p style="margin:0;font-size:12px;color:#525252;">
+                  &copy; 2026 Highkey. All rights reserved.
+                </p>
+              </td>
+            </tr>
+
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
+  `,
+
+        text: `Sign in to Highkey
+
+Use the link below to sign in:
+${loginLink}
+
+This link expires in 10 minutes and can only be used once.
+
+If you didn't request this email, you can safely ignore it.
+
+© 2026 Highkey`,
       });
 
       console.log(` login link sent to ${email}`);
