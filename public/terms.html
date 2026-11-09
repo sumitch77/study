@@ -1,176 +1,264 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms of Use | VeltoCloud</title>
-    <link rel="stylesheet" href="/output.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Terms of Use | Highkey</title>
+    <meta name="description" content="The rules for using Highkey: fair use of study resources, honest tests, one account per person, and how warnings and bans work." />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2" />
+    <link rel="stylesheet" href="/output.css" />
+  </head>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
- 
-</head>
-<body class="m-0 bg-[#FAF8F3] text-[#171B2B] font-['Inter'] leading-relaxed antialiased">
-
+  <body class="bg-neutral-50 text-neutral-800 antialiased">
     <!-- ---------- NAV ---------- -->
-   <nav class="flex items-center justify-between max-w-5xl mx-auto px-6 pt-7 pb-0">
-        <a href="/" class="flex items-center gap-2.5 font-['Space_Grotesk'] font-bold text-xl text-[#0B1D3A] no-underline hover:opacity-90 transition-opacity">
-            <span class="w-7.5 h-7.5 rounded-lg bg-[#0B1D3A] text-[#F2B705] grid place-items-center font-['Space_Grotesk'] font-bold text-base">V</span> 
-            VeltoCloud
+    <nav class="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
+      <a href="/" class="flex items-center gap-0.5 text-neutral-900 transition hover:opacity-80">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" class="h-6 w-6">
+          <path d="M12 3 2.5 21h19L12 3Z" />
+          <path d="m12 9-4 12M12 9l4 12" />
+        </svg>
+        <span class="text-xl font-medium tracking-tight">Highkey</span>
+      </a>
+
+      <div class="flex items-center gap-5">
+        <a href="/policy" class="hidden text-sm text-neutral-500 transition hover:text-neutral-900 sm:inline-block">Privacy Policy</a>
+        <a href="/login" class="flex items-center gap-1.5 rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-900 shadow-xs transition hover:border-neutral-300 hover:bg-neutral-100">
+          Back to login <span class="text-indigo-600">→</span>
         </a>
-        
-        <div class="flex items-center gap-6">
-            <a href="/" class="text-sm font-medium text-[#4B4F62] hover:text-[#0B1D3A] transition-colors no-underline hidden sm:inline-block">
-                Go to VeltoCloud
-            </a>
-            <a href="/login" class="text-sm font-semibold text-[#0B1D3A] bg-white border border-[#E4E1D6] px-4 py-2 rounded-xl shadow-xs hover:bg-[#FAF8F3] hover:border-[#C98F00] transition-all no-underline flex items-center gap-1.5">
-                Back to Login <span class="font-normal text-[#C98F00]">→</span>
-            </a>
-        </div>
+      </div>
     </nav>
 
-    <!-- ---------- Top ---------- -->
-    <header class="bg-[#0B1D3A] text-[#F4F1E8] mt-6 px-6 py-16 sm:py-18">
-        <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-14 items-start">
-            <div>
-                <span class="font-['IBM_Plex_Mono'] text-xs tracking-widest uppercase font-medium text-[#F2B705] mb-3.5 block">Terms of Use</span>
-                <h1 class="font-['Space_Grotesk'] text-4xl sm:text-5xl font-bold leading-none tracking-tight">
-                    Your data. <em class="not-italic text-[#F2B705]">Your responsibility.</em>
-                </h1>
-                <p class="mt-4.5 text-lg text-[#C9CEDD] max-w-[46ch]">
-                    These terms explain the basic rules for using VeltoCloud to store, manage, share, and analyze your content. Use the service responsibly and only upload content you have the right to use.
-                </p>
-            </div>
-
-            <div class="bg-[#142E5A] border border-amber-500/20 rounded-2xl p-6 sm:p-7">
-                <span class="font-['IBM_Plex_Mono'] text-xs tracking-widest uppercase font-medium text-[#9AB4E8] mb-1 block">Using VeltoCloud</span>
-                <h2 class="font-['Space_Grotesk'] text-lg font-bold text-white mb-5 leading-tight">A few important rules</h2>
-                <div class="flex flex-col gap-4">
-                    <div>
-                        <div class="font-['Space_Grotesk'] font-bold text-base text-white">Protect your account</div>
-                        <p class="text-sm text-[#C9CEDD] mt-1">Keep your sign-in details private and tell us if you suspect unauthorized access.</p>
-                    </div>
-                    <div>
-                        <div class="font-['Space_Grotesk'] font-bold text-base text-white">Share thoughtfully</div>
-                        <p class="text-sm text-[#C9CEDD] mt-1">You control what you share. Check access settings before making content public or sending a link.</p>
-                    </div>
-                    <div>
-                        <div class="font-['Space_Grotesk'] font-bold text-base text-white">Use AI with permission</div>
-                        <p class="text-sm text-[#C9CEDD] mt-1">Only request AI analysis of content you are authorized to submit for processing.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <!-- ---------- HERO ---------- -->
+    <header class="mx-auto max-w-5xl px-6">
+      <div class="rounded-3xl border border-white/10 bg-radial from-neutral-900 via-neutral-950 to-black p-8 text-white shadow-2xl shadow-black/20 sm:p-12">
+        <span class="mb-4 block text-xs font-medium tracking-[0.14em] text-indigo-300 uppercase">Terms of Use</span>
+        <h1 class="text-4xl font-semibold tracking-tight sm:text-5xl">
+          Learn fair. <span class="text-indigo-300">Test honest.</span>
+        </h1>
+        <p class="mt-4 max-w-xl text-base leading-7 text-neutral-400 sm:text-lg">
+          Highkey is a place to study with books, notes, practice questions, tests and previous year papers. These rules keep it fair for everyone who uses it.
+        </p>
+        <p class="mt-6 inline-block rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-neutral-400">
+          Last updated: 9 November 2026
+        </p>
+      </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-6 pt-16 pb-10">
-
-        <nav class="bg-white border border-[#E4E1D6] rounded-2xl p-6 mb-14" aria-label="Table of contents">
-            <span class="font-['IBM_Plex_Mono'] text-xs tracking-widest uppercase font-medium text-[#C98F00] mb-3 block">On this page</span>
-            <ol class="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
-                <li><a href="#acceptance" class="text-sm text-[#171B2B] no-underline hover:text-[#C98F00] transition-colors">01 — Acceptance of terms</a></li>
-                <li><a href="#accounts" class="text-sm text-[#171B2B] no-underline hover:text-[#C98F00] transition-colors">02 — Accounts &amp; security</a></li>
-                <li><a href="#content" class="text-sm text-[#171B2B] no-underline hover:text-[#C98F00] transition-colors">03 — Your content &amp; sharing</a></li>
-                <li><a href="#privacy" class="text-sm text-[#171B2B] no-underline hover:text-[#C98F00] transition-colors">04 — Privacy &amp; data handling</a></li>
-                <li><a href="#ai" class="text-sm text-[#171B2B] no-underline hover:text-[#C98F00] transition-colors">05 — AI document analysis</a></li>
-                <li><a href="#chat" class="text-sm text-[#171B2B] no-underline hover:text-[#C98F00] transition-colors">06 — VeltoChat</a></li>
-                <li><a href="#prohibited" class="text-sm text-[#171B2B] no-underline hover:text-[#C98F00] transition-colors">07 — Prohibited use</a></li>
-                <li><a href="#availability" class="text-sm text-[#171B2B] no-underline hover:text-[#C98F00] transition-colors">08 — Availability &amp; changes</a></li>
-                <li><a href="#contact" class="text-sm text-[#171B2B] no-underline hover:text-[#C98F00] transition-colors">09 — Contact us</a></li>
-            </ol>
+    <!-- ---------- BODY ---------- -->
+    <div class="mx-auto grid max-w-5xl gap-10 px-6 py-12 lg:grid-cols-[14rem_1fr]">
+      <!-- table of contents -->
+      <aside class="lg:sticky lg:top-6 lg:self-start">
+        <nav aria-label="Table of contents" class="rounded-2xl border border-neutral-200 bg-white p-3">
+          <span class="mb-2 block px-3 pt-2 text-xs font-medium tracking-[0.14em] text-indigo-600 uppercase">On this page</span>
+          <ol class="m-0 list-none p-0">
+            <li><a href="#acceptance" class="block rounded-lg px-3 py-2 text-sm text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900">01 · Acceptance</a></li>
+            <li><a href="#account" class="block rounded-lg px-3 py-2 text-sm text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900">02 · Your account</a></li>
+            <li><a href="#resources" class="block rounded-lg px-3 py-2 text-sm text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900">03 · Fair use of resources</a></li>
+            <li><a href="#tests" class="block rounded-lg px-3 py-2 text-sm text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900">04 · Honest tests</a></li>
+            <li><a href="#one-account" class="block rounded-lg px-3 py-2 text-sm text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900">05 · One person, one account</a></li>
+            <li><a href="#premium" class="block rounded-lg px-3 py-2 text-sm text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900">06 · Premium &amp; refunds</a></li>
+            <li><a href="#enforcement" class="block rounded-lg px-3 py-2 text-sm text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900">07 · Warnings &amp; bans</a></li>
+            <li><a href="#content" class="block rounded-lg px-3 py-2 text-sm text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900">08 · Content &amp; ownership</a></li>
+            <li><a href="#accuracy" class="block rounded-lg px-3 py-2 text-sm text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900">09 · Accuracy &amp; availability</a></li>
+            <li><a href="#contact" class="block rounded-lg px-3 py-2 text-sm text-neutral-600 transition hover:bg-neutral-100 hover:text-neutral-900">10 · Changes &amp; contact</a></li>
+          </ol>
         </nav>
+      </aside>
 
-        <section class="py-8.5 border-t-0 border-[#E4E1D6]" id="acceptance">
-            <span class="font-['IBM_Plex_Mono'] text-xs text-[#C98F00] block mb-2.5">§ 01</span>
-            <h2 class="font-['Space_Grotesk'] text-2xl font-bold text-[#0B1D3A] mb-3.5 leading-none">Acceptance of terms</h2>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">By accessing or using VeltoCloud, you agree to these Terms of Use. If you do not agree, do not use the service. We may update these terms as the service changes; where appropriate, we will update the version or effective date shown on this page.</p>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">The service is provided on an “as is” and “as available” basis. We cannot guarantee uninterrupted availability or that every feature will always be error-free.</p>
+      <!-- terms -->
+      <main class="min-w-0">
+        <section class="scroll-mt-6 pb-8" id="acceptance">
+          <span class="mb-2 block font-mono text-[13px] text-indigo-600">§ 01</span>
+          <h2 class="mb-3.5 text-2xl font-semibold tracking-tight text-neutral-900">Acceptance</h2>
+          <p class="mb-3.5 text-[15.5px] leading-7 text-neutral-600">
+            By creating an account or using Highkey, you agree to these Terms of Use and to our
+            <a href="/policy" class="font-medium text-indigo-600 underline underline-offset-2 hover:text-indigo-500">Privacy Policy</a>.
+            If you do not agree, please do not use Highkey.
+          </p>
+          <p class="text-[15.5px] leading-7 text-neutral-600">
+            Highkey is provided “as is” and “as available”. We work to keep it running well, but we cannot promise it will always be uninterrupted or free of errors.
+          </p>
         </section>
 
-        <section class="py-8.5 border-t border-[#E4E1D6]" id="accounts">
-            <span class="font-['IBM_Plex_Mono'] text-xs text-[#C98F00] block mb-2.5">§ 02</span>
-            <h2 class="font-['Space_Grotesk'] text-2xl font-bold text-[#0B1D3A] mb-3.5 leading-none">Accounts &amp; security</h2>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">You are responsible for keeping your account credentials secure and for activity carried out through your account. Provide accurate information where requested and notify us if you believe your account has been accessed without permission.</p>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">Security depends on the service's implementation as well as your device, account settings, and how you handle your credentials. Do not share passwords, recovery links, or other authentication secrets with people you do not trust.</p>
-            <div class="bg-[#FFF8E4] border border-[#F0DA9A] rounded-xl p-4 text-[14.5px] text-[#6B5108] mt-1.5">
-                For details about personal information and data handling, read our <a href="/Privacy-Policy" class="text-[#C98F00] font-semibold underline underline-offset-2">Privacy Policy</a>.
+        <section class="scroll-mt-6 border-t border-neutral-200 py-8" id="account">
+          <span class="mb-2 block font-mono text-[13px] text-indigo-600">§ 02</span>
+          <h2 class="mb-3.5 text-2xl font-semibold tracking-tight text-neutral-900">Your account</h2>
+          <p class="mb-3.5 text-[15.5px] leading-7 text-neutral-600">
+            You can sign up with an email and password, or with Google. When you do:
+          </p>
+          <ul class="mb-3.5 list-disc space-y-2 pl-5 text-[15.5px] leading-7 text-neutral-600 marker:text-neutral-400">
+            <li>Give us accurate information, and only use an email address that belongs to you.</li>
+            <li>Keep your password private. Never share it, or any sign-in or password reset link we email you, with anyone. Those links expire quickly and are meant for you only.</li>
+            <li>You are responsible for everything that happens through your account.</li>
+            <li>Tell us straight away if you think someone else has got into your account.</li>
+          </ul>
+        </section>
+
+        <section class="scroll-mt-6 border-t border-neutral-200 py-8" id="resources">
+          <span class="mb-2 block font-mono text-[13px] text-indigo-600">§ 03</span>
+          <h2 class="mb-3.5 text-2xl font-semibold tracking-tight text-neutral-900">Fair use of study resources</h2>
+          <p class="mb-3.5 text-[15.5px] leading-7 text-neutral-600">
+            Books, notes, practice questions, tests, previous year papers and everything else on Highkey are there for <strong class="font-semibold text-neutral-900">your own personal study</strong>. You may not:
+          </p>
+          <ul class="mb-3.5 list-disc space-y-2 pl-5 text-[15.5px] leading-7 text-neutral-600 marker:text-neutral-400">
+            <li>Copy, scrape or bulk download material, whether by hand, with scripts, bots or browser extensions.</li>
+            <li>Sell, repost or hand out our material to others, including on other websites, apps, groups or channels.</li>
+            <li>Share your account, or any premium access, with other people.</li>
+            <li>Get around limits, paywalls, rate limits or access controls, or help anyone else do so.</li>
+            <li>Send automated or repeated requests that slow the service down for other students.</li>
+          </ul>
+          <p class="text-[15.5px] leading-7 text-neutral-600">
+            Studying, revising and making your own notes from what you read are exactly what Highkey is for.
+          </p>
+        </section>
+
+        <section class="scroll-mt-6 border-t border-neutral-200 py-8" id="tests">
+          <span class="mb-2 block font-mono text-[13px] text-indigo-600">§ 04</span>
+          <h2 class="mb-3.5 text-2xl font-semibold tracking-tight text-neutral-900">Honest tests</h2>
+          <p class="mb-3.5 text-[15.5px] leading-7 text-neutral-600">
+            Tests only help you if your score is real. Practice questions are for learning, so use your notes and books freely there. When you take a <strong class="font-semibold text-neutral-900">test</strong>, you must do it yourself. You may not:
+          </p>
+          <ul class="mb-3.5 list-disc space-y-2 pl-5 text-[15.5px] leading-7 text-neutral-600 marker:text-neutral-400">
+            <li>Get answers from another person, a group chat or a website while taking a test.</li>
+            <li>Use AI tools, solver apps or scripts to answer test questions.</li>
+            <li>Take a test for someone else, or let someone else take yours.</li>
+            <li>Share test questions, answers or answer keys with others, or post them online.</li>
+            <li>Tamper with timers, scores, requests or results, or use a bug to gain marks.</li>
+            <li>Retake the same test through extra accounts to see or memorise the questions.</li>
+          </ul>
+        </section>
+
+        <section class="scroll-mt-6 border-t border-neutral-200 py-8" id="one-account">
+          <span class="mb-2 block font-mono text-[13px] text-indigo-600">§ 05</span>
+          <h2 class="mb-3.5 text-2xl font-semibold tracking-tight text-neutral-900">One person, one account</h2>
+          <p class="mb-3.5 text-[15.5px] leading-7 text-neutral-600">
+            Every person may have one Highkey account. You may not:
+          </p>
+          <ul class="mb-3.5 list-disc space-y-2 pl-5 text-[15.5px] leading-7 text-neutral-600 marker:text-neutral-400">
+            <li>Create more than one account for yourself.</li>
+            <li>Create a new account to avoid a warning, a ban or any limit on your old one.</li>
+            <li>Use extra accounts to collect free access, trials or benefits more than once.</li>
+            <li>Make fake accounts, or sign up with someone else’s email address.</li>
+            <li>Run accounts for other people.</li>
+          </ul>
+          <div class="rounded-2xl border border-indigo-100 bg-indigo-50 p-4 text-[14.5px] leading-6 text-indigo-950">
+            Lost access to your old account? Email us instead of making a new one, and we will help you get back in.
+          </div>
+        </section>
+
+        <section class="scroll-mt-6 border-t border-neutral-200 py-8" id="premium">
+          <span class="mb-2 block font-mono text-[13px] text-indigo-600">§ 06</span>
+          <h2 class="mb-3.5 text-2xl font-semibold tracking-tight text-neutral-900">Premium &amp; refunds</h2>
+          <p class="mb-4 text-[15.5px] leading-7 text-neutral-600">
+            Premium gives your account extra access to Highkey’s study resources. What is included, and the price, are shown before you pay. Premium is for <strong class="font-semibold text-neutral-900">you only</strong>. It cannot be shared, transferred or resold.
+          </p>
+
+          <div class="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-5">
+            <span class="mb-1 block text-xs font-medium tracking-[0.14em] text-emerald-700 uppercase">Cancel within 7 days</span>
+            <h3 class="mb-2 text-lg font-semibold text-emerald-950">Full refund, no questions asked</h3>
+            <p class="text-sm leading-6 text-emerald-900">
+              If you change your mind, cancel within 7 days of buying premium and we will refund you in full. You do not need to give a reason. Email us from the address on your account, and we will send the refund to the payment method you used. How long it takes to show up depends on your bank or payment provider. When you cancel, premium access ends.
+            </p>
+          </div>
+
+          <p class="mb-5 text-[15.5px] leading-7 text-neutral-600">
+            After the 7 days, premium is not refundable unless the law says otherwise.
+          </p>
+
+          <h3 class="mb-2 text-lg font-semibold text-neutral-900">What premium does not give you</h3>
+          <ul class="mb-5 list-disc space-y-2 pl-5 text-[15.5px] leading-7 text-neutral-600 marker:text-neutral-400">
+            <li>Premium does <strong class="font-semibold text-neutral-900">not</strong> give you any right to copy, bulk download, share, post, sell or distribute our material. Everything in “Fair use of study resources” still applies to premium users.</li>
+            <li>You do not own the material. You are paying for personal access to it.</li>
+            <li>Cancelling or getting a refund does not let you keep copies. Delete anything you saved.</li>
+          </ul>
+
+          <h3 class="mb-2 text-lg font-semibold text-neutral-900">Fraud and stealing material</h3>
+          <ul class="mb-3.5 list-disc space-y-2 pl-5 text-[15.5px] leading-7 text-neutral-600 marker:text-neutral-400">
+            <li>Payment fraud is not allowed. That includes paying with a card, UPI or account that is not yours or that you have no permission to use, and fake or false payment claims or disputes.</li>
+            <li>Buying premium just to take the material and then asking for a refund counts as stealing, even if it happens inside the 7 days.</li>
+            <li>If we find fraud, or stealing or distributing premium material, we may cancel premium straight away and ban the account and any linked accounts. <strong class="font-semibold text-neutral-900">You will not get a refund</strong>, and we may take any other action the law allows.</li>
+          </ul>
+        </section>
+
+        <section class="scroll-mt-6 border-t border-neutral-200 py-8" id="enforcement">
+          <span class="mb-2 block font-mono text-[13px] text-indigo-600">§ 07</span>
+          <h2 class="mb-3.5 text-2xl font-semibold tracking-tight text-neutral-900">Warnings &amp; bans</h2>
+          <p class="mb-5 text-[15.5px] leading-7 text-neutral-600">
+            We would rather help you get back on track than remove you. This is how it works when we find misuse of resources, cheating in tests, or extra accounts:
+          </p>
+
+          <div class="mb-5 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+              <span class="mb-1 block text-xs font-medium tracking-[0.14em] text-amber-700 uppercase">Step 1</span>
+              <h3 class="mb-2 text-lg font-semibold text-amber-950">Warning</h3>
+              <p class="text-sm leading-6 text-amber-900">
+                We email you to say what we found. We may also remove the affected results, scores, extra accounts or access.
+              </p>
             </div>
+            <div class="rounded-2xl border border-red-200 bg-red-50 p-5">
+              <span class="mb-1 block text-xs font-medium tracking-[0.14em] text-red-700 uppercase">Step 2</span>
+              <h3 class="mb-2 text-lg font-semibold text-red-950">Ban</h3>
+              <p class="text-sm leading-6 text-red-900">
+                If misuse continues or happens again after a warning, your account (and any linked accounts) can be suspended or permanently banned.
+              </p>
+            </div>
+          </div>
+
+          <ul class="mb-3.5 list-disc space-y-2 pl-5 text-[15.5px] leading-7 text-neutral-600 marker:text-neutral-400">
+            <li>Serious cases, such as stealing or distributing our material, payment fraud, attacking or hacking the service, or harassment, can lead straight to a ban without a warning.</li>
+            <li>If you are banned for stealing material or for fraud, you will not get a refund for premium.</li>
+            <li>If you are banned, you may not create new accounts. Any new account made to get round a ban can be banned too.</li>
+            <li>Access to the content, progress and results on a banned account may be removed.</li>
+            <li>If you think we got it wrong, email us. We will take another look and reply.</li>
+          </ul>
         </section>
 
-        <section class="py-8.5 border-t border-[#E4E1D6]" id="content">
-            <span class="font-['IBM_Plex_Mono'] text-xs text-[#C98F00] block mb-2.5">§ 03</span>
-            <h2 class="font-['Space_Grotesk'] text-2xl font-bold text-[#0B1D3A] mb-3.5 leading-none">Your content &amp; sharing</h2>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">You retain responsibility for the text, documents, images, credentials, and other content you upload or create. You must have the rights and permissions needed to store, use, or share that content.</p>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">You are responsible for choosing whether content is private or shared. Content you make public, or share through an accessible link, may be viewed or copied by other people. Review sharing settings carefully, especially before sharing sensitive information.</p>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">Do not use VeltoCloud to store or distribute unlawful content, malware, stolen credentials, or material that violates another person's rights.</p>
+        <section class="scroll-mt-6 border-t border-neutral-200 py-8" id="content">
+          <span class="mb-2 block font-mono text-[13px] text-indigo-600">§ 08</span>
+          <h2 class="mb-3.5 text-2xl font-semibold tracking-tight text-neutral-900">Content &amp; ownership</h2>
+          <p class="mb-3.5 text-[15.5px] leading-7 text-neutral-600">
+            Highkey’s books, notes, questions, tests and design belong to Highkey or to the people who own them. We give you a limited, personal right to use them for your own study. That right cannot be transferred or sold.
+          </p>
+          <p class="text-[15.5px] leading-7 text-neutral-600">
+            If you send us anything (feedback, messages, reports), you still own it, but you let us use it to run and improve Highkey. Only send us things you have the right to send.
+          </p>
         </section>
 
-        <section class="py-8.5 border-t border-[#E4E1D6]" id="privacy">
-            <span class="font-['IBM_Plex_Mono'] text-xs text-[#C98F00] block mb-2.5">§ 04</span>
-            <h2 class="font-['Space_Grotesk'] text-2xl font-bold text-[#0B1D3A] mb-3.5 leading-none">Privacy &amp; data handling</h2>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">VeltoCloud is designed to help you store and manage your content with privacy in mind. Data handling, encryption, access controls, and retention depend on the features and technical systems used to provide the service.</p>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">Do not assume that every item is end-to-end encrypted or inaccessible to service operators unless the relevant feature explicitly provides that protection. Avoid uploading highly sensitive information unless you understand the protections and limitations that apply.</p>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">Our Privacy Policy explains what information may be collected, why it is processed, and how to contact us about privacy-related questions.</p>
+        <section class="scroll-mt-6 border-t border-neutral-200 py-8" id="accuracy">
+          <span class="mb-2 block font-mono text-[13px] text-indigo-600">§ 09</span>
+          <h2 class="mb-3.5 text-2xl font-semibold tracking-tight text-neutral-900">Accuracy &amp; availability</h2>
+          <p class="mb-3.5 text-[15.5px] leading-7 text-neutral-600">
+            Study material, answers and solutions can contain mistakes. Check important facts against your official textbooks and syllabus. Highkey cannot promise any particular marks, rank or exam result.
+          </p>
+          <p class="text-[15.5px] leading-7 text-neutral-600">
+            Features may change, pause or be removed. Keep your own copy of anything important you write or save.
+          </p>
         </section>
 
-        <section class="py-8.5 border-t border-[#E4E1D6]" id="ai">
-            <span class="font-['IBM_Plex_Mono'] text-xs text-[#C98F00] block mb-2.5">§ 05</span>
-            <h2 class="font-['Space_Grotesk'] text-2xl font-bold text-[#0B1D3A] mb-3.5 leading-none">AI document analysis</h2>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">If you choose to use AI analysis, you authorize the selected content to be processed for that request. Only submit content you are permitted to share with the relevant AI service, and review any additional disclosures shown when using the feature.</p>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">AI-generated summaries, explanations, translations, and answers may be inaccurate or incomplete. Check important information independently and do not rely on AI output as professional legal, medical, financial, or other expert advice.</p>
+        <section class="scroll-mt-6 border-t border-neutral-200 pt-8" id="contact">
+          <span class="mb-2 block font-mono text-[13px] text-indigo-600">§ 10</span>
+          <h2 class="mb-3.5 text-2xl font-semibold tracking-tight text-neutral-900">Changes &amp; contact</h2>
+          <p class="mb-3.5 text-[15.5px] leading-7 text-neutral-600">
+            We may update these terms as Highkey grows. When we do, we will change the “Last updated” date at the top of this page. If you keep using Highkey after an update, you accept the new terms.
+          </p>
+          <p class="text-[15.5px] leading-7 text-neutral-600">
+            Questions, warnings you want to discuss, or an appeal? Write to us at
+            <a href="mailto:sumit28@zohomail.in" class="font-medium text-indigo-600 underline underline-offset-2 hover:text-indigo-500">sumit28@zohomail.in</a>.
+          </p>
         </section>
-
-        <section class="py-8.5 border-t border-[#E4E1D6]" id="chat">
-            <span class="font-['IBM_Plex_Mono'] text-xs text-[#C98F00] block mb-2.5">§ 06</span>
-            <h2 class="font-['Space_Grotesk'] text-2xl font-bold text-[#0B1D3A] mb-3.5 leading-none">VeltoChat</h2>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">VeltoChat may relay messages through our servers without retaining them as chat history. Messages must be transmitted through server infrastructure to reach recipients, and temporary processing, network logs, or technical metadata may still exist depending on system operation.</p>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">Transport encryption such as TLS protects data in transit, but does not by itself mean messages are end-to-end encrypted or unreadable by the server while being relayed. Do not use VeltoChat to transmit information requiring protections the service does not provide.</p>
-        </section>
-
-        <section class="py-8.5 border-t border-[#E4E1D6]" id="prohibited">
-            <span class="font-['IBM_Plex_Mono'] text-xs text-[#C98F00] block mb-2.5">§ 07</span>
-            <h2 class="font-['Space_Grotesk'] text-2xl font-bold text-[#0B1D3A] mb-3.5 leading-none">Prohibited use</h2>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">You may not use VeltoCloud to:</p>
-            <ul class="mb-3.5 pl-5 text-[#4B4F62] text-[15.5px] list-disc space-y-1.5">
-                <li>Break the law or violate another person's privacy or intellectual-property rights.</li>
-                <li>Upload malware, conduct phishing, distribute stolen credentials, or facilitate fraud.</li>
-                <li>Attempt to bypass authentication, access controls, usage limits, or other security measures.</li>
-                <li>Interfere with the service, its infrastructure, or other users' access.</li>
-                <li>Use the service to threaten, harass, exploit, or harm others.</li>
-            </ul>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">We may restrict access to content or accounts when reasonably necessary to protect users, the service, or comply with applicable law.</p>
-        </section>
-
-        <section class="py-8.5 border-t border-[#E4E1D6]" id="availability">
-            <span class="font-['IBM_Plex_Mono'] text-xs text-[#C98F00] block mb-2.5">§ 08</span>
-            <h2 class="font-['Space_Grotesk'] text-2xl font-bold text-[#0B1D3A] mb-3.5 leading-none">Availability &amp; changes</h2>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">Features may change, be interrupted, or become unavailable. You should keep your own backup of important content and not rely on VeltoCloud as the only copy of critical files or credentials.</p>
-            <p class="text-[#4B4F62] text-[15.5px] mb-3.5">We may update these terms as the service evolves. Continued use after updated terms are posted indicates acceptance of the updated terms where permitted by applicable law.</p>
-        </section>
-    </main>
+      </main>
+    </div>
 
     <!-- ---------- FOOTER ---------- -->
-    <footer class="bg-[#0B1D3A] text-[#C9CEDD] px-6 py-12 mt-10">
-        <div class="max-w-5xl mx-auto flex flex-col gap-8">
-            <section class="pb-8 border-b border-white/10" id="contact">
-                <span class="font-['IBM_Plex_Mono'] text-xl text-[#F2B705] block mb-2.5">Contact Us</span>
-                <h2 class="font-['Space_Grotesk'] text-xl font-bold text-white mb-3 leading-none">Questions about these terms?</h2>
-                <p class="text-[#C9CEDD] text-[15.5px] m-0">
-                    Contact us at
-                    <a href="mailto:sumit28@zohomail.in" class="text-[#F2B705] font-semibold underline underline-offset-2 hover:text-white transition-colors">sumit28@zohomail.in</a>.
-                </p>
-            </section>
-            <div class="flex flex-wrap items-center justify-between gap-4.5">
-                <div>
-                    <h3 class="font-['Space_Grotesk'] text-lg font-bold text-white mb-1.5 leading-none">Your data. Your choice.</h3>
-                    <p class="m-0 text-sm text-[#9BA3BC]">Store and share responsibly with VeltoCloud.</p>
-                </div>
-                <div class="text-xs font-['IBM_Plex_Mono'] text-[#9BA3BC]">
-                    © 2026 Sumit7.website. All rights reserved.
-                </div>
-            </div>
+    <footer class="border-t border-neutral-200">
+      <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-6 text-xs text-neutral-500">
+        <p>© 2026 Highkey. All rights reserved.</p>
+        <div class="flex gap-6">
+          <a href="/policy" class="transition hover:text-neutral-900">Privacy Policy</a>
+          <a href="/terms" class="font-medium text-neutral-900">Terms of Use</a>
+          <a href="mailto:sumit28@zohomail.in" class="transition hover:text-neutral-900">Contact</a>
         </div>
+      </div>
     </footer>
-</body>
+  </body>
 </html>

@@ -89,7 +89,13 @@
         <!-- footer -->
         <footer class="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 px-6 py-5 text-xs text-neutral-500">
           <p>© 2026 Highkey. All rights reserved.</p>
-          <div id="footerLinks" class="flex flex-wrap gap-6"></div>
+          <div id="footerLinks" class="flex flex-wrap gap-6">
+             <a href="/about" class="transition hover:text-white">about</a>
+         <a href="/help" class="transition hover:text-white">help</a>
+         <a href="/policy" class="transition hover:text-white">policy</a>
+         <a href="/terms" class="transition hover:text-white">terms</a>
+
+          </div>
         </footer>
       </div>
     </div>
@@ -136,8 +142,6 @@
         { title: "Take a test", text: "Put your knowledge to the test.", icon: "test", href: "#", bg: "/assets/Taketest.png" },
       ];
 
-      const footerLinks = ["About us", "Contact", "Privacy Policy", "Terms and Conditions"];
-
       // ---------- render ----------
       function sidebarHTML() {
         const items = navItems
@@ -159,7 +163,7 @@
           <nav class="flex flex-col gap-1 px-3 py-2">
             ${items}
             <div class="my-2 border-t border-white/5"></div>
-            <a href="#" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-neutral-400 transition hover:bg-white/5 hover:text-white">${icon("support", "h-4 w-4")}Help</a>
+            <a href="/help" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-neutral-400 transition hover:bg-white/5 hover:text-white">${icon("support", "h-4 w-4")}Help</a>
           </nav>
           <p class="mt-auto px-5 py-5 text-xs text-neutral-500">Your space for what’s next.</p>`;
       }
@@ -187,9 +191,7 @@
         )
         .join("");
 
-      document.getElementById("footerLinks").innerHTML = footerLinks
-        .map((label) => `<a href="#" class="transition hover:text-white">${label}</a>`)
-        .join("");
+    
 
       // fill the static icon placeholders
       document.querySelectorAll("[data-icon]").forEach((el) => {

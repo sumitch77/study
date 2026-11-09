@@ -35,6 +35,12 @@ router.get("/policy", async (req, res) => {
 router.get("/terms", async (req, res) => {
   return res.sendFile(path.join(__dirname, "../public/terms.html"));
 });
+router.get("/help", async (req, res) => {
+  return res.sendFile(path.join(__dirname, "../public/help.html"));
+});
+router.get("/about", async (req, res) => {
+  return res.sendFile(path.join(__dirname, "../public/about.html"));
+});
 router.get("/sitemap.xml", async (req, res) => {
   return res.sendFile(path.join(__dirname, "../public/sitemap.xml"));
 });

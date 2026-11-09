@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Help | Highkey</title>
+    <meta name="description" content="Answers to common questions about Highkey: getting started, your progress, premium, refunds, study material, tests and accounts." />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico?v=2" />
+    <link rel="stylesheet" href="/output.css" />
+  </head>
+
+  <body class="bg-neutral-50 text-neutral-800 antialiased">
+    <!-- ---------- NAV ---------- -->
+    <nav class="mx-auto flex max-w-5xl items-center justify-between px-6 py-5">
+      <a href="/" class="flex items-center gap-0.5 text-neutral-900 transition hover:opacity-80">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" class="h-6 w-6">
+          <path d="M12 3 2.5 21h19L12 3Z" />
+          <path d="m12 9-4 12M12 9l4 12" />
+        </svg>
+        <span class="text-xl font-medium tracking-tight">Highkey</span>
+      </a>
+
+      <div class="flex items-center gap-5">
+        <a href="/about" class="hidden text-sm text-neutral-500 transition hover:text-neutral-900 sm:inline-block">About us</a>
+        <a href="/" class="flex items-center gap-1.5 rounded-xl border border-neutral-200 bg-white px-4 py-2 text-sm font-medium text-neutral-900 shadow-xs transition hover:border-neutral-300 hover:bg-neutral-100">
+          Go to Highkey <span class="text-indigo-600">→</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- ---------- HERO ---------- -->
+    <header class="mx-auto max-w-5xl px-6">
+      <div class="rounded-3xl border border-white/10 bg-radial from-neutral-900 via-neutral-950 to-black p-8 text-white shadow-2xl shadow-black/20 sm:p-12">
+        <span class="mb-4 block text-xs font-medium tracking-[0.14em] text-indigo-300 uppercase">Help centre</span>
+        <h1 class="text-4xl font-semibold tracking-tight sm:text-5xl">
+          How can we <span class="text-indigo-300">help?</span>
+        </h1>
+        <p class="mt-4 max-w-xl text-base leading-7 text-neutral-400 sm:text-lg">
+          Quick answers about using Highkey, your progress, premium and the rules. Tap a question to read the answer.
+        </p>
+      </div>
+    </header>
+
+    <!-- ---------- FAQ ---------- -->
+    <main class="mx-auto max-w-3xl px-6 py-12">
+      <span class="mb-2 block font-mono text-[13px] text-indigo-600">FAQ</span>
+      <h2 class="mb-6 text-2xl font-semibold tracking-tight text-neutral-900">Frequently asked questions</h2>
+
+      <div id="faqList" class="space-y-3"></div>
+
+      <!-- still need help -->
+      <div class="mt-10 rounded-3xl border border-white/10 bg-radial from-neutral-900 via-neutral-950 to-black p-8 text-center text-white shadow-2xl shadow-black/20">
+        <h2 class="text-xl font-semibold tracking-tight">Still need help?</h2>
+        <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-neutral-400">
+          For any further queries, mail us and we will get back to you as soon as we can.
+        </p>
+        <a
+          href="mailto:sumit28@zohomail.in?subject=Highkey%20help"
+          class="mt-5 inline-flex items-center gap-2 rounded-xl bg-linear-to-b from-white to-slate-200 px-5 py-3 text-sm font-medium text-black transition hover:from-slate-100 hover:to-slate-300"
+        >
+          sumit28@zohomail.in
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4">
+            <path d="M5 12h14" />
+            <path d="m12 5 7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+    </main>
+
+    <!-- ---------- FOOTER ---------- -->
+    <footer class="border-t border-neutral-200">
+      <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-6 py-6 text-xs text-neutral-500">
+        <p>© 2026 Highkey. All rights reserved.</p>
+        <div class="flex flex-wrap gap-6">
+          <a href="/help" class="font-medium text-neutral-900">Help</a>
+          <a href="/about" class="transition hover:text-neutral-900">About us</a>
+          <a href="/policy" class="transition hover:text-neutral-900">Privacy Policy</a>
+          <a href="/terms" class="transition hover:text-neutral-900">Terms of Use</a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const LINK = "font-medium text-indigo-600 underline underline-offset-2 hover:text-indigo-500";
+      const MAIL = `<a href="mailto:sumit28@zohomail.in" class="${LINK}">sumit28@zohomail.in</a>`;
+
+      // ---------- the 10 questions ----------
+      const faqs = [
+        {
+          q: "What is Highkey and what can I find here?",
+          a: `<p>Highkey is a study platform that puts everything you need in one place: <strong class="font-semibold text-neutral-900">books, notes, practice questions, tests and previous year papers (PYQ)</strong>. You can study subject by subject, practise, test yourself and see how you are doing.</p>`,
+        },
+        {
+          q: "How do I get started?",
+          a: `<p>Create an account with your email and a password, or sign in with Google. Once you are in, use the menu on the left (the menu button on a phone) to open <strong class="font-semibold text-neutral-900">Books, Notes, Practice Questions, Test</strong> or <strong class="font-semibold text-neutral-900">PYQ</strong>. A good routine is to read a book or note, practise questions on it, and then try a test.</p>`,
+        },
+        {
+          q: "How does my progress work?",
+          a: `<p>Highkey keeps track of your practice and test attempts, including your answers and scores, so you can see how you are improving. You can see it in the <strong class="font-semibold text-neutral-900">Your progress</strong> section on your home page. Your progress belongs to your account only.</p>`,
+        },
+        {
+          q: "What do I get with Premium?",
+          a: `<p>Premium gives your account extra access to Highkey’s study resources. What is included and the price are shown clearly before you pay, so you always know what you are buying. Premium is for you only, so it cannot be shared with other people.</p>`,
+        },
+        {
+          q: "Can I get a refund on Premium?",
+          a: `<p>Yes. If you change your mind, <strong class="font-semibold text-neutral-900">cancel within 7 days of buying and you get a full refund</strong>, with no reason needed. Email us from the address on your account and we will send the refund to the payment method you used. After 7 days, premium is not refundable unless the law says otherwise. A refund is not available if premium was bought to take or share the material. Read the full details in our <a href="/terms#premium" class="${LINK}">Terms of Use</a>.</p>`,
+        },
+        {
+          q: "Can I download or share the study material?",
+          a: `<p>Highkey material is for your own personal study. Copying, bulk downloading, sharing, posting or selling it is not allowed, and buying premium does not change that. Stealing or distributing material can lead to a ban with no refund. See “Fair use of study resources” in our <a href="/terms#resources" class="${LINK}">Terms of Use</a>.</p>`,
+        },
+        {
+          q: "What are the rules for tests and accounts?",
+          a: `<p>Take tests on your own, with no help from other people, websites or AI tools, and never share test questions or answers. Each person may have <strong class="font-semibold text-neutral-900">one account only</strong>. If we find misuse, we send a warning first, and if it continues the account can be banned. Practice questions are different: use your notes and books freely there. More in our <a href="/terms#tests" class="${LINK}">Terms of Use</a>.</p>`,
+        },
+        {
+          q: "I forgot my password or cannot sign in. What should I do?",
+          a: `<p>On the login page, tap <strong class="font-semibold text-neutral-900">Forgot password?</strong>, enter your email, and we will send you a reset link. The link works once and expires within minutes, so use it soon. For safety, we show the same message whether or not the email has an account. If nothing arrives, check your spam folder. If you signed up with Google, use <strong class="font-semibold text-neutral-900">Login with Google</strong> instead.</p>`,
+        },
+        {
+          q: "I found a mistake in a question or an answer. How do I report it?",
+          a: `<p>Thank you for telling us. Email ${MAIL} with the subject, the book or page name, and what looks wrong. We check every report and update Highkey regularly, so corrections go live for everyone.</p>`,
+        },
+        {
+          q: "How do I get a copy of my data or delete my account?",
+          a: `<p>Email us from the address on your account at ${MAIL} and tell us what you need: a copy of your data, a correction, or account deletion. We may ask you to confirm it is really you first. You can read how we handle your information in our <a href="/policy" class="${LINK}">Privacy Policy</a>.</p>`,
+        },
+      ];
+
+      // ---------- render ----------
+      const list = document.getElementById("faqList");
+
+      list.innerHTML = faqs
+        .map(
+          (f, i) => `
+          <div data-open="false" class="group rounded-2xl border border-neutral-200 bg-white transition hover:border-neutral-300 data-[open=true]:border-indigo-200 data-[open=true]:shadow-sm">
+            <h3>
+              <button
+                type="button"
+                id="faq-btn-${i}"
+                aria-expanded="false"
+                aria-controls="faq-panel-${i}"
+                class="flex w-full cursor-pointer items-center justify-between gap-4 rounded-2xl px-5 py-4 text-left outline-none focus-visible:ring-2 focus-visible:ring-indigo-300"
+              >
+                <span class="text-[15.5px] font-medium text-neutral-900">${f.q}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 shrink-0 text-neutral-400 transition-transform duration-300 group-data-[open=true]:rotate-180 group-data-[open=true]:text-indigo-600">
+                  <path d="m6 9 6 6 6-6" />
+                </svg>
+              </button>
+            </h3>
+            <div
+              id="faq-panel-${i}"
+              role="region"
+              aria-labelledby="faq-btn-${i}"
+              inert
+              class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-out group-data-[open=true]:grid-rows-[1fr]"
+            >
+              <div class="overflow-hidden">
+                <div class="px-5 pb-5 text-[15.5px] leading-7 text-neutral-600">${f.a}</div>
+              </div>
+            </div>
+          </div>`,
+        )
+        .join("");
+
+      // ---------- click to show, click again to hide ----------
+      list.addEventListener("click", (e) => {
+        const btn = e.target.closest("button[aria-controls]");
+        if (!btn) return;
+
+        const item = btn.closest("[data-open]");
+        const panel = document.getElementById(btn.getAttribute("aria-controls"));
+        const willOpen = btn.getAttribute("aria-expanded") !== "true";
+
+        btn.setAttribute("aria-expanded", String(willOpen));
+        item.dataset.open = String(willOpen);
+        panel.inert = !willOpen; // hidden answers can't be tabbed into
+      });
+    </script>
+  </body>
+</html>
