@@ -428,7 +428,7 @@ router2.get("/linklogin", generalLimiter, login, async (req, res) => {
       .from("userTable")
       .update({ role: "user" })
       .eq("email", data.email)
-      .select()
+      .select("user_id, email, username")
       .maybeSingle();
 
     const { error: updateError } = await supabase
@@ -442,8 +442,8 @@ router2.get("/linklogin", generalLimiter, login, async (req, res) => {
       return res.status(500).send("Failed to contact with database.");
     }
 
-    req.session.userId = data.user_id;
-    req.session.useremail = data.email;
+    req.session.userId = user.user_id;
+    req.session.useremail = user.email;
     req.session.username = user.username;
 
     res.send(`

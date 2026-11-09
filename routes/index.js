@@ -41,10 +41,13 @@ router.get("/sitemap.xml", async (req, res) => {
 router.get(
   ["/books", "/notes", "/practice", "/pyq", "/test"],
   async (req, res) => {
+    if (!req.session.userId) {
+      return res.redirect("/login");
+    }
     return res.sendFile(path.join(__dirname, "../views/books.html"));
   },
 );
-router.get("/userTable", async (req, res) => {
+router.get("/userinfo", async (req, res) => {
   if (!req.session.userId) {
     return res.status(401).json({ success: false, message: "Unauthorized" });
   }
