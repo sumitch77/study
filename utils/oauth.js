@@ -30,6 +30,8 @@ router4.get(
     req.session.username = req.user.username;
     req.session.userId = req.user.user_id;
     req.session.useremail = req.user.email;
+    req.session.premium = req.user.premium;
+    req.session.class = req.user.class;
     if (req.user.email === process.env.ADMINEMAIL) {
       req.session.admin = true;
     }

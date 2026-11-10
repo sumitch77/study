@@ -100,16 +100,6 @@ const emailLimiter2 = rateLimit({
   handler: tooMany("Too many attempts for this email"),
 });
 
-const forgotlimitter = rateLimit({
-  windowMs: 24 * 60 * 60 * 1000,
-  limit: 2,
-  keyGenerator: (req) => {
-    const email = canonicalEmail(req.body?.email) || "";
-    return crypto.createHash("sha256").update(`${email}`).digest("hex");
-  },
-  handler: tooMany("Invalid Email or Too Many requests"),
-});
-
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 function length(req, res, next) {
@@ -138,16 +128,6 @@ function length(req, res, next) {
   next();
 }
 
-const forgotiplimiter = rateLimit({
-  windowMs: 60 * 1000,
-  limit: 200,
-  keyGenerator: (req) => {
-    const ip = ipKeyGenerator(req.ip);
-    return crypto.createHash("sha256").update(`${ip}`).digest("hex");
-  },
-  handler: tooMany("Too Many requests from this IP"),
-});
-
 module.exports = {
   fingerprintLimiter,
   emailLimiter,
@@ -156,7 +136,5 @@ module.exports = {
   extremeLimiter,
   loginLimiter,
   canonicalEmail,
-  forgotlimitter,
   length,
-  forgotiplimiter,
 };

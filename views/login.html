@@ -182,7 +182,7 @@
         });
         const result2 = await captchaResponse.json();
         if(!result2.success){
-          msg.innerText = "captcha verification failed , Please Reload site before trying again";
+          messageEl.innerText = "captcha verification failed , Please Reload site before trying again";
           return;
         }
 

@@ -136,8 +136,8 @@
     <script>
   
 
-      const SIGNUP_COOLDOWN = 7000; // 7 sec
-      const GOOGLE_COOLDOWN = 4000; // 4 sec
+      const SIGNUP_COOLDOWN = 7000; 
+      const GOOGLE_COOLDOWN = 4000; 
 
       const form = document.getElementById("signupForm");
       const messageEl = document.getElementById("message");
@@ -188,8 +188,14 @@
       // ---- signup ----
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
+        
+     
         if (signupBtn.disabled) return;
-
+   if (!body.terms) {
+    cooldownButton(signupBtn , 3000);
+          showMessage("Please accept the Privacy Policy and Terms and Conditions");
+          return;
+        }
         cooldownButton(signupBtn, SIGNUP_COOLDOWN);
 
         const body = Object.fromEntries(new FormData(form).entries());
@@ -204,10 +210,6 @@
           return;
         }
 
-        if (!body.terms) {
-          showMessage("Please accept the Privacy Policy and Terms and Conditions");
-          return;
-        }
 
         if (body.password !== body.confirmPassword) {
           showMessage("Passwords do not match");
@@ -232,7 +234,7 @@
         });
         const result2 = await captchaResponse.json();
         if(!result2.success){
-          msg.innerText = "captcha verification failed , Please Reload site before trying again";
+          messageEl.innerText = "captcha verification failed , Please Reload site before trying again";
           return;
         }
 
@@ -246,7 +248,9 @@
           const data = await res.json();
 
           if (data.success) {
-            showMessage(data.message);
+          messageEl.classList.replace('text-red-500' , 'text-green-500');
+          messageEl.innerText = 'The Email has been sent \n If it does not arrive , please look in spam folder';
+          
           } else {
             showMessage(data.message);
           }

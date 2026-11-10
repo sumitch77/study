@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Books - Highkey</title>
+    <title>Test - Highkey</title>
     <link rel="stylesheet" href="/output.css" />
      <style type="text/tailwindcss">
       @keyframes shimmer {
@@ -164,10 +164,10 @@
         <footer class="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 px-6 py-5 text-xs text-neutral-500">
           <p>© 2026 Highkey. All rights reserved.</p>
           <div id="footerLinks" class="flex flex-wrap gap-6">
-         <a href="/about" class="transition hover:text-white">about</a>
-         <a href="/help" class="transition hover:text-white">help</a>
-         <a href="/policy" class="transition hover:text-white">policy</a>
-         <a href="/terms" class="transition hover:text-white">terms</a>
+         <a href="/about" class="transition hover:text-white">About Us</a>
+         <a href="/help" class="transition hover:text-white">Help</a>
+         <a href="/policy" class="transition hover:text-white">Privay Policy</a>
+         <a href="/terms" class="transition hover:text-white">Terms</a>
 
           </div>
         </footer>
@@ -195,6 +195,8 @@
         arrow: `<path d="M7 7h10v10" /><path d="M7 17 17 7" />`,
         menu: `<path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />`,
         close: `<path d="M18 6 6 18" /><path d="m6 6 12 12" />`,
+        letterA: '<path d="M12 3L2 21h4l2.5-5h7l2.5 5h4L12 3zm0 4.5l4.5 9.5h-9L12 7.5z" />',
+        hindiChotaA: '<path d="M6 4V20 M18 4V20 M6 12H18" />',
         globe: `<circle cx="12" cy="12" r="10" /><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" /><path d="M2 12h20" />`,
         calculator: `<rect width="16" height="20" x="4" y="2" rx="2" /><line x1="8" x2="16" y1="6" y2="6" /><line x1="16" x2="16" y1="14" y2="18" /><path d="M16 10h.01" /><path d="M12 10h.01" /><path d="M8 10h.01" /><path d="M12 14h.01" /><path d="M8 14h.01" /><path d="M12 18h.01" /><path d="M8 18h.01" />`,
         flask: `<path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2" /><path d="M8.5 2h7" /><path d="M7 16h10" />`,
@@ -219,17 +221,11 @@
       ];
 
       // ---------- data ----------
-      const subjects = [
-        { title: "Social Science", icon: "globe", href: "#", bg: "/assets/sst.png" },
-        { title: "Maths", icon: "calculator", href: "#", bg: "/assets/maths.png" },
-        { title: "Science", icon: "flask", href: "#", bg: "/assets/science.png" },
-        { title: "English", text: "Aa", href: "#", bg: "/assets/eng.png" },
-        { title: "Hindi", text: "अ", href: "#", bg: "/assets/hindi.png" },
-      ];
+  
       
 
 
-      // ---------- render ----------
+      // ---------- render ----------f
       function sidebarHTML() {
         const items = navItems
           .map((item) =>
@@ -258,33 +254,55 @@
       document.getElementById("desktopSidebar").innerHTML = sidebarHTML();
       document.getElementById("mobileSidebarContent").innerHTML = sidebarHTML();
 
-      document.getElementById("subjectGrid").innerHTML = subjects
-        .map((s) => {
-          const iconHTML = s.text
-            ? `<span class="text-lg leading-none font-semibold">${s.text}</span>`
-            : icon(s.icon, "h-5 w-5");
+ 
+     async function loadSubjects() {
+  try {
+    const response = await fetch("/subjects");
 
-          return `
+    if (!response.ok) {
+      throw new Error("Failed to load subjects");
+    }
+
+    const subjects = await response.json();
+
+    document.getElementById("subjectGrid").innerHTML = subjects
+      .map((s) => {
+        const iconHTML = icon(s.icon, "h-5 w-5");
+
+        return `
           <a href="${s.href}" class="group relative flex h-55 flex-col justify-between overflow-hidden rounded-3xl border border-white/10 bg-linear-to-b from-neutral-800/60 via-neutral-950 to-neutral-900 p-6 shadow-2xl shadow-black/50 transition hover:border-white/20">
-            <!-- background image: change the src in the subjects list above -->
-            <img src="${s.bg}" alt="" loading="eager" class="absolute inset-0 h-full w-full object-cover opacity-30 transition duration-300 group-hover:scale-105 group-hover:opacity-40" />
+
+            <img src="${s.bg}" alt="" loading="eager"
+              class="absolute inset-0 h-full w-full object-cover opacity-30 transition duration-300 group-hover:scale-105 group-hover:opacity-40" />
+
             <div class="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent"></div>
 
             <div class="relative flex items-start justify-between">
-              <span class="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-black/40 text-indigo-300 backdrop-blur-md">${iconHTML}</span>
-              <span class="text-neutral-400 transition group-hover:text-white">${icon("arrow", "h-4 w-4")}</span>
+              <span class="flex h-11 w-11 items-center justify-center rounded-xl border border-white/10 bg-black/40 text-indigo-300 backdrop-blur-md">
+                ${iconHTML}
+              </span>
+
+              <span class="text-neutral-400 transition group-hover:text-white">
+                ${icon("arrow", "h-4 w-4")}
+              </span>
             </div>
 
-            <h3 class="relative text-xl font-medium">${s.title}</h3>
+            <h3 class="relative text-xl font-medium">${s.subject}</h3>
           </a>`;
-        })
-        .join("");
+      })
+      .join("");
 
+  } catch (error) {
+    console.error("Error loading subjects:", error);
+  }
+}
 
-      // fill the static icon placeholders
-      document.querySelectorAll("[data-icon]").forEach((el) => {
-        el.innerHTML = icon(el.dataset.icon, el.dataset.class);
-      });
+loadSubjects();
+
+// Fill static icon placeholders
+document.querySelectorAll("[data-icon]").forEach((el) => {
+  el.innerHTML = icon(el.dataset.icon, el.dataset.class);
+});
 
       // ---------- mobile sidebar ----------
       const overlay = document.getElementById("mobileOverlay");

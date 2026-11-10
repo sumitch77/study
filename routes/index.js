@@ -16,8 +16,9 @@ const {
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 const { createProxyMiddleware } = require("http-proxy-middleware");
 const { supabase } = require("../utils/supabase");
+const { generallimiter } = require("../utils/pageslimiter");
 
-router.get("/", async (req, res) => {
+router.get("/", generallimiter, async (req, res) => {
   if (req.session.userId) {
     return res.sendFile(path.join(__dirname, "../views/index.html"));
   }
@@ -44,15 +45,45 @@ router.get("/about", async (req, res) => {
 router.get("/sitemap.xml", async (req, res) => {
   return res.sendFile(path.join(__dirname, "../public/sitemap.xml"));
 });
-router.get(
-  ["/books", "/notes", "/practice", "/pyq", "/test"],
-  async (req, res) => {
-    if (!req.session.userId) {
-      return res.redirect("/login");
-    }
-    return res.sendFile(path.join(__dirname, "../views/books.html"));
-  },
-);
+router.get(["/practice", "/pyq", "/test"], generallimiter, async (req, res) => {
+  if (!req.session.userId) {
+    return res.redirect("/login");
+  }
+  return res.sendFile(path.join(__dirname, "../views/books.html"));
+});
+router.get(["/books"], generallimiter, async (req, res) => {
+  if (!req.session.userId) {
+    return res.redirect("/login");
+  }
+  return res.sendFile(path.join(__dirname, "../views/book.html"));
+});
+router.get(["/notes"], generallimiter, async (req, res) => {
+  if (!req.session.userId) {
+    return res.redirect("/login");
+  }
+  return res.sendFile(path.join(__dirname, "../views/book.html"));
+});
+router.get("/ssc", async (req, res) => {
+  if (req.session.userId) {
+    return res.sendFile(path.join(__dirname, "../views/ssc.html"));
+  }
+  return res.redirect("/login");
+});
+router.get("/subjects", async (req, res) => {
+  if (req.session.userId) {
+    const { data, error } = await supabase
+      .schema("study")
+      .from("subjects")
+      .select("subject, icon, href, bg")
+      .eq("class", req.session.class)
+      .order("id", { ascending: true });
+
+    if (error) throw error;
+
+    return res.json(data);
+  }
+  return res.redirect("/login");
+});
 router.get("/userinfo", async (req, res) => {
   if (!req.session.userId) {
     return res.status(401).json({ success: false, message: "Unauthorized" });

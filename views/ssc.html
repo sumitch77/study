@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SSC Practice - Highkey</title>
+    <link rel="stylesheet" href="/output.css" />
+    <style type="text/tailwindcss">
+      @keyframes shimmer {
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      @utility shimmer {
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          transform: translateX(-100%);
+          animation: shimmer 1.6s infinite;
+          background-image: linear-gradient(
+            90deg,
+            transparent,
+            rgb(255 255 255 / 0.08),
+            transparent
+          );
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="flex min-h-screen bg-neutral-950 text-white">
+      <!-- desktop sidebar -->
+      <aside
+        id="desktopSidebar"
+        class="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-white/5 bg-black/40 md:flex"
+      ></aside>
+
+      <!-- mobile sidebar overlay (half of the page) -->
+      <div id="mobileOverlay" class="fixed inset-0 z-40 hidden md:hidden">
+        <div id="overlayBackdrop" class="absolute inset-0 bg-black/60"></div>
+        <aside
+          class="relative flex h-full w-1/2 min-w-56 flex-col border-r border-white/10 bg-neutral-950/95 backdrop-blur-xl"
+        >
+          <button
+            id="closeSidebar"
+            type="button"
+            aria-label="Close menu"
+            class="absolute top-5 right-4 cursor-pointer text-neutral-400 transition hover:text-white"
+          >
+            <span data-icon="close" data-class="h-5 w-5"></span>
+          </button>
+          <div id="mobileSidebarContent" class="flex h-full flex-col"></div>
+        </aside>
+      </div>
+
+      <!-- right side -->
+      <div class="flex min-w-0 flex-1 flex-col">
+        <!-- top bar -->
+        <header
+          class="flex items-center justify-between gap-4 border-b border-white/5 px-6 py-4"
+        >
+          <div class="flex min-w-0 flex-1 items-center gap-3">
+            <button
+              id="openSidebar"
+              type="button"
+              aria-label="Open menu"
+              class="cursor-pointer text-neutral-300 transition hover:text-white md:hidden"
+            >
+              <span data-icon="menu" data-class="h-6 w-6"></span>
+            </button>
+
+            <div class="relative w-full max-w-md">
+              <span
+                class="absolute top-1/2 left-3 -translate-y-1/2 text-neutral-500"
+              >
+                <span data-icon="search" data-class="h-4 w-4"></span>
+              </span>
+              <input
+                id="searchInput"
+                type="search"
+                autocomplete="off"
+                placeholder="Search subject, chapter… e.g. history 3"
+                class="w-full rounded-lg border border-white/10 bg-black/40 py-2.5 pr-3 pl-10 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-white/30"
+              />
+            </div>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <a
+              href="#"
+              class="flex items-center gap-2 rounded-lg bg-linear-to-b from-white to-slate-200 px-4 py-2 text-sm font-medium whitespace-nowrap text-black transition hover:from-slate-100 hover:to-slate-300"
+            >
+              <span data-icon="crown" data-class="h-4 w-4"></span>
+              <span class="hidden sm:inline">Get Premium</span>
+            </a>
+
+            <!-- profile -->
+            <div class="relative" id="profileWrap">
+              <button
+                id="profileBtn"
+                type="button"
+                aria-label="Open profile menu"
+                class="flex cursor-pointer items-center gap-1 text-neutral-400 transition hover:text-white"
+              >
+                <span
+                  id="avatar"
+                  class="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-neutral-900 text-sm font-medium text-white"
+                ></span>
+                <span data-icon="chevron" data-class="h-4 w-4"></span>
+              </button>
+
+              <div
+                id="profileMenu"
+                class="absolute right-0 z-20 mt-2 hidden w-64 rounded-xl border border-white/10 bg-neutral-900/90 p-4 shadow-2xl shadow-black/50 backdrop-blur-xl"
+              >
+                <p
+                  id="userName"
+                  class="text-sm font-medium text-white md:text-base"
+                ></p>
+                <p
+                  id="userEmail"
+                  class="mt-1 text-xs break-all text-neutral-400 md:text-base"
+                ></p>
+                <a
+                  href="/logout"
+                  class="mt-4 block w-full cursor-pointer rounded-lg bg-red-600 py-2 text-center text-sm font-medium text-white transition hover:bg-red-500"
+                  >Logout</a
+                >
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- content -->
+        <main class="flex-1 px-6 py-8">
+          <!-- loading state: shown until the first /sscpractice call finishes -->
+          <div
+            id="shimmer"
+            aria-busy="true"
+            aria-label="Loading practice papers"
+          >
+            <div
+              class="shimmer h-9 w-48 max-w-full rounded-lg bg-white/10"
+            ></div>
+
+            <div class="mt-5 mb-8 flex flex-wrap items-end gap-3">
+              <div>
+                <div class="shimmer mb-2 h-4 w-24 rounded-md bg-white/5"></div>
+                <div
+                  class="shimmer h-10 w-56 max-w-full rounded-lg bg-white/10"
+                ></div>
+              </div>
+              <div class="shimmer h-10 w-24 rounded-lg bg-white/10"></div>
+            </div>
+
+            <div
+              id="pageSkeletonGrid"
+              class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            ></div>
+          </div>
+
+          <!-- real content: shown after the first /sscpractice call -->
+          <div id="aftershimmer" class="hidden">
+            <h1 class="text-3xl font-semibold tracking-tight">SSC Practice</h1>
+
+            <!-- controls: select subject (server) + filter (cards on screen) -->
+            <div class="mt-5 mb-6 flex flex-wrap items-end gap-x-6 gap-y-4">
+              <form id="subjectForm" class="flex flex-wrap items-end gap-3">
+                <div>
+                  <label
+                    for="subjectSelect"
+                    class="mb-2 block text-sm font-medium text-neutral-300"
+                    >Select subject</label
+                  >
+                  <div class="relative">
+                    <select
+                      id="subjectSelect"
+                      class="scheme-dark w-56 max-w-full cursor-pointer appearance-none rounded-lg border border-white/10 bg-black/40 py-2.5 pr-10 pl-4 text-sm text-white outline-none transition"
+                    >
+                      <option value="geography">Geography</option>
+                      <option value="history">History</option>
+                      <option value="civics">Civics</option>
+                      <option value="economics">Economics</option>
+                    </select>
+                    <span
+                      class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-neutral-400"
+                    >
+                      <span data-icon="chevron" data-class="h-4 w-4"></span>
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  id="selectBtn"
+                  type="submit"
+                  class="cursor-pointer rounded-lg bg-linear-to-b from-white to-slate-200 px-5 py-2.5 text-sm font-medium text-black transition hover:from-slate-100 hover:to-slate-300 disabled:cursor-not-allowed disabled:from-neutral-500 disabled:to-neutral-600 disabled:text-neutral-300 disabled:opacity-60"
+                >
+                  Select
+                </button>
+              </form>
+
+              <!-- filter: options come from the subject names on the cards -->
+              <div class="flex items-end gap-3">
+                <div>
+                  <label
+                    for="filterSelect"
+                    class="mb-2 block text-sm font-medium text-neutral-300"
+                    >Filter</label
+                  >
+                  <div class="relative">
+                    <span
+                      class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-neutral-400"
+                    >
+                      <span data-icon="filter" data-class="h-4 w-4"></span>
+                    </span>
+                    <select
+                      id="filterSelect"
+                      class="scheme-dark w-56 max-w-full cursor-pointer appearance-none rounded-lg border border-white/10 bg-black/40 py-2.5 pr-10 pl-9 text-sm text-white capitalize outline-none transition disabled:cursor-not-allowed disabled:opacity-60"
+                    ></select>
+                    <span
+                      class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-neutral-400"
+                    >
+                      <span data-icon="chevron" data-class="h-4 w-4"></span>
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  id="clearBtn"
+                  type="button"
+                  class="hidden cursor-pointer rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            <!-- empty / error message -->
+            <p
+              id="practiceMessage"
+              class="mb-5 hidden rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm text-neutral-300"
+            ></p>
+
+            <p id="resultCount" class="mb-4 hidden text-sm text-neutral-400"></p>
+
+            <!-- loading cards while a new subject is fetched -->
+            <div
+              id="gridSkeleton"
+              class="hidden grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              aria-busy="true"
+            ></div>
+
+            <!-- practice papers -->
+            <div
+              id="practiceGrid"
+              class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+            ></div>
+          </div>
+        </main>
+
+        <!-- footer -->
+        <footer
+          class="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 px-6 py-5 text-xs text-neutral-500"
+        >
+          <p>© 2026 Highkey. All rights reserved.</p>
+          <div id="footerLinks" class="flex flex-wrap gap-6">
+            <a href="/about" class="transition hover:text-white">About Us</a>
+            <a href="/help" class="transition hover:text-white">Help</a>
+            <a href="/policy" class="transition hover:text-white"
+              >Privacy Policy</a
+            >
+            <a href="/terms" class="transition hover:text-white">Terms</a>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script>
+      const loadingEl = document.getElementById("shimmer");
+      const contentEl = document.getElementById("aftershimmer");
+
+      // ---------- icons ----------
+      const icons = {
+        home: `<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />`,
+        book: `<path d="M12 7v14" /><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />`,
+        notes: `<path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" /><path d="M2 6h4" /><path d="M2 10h4" /><path d="M2 14h4" /><path d="M2 18h4" /><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />`,
+        help: `<circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><path d="M12 17h.01" />`,
+        test: `<rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="m9 14 2 2 4-4" />`,
+        copy: `<rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />`,
+        support: `<circle cx="12" cy="12" r="10" /><path d="m4.93 4.93 4.24 4.24" /><path d="m14.83 9.17 4.24-4.24" /><path d="m14.83 14.83 4.24 4.24" /><path d="m9.17 14.83-4.24 4.24" /><circle cx="12" cy="12" r="4" />`,
+        search: `<circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />`,
+        crown: `<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" /><path d="M5 21h14" />`,
+        chevron: `<path d="m6 9 6 6 6-6" />`,
+        arrow: `<path d="M7 7h10v10" /><path d="M7 17 17 7" />`,
+        menu: `<path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />`,
+        close: `<path d="M18 6 6 18" /><path d="m6 6 12 12" />`,
+        filter: `<polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />`,
+      };
+
+      function icon(name, cls = "h-5 w-5") {
+        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="${cls}">${icons[name]}</svg>`;
+      }
+
+      // ---------- navigation ----------
+      // this page belongs under "Practice Questions", so that item is highlighted.
+      const activeHref = "/practice";
+
+      const navItems = [
+        { label: "Home", icon: "home", href: "/" },
+        { label: "Books", icon: "book", href: "/books" },
+        { label: "Notes", icon: "notes", href: "/notes" },
+        { label: "Practice Questions", icon: "help", href: "/practice" },
+        { label: "Test", icon: "test", href: "/test" },
+        { label: "PYQ", icon: "copy", href: "/pyq" },
+      ];
+
+      function sidebarHTML() {
+        const items = navItems
+          .map((item) =>
+            item.href === activeHref
+              ? `<a href="${item.href}" class="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-medium text-white">${icon(item.icon, "h-4 w-4 text-indigo-300")}${item.label}</a>`
+              : `<a href="${item.href}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-neutral-400 transition hover:bg-white/5 hover:text-white">${icon(item.icon, "h-4 w-4")}${item.label}</a>`,
+          )
+          .join("");
+
+        return `
+          <div class="flex items-center gap-2 px-5 py-5">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" class="h-6 w-6">
+              <path d="M12 3 2.5 21h19L12 3Z" />
+              <path d="m12 9-4 12M12 9l4 12" />
+            </svg>
+            <span class="text-xl font-medium tracking-tight">Highkey</span>
+          </div>
+          <nav class="flex flex-col gap-1 px-3 py-2">
+            ${items}
+            <div class="my-2 border-t border-white/5"></div>
+            <a href="/help" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-neutral-400 transition hover:bg-white/5 hover:text-white">${icon("support", "h-4 w-4")}Help</a>
+          </nav>
+          <p class="mt-auto px-5 py-5 text-xs text-neutral-500">Your space for what’s next.</p>`;
+      }
+
+      document.getElementById("desktopSidebar").innerHTML = sidebarHTML();
+      document.getElementById("mobileSidebarContent").innerHTML = sidebarHTML();
+
+      document.querySelectorAll("[data-icon]").forEach((el) => {
+        el.innerHTML = icon(el.dataset.icon, el.dataset.class);
+      });
+
+      // ---------- ssc practice ----------
+      const DEFAULT_SUBJECT = "geography"; // matched to the dropdown ignoring case
+
+      const subjectForm = document.getElementById("subjectForm");
+      const subjectSelect = document.getElementById("subjectSelect");
+      const selectBtn = document.getElementById("selectBtn");
+      const practiceGrid = document.getElementById("practiceGrid");
+      const gridSkeleton = document.getElementById("gridSkeleton");
+      const practiceMessage = document.getElementById("practiceMessage");
+      const searchInput = document.getElementById("searchInput");
+      const filterSelect = document.getElementById("filterSelect");
+      const clearBtn = document.getElementById("clearBtn");
+      const resultCount = document.getElementById("resultCount");
+
+      // cards on screen: [{ node, subject, chapterName, chNum, paper, text }]
+      let allCards = [];
+
+      // create an element safely (text is never parsed as HTML)
+      function el(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
+      }
+
+      // show/hide a grid (hidden and grid both set `display`, so swap them)
+      function setGridVisible(node, visible) {
+        node.classList.toggle("hidden", !visible);
+        node.classList.toggle("grid", visible);
+      }
+
+      // "ch_1_test_2" -> "2"  (null if there is no test number)
+      function paperNumber(info) {
+        const match = /test[_\s-]?(\d+)/i.exec(String(info ?? ""));
+        return match ? match[1] : null;
+      }
+
+      // "ch_1_test_2" -> "1"  (null if there is no chapter number)
+      function chapterNumber(info) {
+        const match = /(?:^|[_\s-])ch(?:apter)?[_\s-]?(\d+)/i.exec(
+          String(info ?? ""),
+        );
+        return match ? match[1] : null;
+      }
+
+      function practiceCard(item, fallbackSubject) {
+        const subject = String(item.subject || fallbackSubject || "");
+        const chapterName = String(item.chapter_name ?? "");
+        const paper = paperNumber(item.info);
+        const chNum = chapterNumber(item.info);
+
+        const card = el(
+          "div",
+          "flex flex-col gap-3 rounded-2xl border border-white/10 bg-linear-to-b from-neutral-800/60 via-neutral-950 to-neutral-900 p-4 shadow-xl shadow-black/40 transition hover:border-white/20",
+        );
+
+        // subject as the heading
+        card.appendChild(
+          el("h3", "text-lg font-semibold tracking-tight capitalize", subject),
+        );
+
+        // chapter name
+        const chapterEl = el(
+          "p",
+          "line-clamp-2 min-h-12 text-sm leading-6 text-neutral-300",
+          chapterName,
+        );
+        chapterEl.title = chapterName;
+        card.appendChild(chapterEl);
+
+        // chapter number + practice paper number (taken from ch_1_test_1)
+        const label = [
+          chNum ? "Chapter " + chNum : "",
+          paper ? "Practice paper " + paper : "Practice paper",
+        ]
+          .filter(Boolean)
+          .join(" · ");
+        card.appendChild(
+          el("p", "text-xs font-medium tracking-wide text-indigo-300", label),
+        );
+
+        // start button -> /practice?subject=...&chapter=...&test=...
+        const params = new URLSearchParams({ subject, chapter: chapterName });
+        if (paper) params.set("test", paper);
+
+        const start = el(
+          "a",
+          "mt-1 flex items-center justify-center gap-2 rounded-lg bg-linear-to-b from-white to-slate-200 px-4 py-2 text-sm font-medium text-black transition hover:from-slate-100 hover:to-slate-300",
+        );
+        start.href = "/paperpractice?" + params.toString();
+        start.append(el("span", "", "Start"));
+        start.insertAdjacentHTML("beforeend", icon("arrow", "h-4 w-4"));
+        card.appendChild(start);
+
+        // searchable text for this card
+        const text = [
+          subject,
+          chapterName,
+          chNum ? "chapter " + chNum : "",
+          paper ? "practice paper " + paper + " test " + paper : "practice paper",
+        ]
+          .join(" ")
+          .toLowerCase()
+          .replace(/\s+/g, " ")
+          .trim();
+
+        return { node: card, subject, chapterName, chNum, paper, text };
+      }
+
+      // ---------- search + filter (hide / show the cards) ----------
+      function escapeRegex(s) {
+        return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      }
+
+      // "history 3", "chapter 1,2", "civics 2-4", "test 2", "ch3"
+      function parseQuery(raw) {
+        const q = raw.toLowerCase().trim().replace(/\s+/g, " ");
+        const words = [];
+        const nums = []; // { from, to, kind: "chapter" | "paper" }
+        const tokens = q.split(/[\s,;]+/).filter(Boolean);
+        let ctx = "chapter"; // a bare number means a chapter number
+
+        for (const t of tokens) {
+          let m;
+          if (t === "chapter" || t === "ch") {
+            ctx = "chapter";
+            words.push(t);
+          } else if (t === "test" || t === "paper" || t === "practice") {
+            ctx = "paper";
+            words.push(t);
+          } else if ((m = /^(?:ch|chapter)(\d+)$/.exec(t))) {
+            nums.push({ from: +m[1], to: +m[1], kind: "chapter" });
+          } else if ((m = /^(?:test|paper)(\d+)$/.exec(t))) {
+            nums.push({ from: +m[1], to: +m[1], kind: "paper" });
+          } else if ((m = /^(\d+)-(\d+)$/.exec(t))) {
+            nums.push({
+              from: Math.min(+m[1], +m[2]),
+              to: Math.max(+m[1], +m[2]),
+              kind: ctx,
+            });
+          } else if (/^\d+$/.test(t)) {
+            nums.push({ from: +t, to: +t, kind: ctx });
+          } else {
+            words.push(t);
+          }
+        }
+        return { q, words, nums };
+      }
+
+      function matchesQuery(card, parsed) {
+        if (!parsed.q) return true;
+
+        // whole phrase on word boundaries ("test 2" but not "test 20")
+        const phrase = new RegExp("(^|\\s)" + escapeRegex(parsed.q) + "(\\s|$)");
+        if (phrase.test(card.text)) return true;
+
+        // every word must appear somewhere in the card text
+        if (!parsed.words.every((w) => card.text.includes(w))) return false;
+
+        // numbers: any one of them may match (so "1,2" = 1 or 2)
+        if (parsed.nums.length === 0) return true;
+        return parsed.nums.some((n) => {
+          const v = parseInt(n.kind === "paper" ? card.paper : card.chNum, 10);
+          return !Number.isNaN(v) && v >= n.from && v <= n.to;
+        });
+      }
+
+      function applyFilters() {
+        const parsed = parseQuery(searchInput.value);
+        const subject = filterSelect.value; // "" = all subjects
+        let visible = 0;
+
+        for (const card of allCards) {
+          const show =
+            (subject === "" || card.subject === subject) &&
+            matchesQuery(card, parsed);
+          card.node.style.display = show ? "" : "none";
+          if (show) visible++;
+        }
+
+        const active = parsed.q !== "" || subject !== "";
+        clearBtn.classList.toggle("hidden", !active);
+
+        if (allCards.length === 0) {
+          resultCount.classList.add("hidden");
+          return; // empty / error message is handled by loadPractice
+        }
+
+        if (visible === 0) {
+          showMessage("No practice papers match your search or filter.");
+        } else {
+          practiceMessage.classList.add("hidden");
+        }
+
+        resultCount.textContent = active
+          ? `Showing ${visible} of ${allCards.length} practice papers`
+          : `${allCards.length} practice papers`;
+        resultCount.classList.remove("hidden");
+      }
+
+      // filter options come from the subject names on the cards
+      function buildFilter() {
+        const subjects = [...new Set(allCards.map((c) => c.subject))].filter(
+          Boolean,
+        );
+        filterSelect.replaceChildren(
+          Object.assign(document.createElement("option"), {
+            value: "",
+            textContent: "All subjects",
+          }),
+          ...subjects.map((s) =>
+            Object.assign(document.createElement("option"), {
+              value: s,
+              textContent: s,
+            }),
+          ),
+        );
+        filterSelect.value = "";
+        filterSelect.disabled = subjects.length < 2;
+      }
+
+      function resetControls() {
+        searchInput.value = "";
+        filterSelect.value = "";
+      }
+
+      searchInput.addEventListener("input", applyFilters);
+      filterSelect.addEventListener("change", applyFilters);
+      clearBtn.addEventListener("click", () => {
+        resetControls();
+        applyFilters();
+      });
+
+      // ---------- loading ----------
+      function skeletonCardHTML() {
+        return `
+          <div class="shimmer flex flex-col gap-3 rounded-2xl border border-white/10 bg-neutral-900/70 p-4 shadow-xl shadow-black/40">
+            <div class="h-6 w-24 rounded-md bg-white/10"></div>
+            <div class="h-12 w-full rounded-md bg-white/5"></div>
+            <div class="h-4 w-28 rounded-md bg-white/5"></div>
+            <div class="mt-1 h-9 w-full rounded-lg bg-white/10"></div>
+          </div>`;
+      }
+      document.getElementById("pageSkeletonGrid").innerHTML =
+        skeletonCardHTML().repeat(8);
+      gridSkeleton.innerHTML = skeletonCardHTML().repeat(8);
+
+      function showMessage(text) {
+        practiceMessage.textContent = text;
+        practiceMessage.classList.remove("hidden");
+      }
+
+      let latestRequest = 0;
+
+      async function loadPractice(subject) {
+        const requestId = ++latestRequest;
+
+        // show loading cards while the db call runs
+        practiceMessage.classList.add("hidden");
+        resultCount.classList.add("hidden");
+        setGridVisible(practiceGrid, false);
+        setGridVisible(gridSkeleton, true);
+        selectBtn.disabled = true;
+        selectBtn.textContent = "Loading…";
+
+        try {
+          const res = await fetch(
+            "/sscpractice?" + new URLSearchParams({ subject }),
+          );
+
+          if (res.status === 401) {
+            window.location.href = "/login";
+            return;
+          }
+          if (!res.ok) throw new Error("Failed to load practice papers");
+
+          const data = await res.json();
+          if (requestId !== latestRequest) return; // a newer request is running
+
+          const items = Array.isArray(data)
+            ? data
+            : data.papers || data.data || [];
+
+          allCards = items.map((item) => practiceCard(item, subject));
+          practiceGrid.replaceChildren(...allCards.map((c) => c.node));
+          buildFilter();
+          resetControls();
+
+          if (allCards.length === 0) {
+            showMessage("No practice papers available for this subject yet.");
+          }
+          applyFilters();
+        } catch (error) {
+          if (requestId !== latestRequest) return;
+          console.error("Error loading practice papers:", error);
+          allCards = [];
+          practiceGrid.replaceChildren();
+          buildFilter();
+          applyFilters();
+          showMessage(
+            "We couldn’t load the practice papers right now. Please try again.",
+          );
+        }
+
+        // db call finished: hide the loading state, show the page
+        setGridVisible(gridSkeleton, false);
+        setGridVisible(practiceGrid, true);
+        selectBtn.disabled = false;
+        selectBtn.textContent = "Select";
+        loadingEl.classList.add("hidden");
+        contentEl.classList.remove("hidden");
+      }
+
+      // press "Select" -> fetch that subject and update all the cards
+      subjectForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (selectBtn.disabled || !subjectSelect.value) return;
+        loadPractice(subjectSelect.value);
+      });
+
+      // first load: pick the default in the dropdown (ignoring case), then fetch it
+      (function init() {
+        const options = [...subjectSelect.options];
+        const match =
+          options.find((o) => o.value.toLowerCase() === DEFAULT_SUBJECT) ||
+          options[0];
+        if (match) subjectSelect.value = match.value;
+        loadPractice(subjectSelect.value);
+      })();
+
+      // ---------- mobile sidebar ----------
+      const overlay = document.getElementById("mobileOverlay");
+      const openSidebar = () => overlay.classList.remove("hidden");
+      const closeSidebar = () => overlay.classList.add("hidden");
+
+      document
+        .getElementById("openSidebar")
+        .addEventListener("click", openSidebar);
+      document
+        .getElementById("closeSidebar")
+        .addEventListener("click", closeSidebar);
+      document
+        .getElementById("overlayBackdrop")
+        .addEventListener("click", closeSidebar);
+      document
+        .getElementById("mobileSidebarContent")
+        .querySelectorAll("a")
+        .forEach((a) => a.addEventListener("click", closeSidebar));
+
+      // ---------- profile menu ----------
+      const profileWrap = document.getElementById("profileWrap");
+      const profileMenu = document.getElementById("profileMenu");
+
+      document.getElementById("profileBtn").addEventListener("click", () => {
+        profileMenu.classList.toggle("hidden");
+      });
+
+      // close the profile menu when clicking anywhere outside it
+      document.addEventListener("mousedown", (e) => {
+        if (!profileWrap.contains(e.target))
+          profileMenu.classList.add("hidden");
+      });
+
+      // ---------- user info (header profile) ----------
+      async function getUserInfo() {
+        try {
+          const res = await fetch("/userinfo");
+          const data = await res.json();
+
+          if (!data.success) {
+            window.location.href = "/login";
+            return;
+          }
+          document.getElementById("userName").textContent = data.username;
+          document.getElementById("userEmail").textContent = data.useremail;
+          document.getElementById("avatar").textContent = data.username
+            ? data.username.charAt(0).toUpperCase()
+            : "";
+        } catch (err) {
+          console.error("Could not load user info", err);
+        }
+      }
+      getUserInfo();
+    </script>
+  </body>
+</html>

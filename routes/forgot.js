@@ -12,12 +12,8 @@ const validate2 = require("deep-email-validator");
 const { type } = require("os");
 const { supabase } = require("../utils/supabase");
 const { login } = require("../utils/helper");
-const {
-  canonicalEmail,
-  forgotlimitter,
-  length,
-  forgotiplimiter,
-} = require("../utils/authlimiter");
+const { canonicalEmail, length } = require("../utils/authlimiter");
+const { forgotlimitter, forgotiplimiter } = require("../utils/forgotlimiter");
 
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");

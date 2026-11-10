@@ -66,10 +66,10 @@ router2.post(
       const { data, error } = await supabase
         .schema("study")
         .from("userTable")
-        .select("email,password , username , user_id")
+        .select("email,password , username , user_id , is_premium , class")
         .eq("email", email)
         .maybeSingle();
-
+      console.log("Supabase query result:", { data, error });
       if (data) {
         const isMatch = await bcrypt.compare(password, data.password);
 
@@ -80,6 +80,8 @@ router2.post(
           req.session.userId = data.user_id;
           req.session.useremail = data.email;
           req.session.username = data.username;
+          req.session.premium = data.is_premium;
+          req.session.class = "10";
           return res.json({
             success: true,
             message: `Login successful`,
@@ -428,7 +430,7 @@ router2.get("/linklogin", generalLimiter, login, async (req, res) => {
       .from("userTable")
       .update({ role: "user" })
       .eq("email", data.email)
-      .select("user_id, email, username")
+      .select("user_id, email, username , is_premium , class")
       .maybeSingle();
 
     const { error: updateError } = await supabase
@@ -445,6 +447,8 @@ router2.get("/linklogin", generalLimiter, login, async (req, res) => {
     req.session.userId = user.user_id;
     req.session.useremail = user.email;
     req.session.username = user.username;
+    req.session.premium = user.is_premium;
+    req.session.class = "10";
 
     res.send(`
       <!DOCTYPE html>
