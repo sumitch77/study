@@ -7,7 +7,7 @@ const { router } = require("./routes/index");
 const { router2 } = require("./routes/auth");
 const { router4 } = require("./utils/oauth");
 const { router8 } = require("./routes/forgot");
-const { routerdata } = require("./routes/data");
+const { routertest } = require("./routes/test");
 const { routerssc } = require("./routes/sscpractice");
 const { routerbooks } = require("./routes/books");
 
@@ -87,7 +87,8 @@ passport.serializeUser((user, done) => {
 // 4. Fetch user from Supabase on subsequent requests
 passport.deserializeUser(async (id, done) => {
   const { data: user, error } = await supabase
-    .from("allusers")
+    .schema("study")
+    .from("userTable")
     .select("*")
     .eq("id", id)
     .maybeSingle();
@@ -111,7 +112,7 @@ app.use(router);
 app.use(router2);
 app.use(router4);
 app.use(router8);
-app.use(routerdata);
+app.use(routertest);
 app.use(routerssc);
 app.use(routerbooks);
 

@@ -1,0 +1,814 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Practice Highkey</title>
+    <link rel="stylesheet" href="/output.css" />
+    <style type="text/tailwindcss">
+      @keyframes shimmer {
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      @utility shimmer {
+        position: relative;
+        overflow: hidden;
+
+        &::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          transform: translateX(-100%);
+          animation: shimmer 1.6s infinite;
+          background-image: linear-gradient(
+            90deg,
+            transparent,
+            rgb(255 255 255 / 0.08),
+            transparent
+          );
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!--
+      Palette
+      Blue   #2878F0  primary buttons, active navigation
+      Green  #34D399  chapter label
+      Yellow #FBBF24  subject label, premium
+      Navy   #0B1220  main background
+      Slate  #172337  cards and surfaces
+    -->
+    <div class="flex min-h-screen bg-[#0B1220] text-slate-100">
+      <!-- desktop sidebar -->
+      <aside
+        id="desktopSidebar"
+        class="sticky top-0 hidden h-screen w-52 shrink-0 flex-col border-r border-white/5 bg-[#172337] md:flex"
+      ></aside>
+
+      <!-- mobile sidebar overlay (half of the page) -->
+      <div id="mobileOverlay" class="fixed inset-0 z-40 hidden md:hidden">
+        <div id="overlayBackdrop" class="absolute inset-0 bg-black/60"></div>
+        <aside
+          class="relative flex h-full w-1/2 min-w-52 flex-col border-r border-white/10 bg-[#172337] shadow-xl"
+        >
+          <button
+            id="closeSidebar"
+            type="button"
+            aria-label="Close menu"
+            class="absolute top-4 right-3 cursor-pointer text-slate-400 transition hover:text-white"
+          >
+            <span data-icon="close" data-class="h-5 w-5"></span>
+          </button>
+          <div id="mobileSidebarContent" class="flex h-full flex-col"></div>
+        </aside>
+      </div>
+
+      <!-- right side -->
+      <div class="flex min-w-0 flex-1 flex-col">
+        <!-- top bar -->
+        <header class="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <div class="flex min-w-0 flex-1 items-center gap-3">
+            <button
+              id="openSidebar"
+              type="button"
+              aria-label="Open menu"
+              class="cursor-pointer text-slate-300 transition hover:text-[#2878F0] md:hidden"
+            >
+              <span data-icon="menu" data-class="h-6 w-6"></span>
+            </button>
+
+            <div class="relative w-full max-w-md">
+              <span class="absolute top-1/2 left-3 -translate-y-1/2 text-slate-500">
+                <span data-icon="search" data-class="h-4 w-4"></span>
+              </span>
+              <input
+                id="searchInput"
+                type="search"
+                autocomplete="off"
+                placeholder="Search chapter… e.g. ch 3, climate, test 2"
+                class="w-full rounded-full border border-white/5 bg-[#172337] py-2 pr-3 pl-10 text-sm text-white placeholder-slate-500 outline-none transition focus:border-[#2878F0] focus:ring-4 focus:ring-[#2878F0]/20"
+              />
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <a
+              href="#"
+              class="flex items-center gap-2 rounded-full bg-[#FBBF24] px-4 py-2 text-sm font-semibold whitespace-nowrap text-[#0B1220] shadow-lg shadow-[#FBBF24]/20 transition hover:brightness-110"
+            >
+              <span data-icon="crown" data-class="h-4 w-4"></span>
+              <span class="hidden sm:inline">Get Premium</span>
+            </a>
+
+            <!-- profile -->
+            <div class="relative" id="profileWrap">
+              <button
+                id="profileBtn"
+                type="button"
+                aria-label="Open profile menu"
+                class="flex cursor-pointer items-center gap-1 text-slate-400 transition hover:text-white"
+              >
+                <span
+                  id="avatar"
+                  class="flex h-9 w-9 items-center justify-center rounded-full bg-[#2878F0] text-sm font-semibold text-white ring-2 ring-[#2878F0]/30"
+                ></span>
+                <span data-icon="chevron" data-class="h-4 w-4"></span>
+              </button>
+
+              <div
+                id="profileMenu"
+                class="absolute right-0 z-20 mt-2 hidden w-64 rounded-2xl border border-white/10 bg-[#172337] p-4 shadow-2xl shadow-black/50"
+              >
+                <p id="userName" class="text-sm font-medium text-white"></p>
+                <p id="userEmail" class="mt-1 text-xs break-all text-slate-400"></p>
+                <a
+                  href="/logout"
+                  class="mt-4 block w-full cursor-pointer rounded-lg bg-red-600 py-2 text-center text-sm font-medium text-white transition hover:bg-red-500"
+                  >Logout</a
+                >
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <!-- content -->
+        <main class="flex-1 px-4 pb-6 sm:px-6">
+          <!-- loading state: shown until the first /sscpractice call finishes -->
+          <div id="shimmer" aria-busy="true" aria-label="Loading practice tests">
+            <div class="shimmer h-7 w-48 max-w-full rounded-lg bg-white/10"></div>
+
+            <div class="mt-3 mb-4 flex flex-wrap items-center gap-2">
+              <div class="shimmer h-9 w-40 max-w-full rounded-lg bg-white/10"></div>
+              <div class="shimmer h-9 w-16 rounded-lg bg-white/10"></div>
+            </div>
+
+            <div
+              id="pageSkeletonGrid"
+              class="grid grid-cols-2 gap-3 lg:grid-cols-4"
+            ></div>
+          </div>
+
+          <!-- real content -->
+          <div id="aftershimmer" class="hidden">
+            <div class="flex flex-wrap items-baseline gap-x-3">
+              <h1 class="flex items-center gap-2 text-xl font-bold tracking-tight sm:text-2xl">
+                <span class="h-5 w-1.5 rounded-full bg-[#2878F0]"></span>Practice Questions
+              </h1>
+              <p id="resultCount" class="hidden text-xs text-slate-400"></p>
+            </div>
+
+            <!-- controls: one compact row -->
+            <div class="mt-3 mb-4 flex flex-wrap items-center gap-2">
+              <form id="subjectForm" class="flex items-center gap-2">
+                <label for="subjectSelect" class="sr-only">Select Subject</label>
+                <div class="relative">
+                  <select
+                    id="subjectSelect"
+                    class="scheme-dark w-40 max-w-full cursor-pointer appearance-none rounded-lg border border-white/10 bg-[#172337] py-2 pr-8 pl-3 text-sm text-white capitalize outline-none transition focus:border-[#2878F0] sm:w-48"
+                  ></select>
+                  <span class="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-slate-400">
+                    <span data-icon="chevron" data-class="h-4 w-4"></span>
+                  </span>
+                </div>
+
+                <button
+                  id="selectBtn"
+                  type="submit"
+                  class="cursor-pointer rounded-lg bg-[#2878F0] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#2878F0]/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Select
+                </button>
+              </form>
+
+              <button
+                id="clearBtn"
+                type="button"
+                class="hidden cursor-pointer rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+              >
+                Clear
+              </button>
+            </div>
+
+            <!-- empty / error message -->
+            <p
+              id="practiceMessage"
+              class="mb-4 hidden rounded-xl border border-[#FBBF24]/20 bg-[#FBBF24]/10 px-4 py-3 text-sm text-[#FBBF24]"
+            ></p>
+
+            <!-- loading cards while a new subject is fetched -->
+            <div
+              id="gridSkeleton"
+              class="hidden grid-cols-2 gap-3 lg:grid-cols-4"
+              aria-busy="true"
+            ></div>
+
+            <!-- chapters -->
+            <div
+              id="practiceGrid"
+              class="grid grid-cols-2 gap-3 lg:grid-cols-4"
+            ></div>
+          </div>
+        </main>
+
+        <!-- footer -->
+        <footer
+          class="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 px-4 py-4 text-xs text-slate-500 sm:px-6"
+        >
+          <p>© 2026 Highkey. All rights reserved.</p>
+          <div id="footerLinks" class="flex flex-wrap gap-5">
+            <a href="/about" class="transition hover:text-white">About Us</a>
+            <a href="/help" class="transition hover:text-white">Help</a>
+            <a href="/policy" class="transition hover:text-white">Privacy Policy</a>
+            <a href="/terms" class="transition hover:text-white">Terms</a>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+    <script>
+      const loadingEl = document.getElementById("shimmer");
+      const contentEl = document.getElementById("aftershimmer");
+
+      // ---------- icons ----------
+      const icons = {
+        home: `<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />`,
+        book: `<path d="M12 7v14" /><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />`,
+        notes: `<path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" /><path d="M2 6h4" /><path d="M2 10h4" /><path d="M2 14h4" /><path d="M2 18h4" /><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />`,
+        help: `<circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><path d="M12 17h.01" />`,
+        test: `<rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="m9 14 2 2 4-4" />`,
+        copy: `<rect width="14" height="14" x="8" y="8" rx="2" ry="2" /><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />`,
+        support: `<circle cx="12" cy="12" r="10" /><path d="m4.93 4.93 4.24 4.24" /><path d="m14.83 9.17 4.24-4.24" /><path d="m14.83 14.83 4.24 4.24" /><path d="m9.17 14.83-4.24 4.24" /><circle cx="12" cy="12" r="4" />`,
+        search: `<circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />`,
+        crown: `<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" /><path d="M5 21h14" />`,
+        chevron: `<path d="m6 9 6 6 6-6" />`,
+        menu: `<path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />`,
+        close: `<path d="M18 6 6 18" /><path d="m6 6 12 12" />`,
+        play: `<polygon points="6 3 20 12 6 21 6 3" />`,
+        lock: `<rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" />`,
+        chain: `<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />`,
+      };
+
+      function icon(name, cls = "h-5 w-5") {
+        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="${cls}">${icons[name]}</svg>`;
+      }
+
+      // ---------- navigation ----------
+      const activeHref = "/practice"; // the current page
+
+      const navItems = [
+        { label: "Home", icon: "home", href: "/" },
+        { label: "Books", icon: "book", href: "/books" },
+        // { label: "Notes", icon: "notes", href: "/notes" },
+        { label: "Practice Questions", icon: "help", href: "/practice" },
+        { label: "Test", icon: "test", href: "/test" },
+        // { label: "PYQ", icon: "copy", href: "/pyq" },
+      ];
+
+      function sidebarHTML() {
+        const items = navItems
+          .map((item) =>
+            item.href === activeHref
+              ? `<a href="${item.href}" class="flex items-center gap-2.5 rounded-xl bg-[#2878F0] px-3 py-2 text-[13px] font-semibold text-white shadow-lg shadow-[#2878F0]/30">${icon(item.icon, "h-4 w-4")}${item.label}</a>`
+              : `<a href="${item.href}" class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] text-slate-400 transition hover:bg-white/5 hover:text-white">${icon(item.icon, "h-4 w-4")}${item.label}</a>`,
+          )
+          .join("");
+
+        return `
+          <div class="flex items-center gap-2 px-4 py-4">
+            <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-[#2878F0] text-white shadow-lg shadow-[#2878F0]/30">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" class="h-5 w-5">
+                <path d="M12 3 2.5 21h19L12 3Z" />
+                <path d="m12 9-4 12M12 9l4 12" />
+              </svg>
+            </span>
+            <span class="text-lg font-bold tracking-tight">Highkey</span>
+          </div>
+          <nav class="flex flex-col gap-1 px-2.5 py-1">
+            ${items}
+            <div class="my-2 border-t border-white/5"></div>
+            <a href="/help" class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] text-slate-400 transition hover:bg-white/5 hover:text-white">${icon("support", "h-4 w-4")}Help</a>
+          </nav>
+          <div class="mx-3 mt-auto mb-4 rounded-xl border border-[#FBBF24]/20 bg-[#FBBF24]/10 p-3 text-xs text-[#FBBF24]">Your space for what’s next. ✨</div>`;
+      }
+
+      document.getElementById("desktopSidebar").innerHTML = sidebarHTML();
+      document.getElementById("mobileSidebarContent").innerHTML = sidebarHTML();
+
+      document.querySelectorAll("[data-icon]").forEach((el) => {
+        el.innerHTML = icon(el.dataset.icon, el.dataset.class);
+      });
+
+      // ---------- practice ----------
+      // the 4 SST parts, shown in the subject dropdown
+      const SUBJECTS = ["geography", "civics", "economics", "history"];
+      const DEFAULT_SUBJECT = "geography";
+
+      // premium users: a test button opens
+      //   /dopractice?subject=geography&chapter=1&test=2
+      const DO_PRACTICE_PAGE = "/dopractice";
+      // locked chapters (free users): every button opens this page
+      const PREMIUM_PAGE = "/premium";
+
+      const subjectForm = document.getElementById("subjectForm");
+      const subjectSelect = document.getElementById("subjectSelect");
+      const selectBtn = document.getElementById("selectBtn");
+      const practiceGrid = document.getElementById("practiceGrid");
+      const gridSkeleton = document.getElementById("gridSkeleton");
+      const practiceMessage = document.getElementById("practiceMessage");
+      const searchInput = document.getElementById("searchInput");
+      const clearBtn = document.getElementById("clearBtn");
+      const resultCount = document.getElementById("resultCount");
+
+      // one entry per chapter on screen: [{ node, chapter, tests: Set, text }]
+      let allCards = [];
+
+      // create an element safely (text is never parsed as HTML)
+      function el(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
+      }
+
+      // show/hide a grid (hidden and grid both set `display`, so swap them)
+      function setGridVisible(node, visible) {
+        node.classList.toggle("hidden", !visible);
+        node.classList.toggle("grid", visible);
+      }
+
+      // "ch_1_test_2" -> { chapter: 1, test: 2 }
+      function parseInfo(info) {
+        const m = /ch(?:apter)?[\s_-]*(\d+)[\s_-]*test[\s_-]*(\d+)/i.exec(
+          String(info ?? ""),
+        );
+        return m
+          ? { chapter: parseInt(m[1], 10), test: parseInt(m[2], 10) }
+          : { chapter: NaN, test: NaN };
+      }
+
+      // group the rows (one row per test) into one card per chapter
+      function groupByChapter(items, subject) {
+        const map = new Map();
+
+        for (const item of items) {
+          const { chapter, test } = parseInfo(item.info);
+          const key = Number.isNaN(chapter)
+            ? "x:" + String(item.chapter_name ?? item.info ?? "")
+            : "c:" + chapter;
+
+          if (!map.has(key)) {
+            map.set(key, {
+              subject: String(item.subject || subject || ""),
+              chapter,
+              name: String(item.chapter_name ?? "").trim(),
+              tests: [],
+            });
+          }
+          const group = map.get(key);
+          if (!group.name && item.chapter_name) {
+            group.name = String(item.chapter_name).trim();
+          }
+          group.tests.push({ test, info: String(item.info ?? "") });
+        }
+
+        return [...map.values()]
+          .map((g) => ({
+            ...g,
+            tests: g.tests.sort((a, b) => (a.test || 0) - (b.test || 0)),
+          }))
+          .sort(
+            (a, b) =>
+              (Number.isNaN(a.chapter) ? 9999 : a.chapter) -
+              (Number.isNaN(b.chapter) ? 9999 : b.chapter),
+          );
+      }
+
+      // locked = true -> faded card with a lock + chain, buttons go to /premium
+      function chapterCard(group, locked = false) {
+        const chapterLabel = Number.isNaN(group.chapter)
+          ? "Chapter —"
+          : "Chapter " + group.chapter;
+        const title = locked ? "Premium content" : group.name || chapterLabel;
+
+        const card = el(
+          "div",
+          "relative flex flex-col gap-2 overflow-hidden rounded-2xl border border-white/5 bg-[#172337] p-3 shadow-lg shadow-black/30 transition hover:-translate-y-0.5 hover:border-[#2878F0]/50 sm:p-3.5",
+        );
+
+        // thin accent line along the top (blue, or yellow when locked)
+        card.appendChild(
+          el(
+            "span",
+            "absolute inset-x-0 top-0 h-0.5 " +
+              (locked ? "bg-[#FBBF24]/60" : "bg-[#2878F0]"),
+          ),
+        );
+
+        // everything inside the card (faded when locked)
+        const inner = el(
+          "div",
+          "flex flex-1 flex-col gap-2" + (locked ? " opacity-40" : ""),
+        );
+        card.appendChild(inner);
+
+        // subject + chapter chips
+        const chips = el("div", "mt-1 flex flex-wrap gap-1.5");
+        chips.appendChild(
+          el(
+            "span",
+            "rounded-md bg-[#FBBF24]/15 px-2 py-0.5 text-[11px] font-semibold text-[#FBBF24] capitalize",
+            group.subject || "—",
+          ),
+        );
+        chips.appendChild(
+          el(
+            "span",
+            "rounded-md bg-[#34D399]/15 px-2 py-0.5 text-[11px] font-semibold text-[#34D399]",
+            chapterLabel,
+          ),
+        );
+        inner.appendChild(chips);
+
+        // chapter name
+        inner.appendChild(
+          el(
+            "h3",
+            "text-sm leading-snug font-bold tracking-tight text-white sm:text-base",
+            title,
+          ),
+        );
+
+        // test buttons (one per row from the server, normally Test 1 and Test 2)
+        const actions = el("div", "mt-auto flex gap-1.5 pt-1");
+        const base =
+          "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition sm:text-[13px]";
+
+        group.tests.forEach((t, i) => {
+          const label = Number.isNaN(t.test) ? "Test" : "Test " + t.test;
+          const link = el(
+            "a",
+            base +
+              (i === 0
+                ? " bg-[#2878F0] text-white shadow-md shadow-[#2878F0]/25 hover:brightness-110"
+                : " border border-[#2878F0]/50 bg-[#2878F0]/10 text-[#6aa5ff] hover:bg-[#2878F0] hover:text-white"),
+          );
+          if (locked) {
+            link.href = PREMIUM_PAGE;
+          } else {
+            link.href =
+              DO_PRACTICE_PAGE +
+              "?subject=" +
+              encodeURIComponent(group.subject) +
+              "&chapter=" +
+              encodeURIComponent(group.chapter) +
+              "&test=" +
+              encodeURIComponent(t.test);
+          }
+          link.setAttribute("aria-label", title + " " + label);
+          link.insertAdjacentHTML("beforeend", icon("play", "h-3.5 w-3.5"));
+          link.append(el("span", "", label));
+          actions.appendChild(link);
+        });
+
+        inner.appendChild(actions);
+
+        // locked: faded chained lock over the card (clicks pass through to the buttons)
+        if (locked) {
+          const overlay = el(
+            "div",
+            "pointer-events-none absolute inset-0 flex items-center justify-center bg-[#0B1220]/30",
+          );
+          overlay.insertAdjacentHTML(
+            "beforeend",
+            `<span class="relative flex h-16 w-16 items-center justify-center text-[#FBBF24]/60">
+               ${icon("chain", "absolute h-16 w-16 -rotate-45 opacity-60")}
+               <span class="relative flex h-9 w-9 items-center justify-center rounded-full bg-[#0B1220]/80 ring-2 ring-[#FBBF24]/50">${icon("lock", "h-5 w-5")}</span>
+             </span>`,
+          );
+          card.appendChild(overlay);
+        }
+
+        // searchable text for this card
+        const text = [
+          group.subject,
+          group.name,
+          Number.isNaN(group.chapter) ? "" : "chapter " + group.chapter,
+          locked ? "premium locked" : "",
+          ...group.tests.map((t) => t.info.replace(/_/g, " ")),
+        ]
+          .join(" ")
+          .toLowerCase()
+          .replace(/\s+/g, " ")
+          .trim();
+
+        return {
+          node: card,
+          chapter: group.chapter,
+          tests: new Set(group.tests.map((t) => t.test)),
+          text,
+        };
+      }
+
+      // ---------- search (hide / show the cards) ----------
+      function escapeRegex(s) {
+        return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      }
+
+      // "ch 3", "chapter 1,2", "4-6", "climate", "test 2", "ch 3 test 1"
+      function parseQuery(raw) {
+        const q = raw.toLowerCase().trim().replace(/\s+/g, " ");
+        const words = [];
+        const nums = []; // { from, to, kind: "chapter" | "test" }
+        const tokens = q.split(/[\s,;]+/).filter(Boolean);
+        let ctx = "chapter"; // a bare number means a chapter number
+
+        for (const t of tokens) {
+          let m;
+          if (t === "test") {
+            ctx = "test";
+          } else if (t === "chapter" || t === "ch") {
+            ctx = "chapter";
+          } else if ((m = /^(?:ch|chapter)(\d+)$/.exec(t))) {
+            nums.push({ from: +m[1], to: +m[1], kind: "chapter" });
+          } else if ((m = /^test(\d+)$/.exec(t))) {
+            nums.push({ from: +m[1], to: +m[1], kind: "test" });
+          } else if ((m = /^(\d+)-(\d+)$/.exec(t))) {
+            nums.push({
+              from: Math.min(+m[1], +m[2]),
+              to: Math.max(+m[1], +m[2]),
+              kind: ctx,
+            });
+          } else if (/^\d+$/.test(t)) {
+            nums.push({ from: +t, to: +t, kind: ctx });
+          } else {
+            words.push(t);
+          }
+        }
+        return { q, words, nums };
+      }
+
+      function matchesQuery(card, parsed) {
+        if (!parsed.q) return true;
+
+        // whole phrase on word boundaries (e.g. "chapter 1" but not "chapter 10")
+        const phrase = new RegExp("(^|\\s)" + escapeRegex(parsed.q) + "(\\s|$)");
+        if (phrase.test(card.text)) return true;
+
+        // every word must appear somewhere in the card text
+        if (!parsed.words.every((w) => card.text.includes(w))) return false;
+
+        // numbers: each chapter / test number must match
+        return parsed.nums.every((n) => {
+          if (n.kind === "chapter") {
+            return (
+              !Number.isNaN(card.chapter) &&
+              card.chapter >= n.from &&
+              card.chapter <= n.to
+            );
+          }
+          for (let t = n.from; t <= n.to; t++) {
+            if (card.tests.has(t)) return true;
+          }
+          return false;
+        });
+      }
+
+      function applyFilters() {
+        const parsed = parseQuery(searchInput.value);
+        let visible = 0;
+
+        for (const card of allCards) {
+          const show = matchesQuery(card, parsed);
+          card.node.style.display = show ? "" : "none";
+          if (show) visible++;
+        }
+
+        const active = parsed.q !== "";
+        clearBtn.classList.toggle("hidden", !active);
+
+        if (allCards.length === 0) {
+          resultCount.classList.add("hidden");
+          return; // empty / error message is handled by loadPractice
+        }
+
+        if (visible === 0) {
+          showMessage("No chapters match your search.");
+        } else {
+          practiceMessage.classList.add("hidden");
+        }
+
+        resultCount.textContent = active
+          ? `Showing ${visible} of ${allCards.length} chapters`
+          : `${allCards.length} chapters`;
+        resultCount.classList.remove("hidden");
+      }
+
+      searchInput.addEventListener("input", applyFilters);
+      clearBtn.addEventListener("click", () => {
+        searchInput.value = "";
+        applyFilters();
+        searchInput.focus();
+      });
+
+      // ---------- loading ----------
+      function skeletonCardHTML() {
+        return `
+          <div class="shimmer flex flex-col gap-2 rounded-2xl border border-white/5 bg-[#172337] p-3 shadow-lg shadow-black/30">
+            <div class="flex gap-1.5">
+              <div class="h-5 w-16 rounded-md bg-white/5"></div>
+              <div class="h-5 w-16 rounded-md bg-white/5"></div>
+            </div>
+            <div class="h-5 w-28 rounded-md bg-white/10"></div>
+            <div class="mt-1 flex gap-1.5">
+              <div class="h-8 flex-1 rounded-lg bg-white/10"></div>
+              <div class="h-8 flex-1 rounded-lg bg-white/10"></div>
+            </div>
+          </div>`;
+      }
+      document.getElementById("pageSkeletonGrid").innerHTML =
+        skeletonCardHTML().repeat(8);
+      gridSkeleton.innerHTML = skeletonCardHTML().repeat(8);
+
+      function showMessage(text) {
+        practiceMessage.textContent = text;
+        practiceMessage.classList.remove("hidden");
+      }
+
+      function revealPage() {
+        loadingEl.classList.add("hidden");
+        contentEl.classList.remove("hidden");
+      }
+
+      let latestRequest = 0;
+
+      async function loadPractice(subject) {
+        const requestId = ++latestRequest;
+
+        practiceMessage.classList.add("hidden");
+        resultCount.classList.add("hidden");
+        setGridVisible(practiceGrid, false);
+        setGridVisible(gridSkeleton, true);
+        selectBtn.disabled = true;
+        selectBtn.textContent = "Loading…";
+
+        try {
+          const res = await fetch(
+            "/sscpractice?subject=" + encodeURIComponent(subject),
+          );
+
+          if (res.status === 401) {
+            window.location.href = "/login";
+            return;
+          }
+          if (!res.ok) throw new Error("Failed to load practice tests");
+
+          const data = await res.json();
+          if (requestId !== latestRequest) return; // a newer request is running
+
+          let items = Array.isArray(data)
+            ? data
+            : data.practice || data.tests || data.books || data.data || [];
+
+          // if the server sends every subject, keep only the selected one
+          items = items.filter(
+            (it) =>
+              !it.subject ||
+              String(it.subject).trim().toLowerCase() === subject.toLowerCase(),
+          );
+
+          // server says: { success, data, premium, total_chapter }
+          const premium = data.premium === true;
+          const groups = groupByChapter(items, subject);
+
+          allCards = groups.map((g) => chapterCard(g, false));
+
+          // free user: add locked cards up to total_chapter
+          if (!premium && groups.length > 0) {
+            const total = parseInt(data.total_chapter, 10);
+            const lastShown = Math.max(
+              0,
+              ...groups.map((g) => (Number.isNaN(g.chapter) ? 0 : g.chapter)),
+            );
+            if (!Number.isNaN(total)) {
+              for (let n = lastShown + 1; n <= total; n++) {
+                allCards.push(
+                  chapterCard(
+                    {
+                      subject,
+                      chapter: n,
+                      name: "",
+                      tests: [
+                        { test: 1, info: "" },
+                        { test: 2, info: "" },
+                      ],
+                    },
+                    true,
+                  ),
+                );
+              }
+            }
+          }
+
+          practiceGrid.replaceChildren(...allCards.map((c) => c.node));
+          searchInput.value = "";
+
+          if (allCards.length === 0) {
+            showMessage("No practice tests available for this subject yet.");
+          }
+          applyFilters();
+        } catch (error) {
+          if (requestId !== latestRequest) return;
+          console.error("Error loading practice tests:", error);
+          allCards = [];
+          practiceGrid.replaceChildren();
+          applyFilters();
+          showMessage(
+            "We couldn’t load the practice tests right now. Please try again.",
+          );
+        }
+
+        // finished: hide the loading state, show the page
+        setGridVisible(gridSkeleton, false);
+        setGridVisible(practiceGrid, true);
+        selectBtn.disabled = false;
+        selectBtn.textContent = "Select";
+        revealPage();
+      }
+
+      // press "Select" -> fetch that subject and update all the cards
+      subjectForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        if (selectBtn.disabled || !subjectSelect.value) return;
+        loadPractice(subjectSelect.value);
+      });
+
+      // ---------- subjects (fixed list of the 4 SST parts) ----------
+      subjectSelect.replaceChildren(
+        ...SUBJECTS.map((subject) => {
+          const option = document.createElement("option");
+          option.value = subject;
+          option.textContent = subject;
+          return option;
+        }),
+      );
+      subjectSelect.value = DEFAULT_SUBJECT;
+      loadPractice(DEFAULT_SUBJECT);
+
+      // ---------- mobile sidebar ----------
+      const overlay = document.getElementById("mobileOverlay");
+      const openSidebar = () => overlay.classList.remove("hidden");
+      const closeSidebar = () => overlay.classList.add("hidden");
+
+      document
+        .getElementById("openSidebar")
+        .addEventListener("click", openSidebar);
+      document
+        .getElementById("closeSidebar")
+        .addEventListener("click", closeSidebar);
+      document
+        .getElementById("overlayBackdrop")
+        .addEventListener("click", closeSidebar);
+      document
+        .getElementById("mobileSidebarContent")
+        .querySelectorAll("a")
+        .forEach((a) => a.addEventListener("click", closeSidebar));
+
+      // ---------- profile menu ----------
+      const profileWrap = document.getElementById("profileWrap");
+      const profileMenu = document.getElementById("profileMenu");
+
+      document.getElementById("profileBtn").addEventListener("click", () => {
+        profileMenu.classList.toggle("hidden");
+      });
+
+      document.addEventListener("mousedown", (e) => {
+        if (!profileWrap.contains(e.target))
+          profileMenu.classList.add("hidden");
+      });
+
+      // ---------- user info (header profile) ----------
+      async function getUserInfo() {
+        try {
+          const res = await fetch("/userinfo");
+          const data = await res.json();
+
+          if (!data.success) {
+            window.location.href = "/login";
+            return;
+          }
+          document.getElementById("userName").textContent = data.username;
+          document.getElementById("userEmail").textContent = data.useremail;
+          document.getElementById("avatar").textContent = data.username
+            ? data.username.charAt(0).toUpperCase()
+            : "";
+        } catch (err) {
+          console.error("Could not load user info", err);
+        }
+      }
+      getUserInfo();
+    </script>
+  </body>
+</html>

@@ -7,15 +7,23 @@
     <link rel="stylesheet" href="/output.css" />
   </head>
   <body>
-    <div class="flex min-h-screen bg-neutral-950 text-white">
+    <!--
+      Palette
+      Blue   #2878F0  primary buttons, active navigation
+      Green  #34D399  progress, completed
+      Yellow #FBBF24  highlights, achievements
+      Navy   #0B1220  main background
+      Slate  #172337  cards and surfaces
+    -->
+    <div class="flex min-h-screen bg-[#0B1220] text-slate-100">
       <!-- desktop sidebar -->
-      <aside id="desktopSidebar" class="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-white/5 bg-black/40 md:flex"></aside>
+      <aside id="desktopSidebar" class="sticky top-0 hidden h-screen w-52 shrink-0 flex-col border-r border-white/5 bg-[#172337] md:flex"></aside>
 
-      <!-- mobile sidebar overlay (half of the page) -->
+      <!-- mobile sidebar overlay -->
       <div id="mobileOverlay" class="fixed inset-0 z-40 hidden md:hidden">
         <div id="overlayBackdrop" class="absolute inset-0 bg-black/60"></div>
-        <aside class="relative flex h-full w-1/2 min-w-56 flex-col border-r border-white/10 bg-neutral-950/95 backdrop-blur-xl">
-          <button id="closeSidebar" type="button" aria-label="Close menu" class="absolute top-5 right-4 cursor-pointer text-neutral-400 transition hover:text-white">
+        <aside class="relative flex h-full w-1/2 min-w-52 flex-col border-r border-white/10 bg-[#172337] shadow-xl">
+          <button id="closeSidebar" type="button" aria-label="Close menu" class="absolute top-4 right-3 cursor-pointer text-slate-400 transition hover:text-white">
             <span data-icon="close" data-class="h-5 w-5"></span>
           </button>
           <div id="mobileSidebarContent" class="flex h-full flex-col"></div>
@@ -25,84 +33,105 @@
       <!-- right side -->
       <div class="flex min-w-0 flex-1 flex-col">
         <!-- top bar -->
-        <header class="flex items-center justify-between gap-4 border-b border-white/5 px-6 py-4">
+        <header class="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div class="flex min-w-0 flex-1 items-center gap-3">
-            <button id="openSidebar" type="button" aria-label="Open menu" class="cursor-pointer text-neutral-300 transition hover:text-white md:hidden">
+            <button id="openSidebar" type="button" aria-label="Open menu" class="cursor-pointer text-slate-300 transition hover:text-[#2878F0] md:hidden">
               <span data-icon="menu" data-class="h-6 w-6"></span>
             </button>
-
             <div class="relative w-full max-w-md">
-              <span class="absolute top-1/2 left-3 -translate-y-1/2 text-neutral-500">
+              <span class="absolute top-1/2 left-3 -translate-y-1/2 text-slate-500">
                 <span data-icon="search" data-class="h-4 w-4"></span>
               </span>
               <input
                 type="text"
                 placeholder="Search books, notes, questions..."
-                class="w-full rounded-lg border border-white/10 bg-black/40 py-2.5 pr-3 pl-10 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-white/30"
+                class="w-full rounded-full border border-white/5 bg-[#172337] py-2 pr-3 pl-10 text-sm text-white placeholder-slate-500 outline-none transition focus:border-[#2878F0] focus:ring-4 focus:ring-[#2878F0]/20"
               />
             </div>
           </div>
 
-          <div class="flex items-center gap-4">
-            <a href="#" class="flex items-center gap-2 rounded-lg bg-linear-to-b from-white to-slate-200 px-4 py-2 text-sm font-medium whitespace-nowrap text-black transition hover:from-slate-100 hover:to-slate-300">
+          <div class="flex items-center gap-3">
+            <a href="#" class="flex items-center gap-2 rounded-full bg-[#FBBF24] px-4 py-2 text-sm font-semibold whitespace-nowrap text-[#0B1220] shadow-lg shadow-[#FBBF24]/20 transition hover:brightness-110">
               <span data-icon="crown" data-class="h-4 w-4"></span>
               <span class="hidden sm:inline">Get Premium</span>
             </a>
 
-            <!-- profile -->
             <div class="relative" id="profileWrap">
-              <button id="profileBtn" type="button" aria-label="Open profile menu" class="flex cursor-pointer items-center gap-1 text-neutral-400 transition hover:text-white">
-                <span id="avatar" class="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-neutral-900 text-sm font-medium text-white"></span>
+              <button id="profileBtn" type="button" aria-label="Open profile menu" class="flex cursor-pointer items-center gap-1 text-slate-400 transition hover:text-white">
+                <span id="avatar" class="flex h-9 w-9 items-center justify-center rounded-full bg-[#2878F0] text-sm font-semibold text-white ring-2 ring-[#2878F0]/30"></span>
                 <span data-icon="chevron" data-class="h-4 w-4"></span>
               </button>
 
-              <div id="profileMenu" class="absolute right-0 z-20 mt-2 hidden w-64 rounded-xl border border-white/10 bg-neutral-900/90 p-4 shadow-2xl shadow-black/50 backdrop-blur-xl">
-                <p id="userName" class="text-sm md:text-base font-medium text-white"></p>
-                <p id="userEmail" class="mt-1 text-sm md:text-base break-all text-neutral-400"></p>
-                <button id="logoutBtn" type="button" class="mt-4 w-full cursor-pointer rounded-lg bg-red-600 py-2 text-sm font-medium text-white transition hover:bg-red-500">
-                  <a href="/logout" >Logout</a>
-                </button>
+              <div id="profileMenu" class="absolute right-0 z-20 mt-2 hidden w-64 rounded-2xl border border-white/10 bg-[#172337] p-4 shadow-2xl shadow-black/50">
+                <p id="userName" class="text-sm font-medium text-white"></p>
+                <p id="userEmail" class="mt-1 text-sm break-all text-slate-400"></p>
+                <a href="/logout" class="mt-4 block w-full cursor-pointer rounded-lg bg-red-600 py-2 text-center text-sm font-medium text-white transition hover:bg-red-500">Logout</a>
               </div>
             </div>
           </div>
         </header>
 
         <!-- content -->
-        <main class="flex-1 px-6 py-8">
-          <h1 class="text-3xl font-semibold tracking-tight">Good morning, welcome back</h1>
-          <p class="mt-2 mb-8 text-sm text-neutral-400">A fresh start. A little focus. Your next step begins here.</p>
-
-          <h2 class="mb-4 text-lg font-medium">Your workspace</h2>
-          <div id="workspaceGrid" class="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4"></div>
-
-          <h2 class="mb-4 text-lg font-medium">Your progress</h2>
-          <div class="h-64 rounded-3xl border border-white/10 bg-linear-to-b from-white/10 via-white/5 to-white/5 p-4 backdrop-blur-xl">
-            <div class="grid h-full grid-cols-2 gap-4 sm:grid-cols-4">
-              <div class="flex items-center justify-center rounded-xl border border-white/10 bg-black/30 text-sm text-neutral-400">a</div>
-              <div class="flex items-center justify-center rounded-xl border border-white/10 bg-black/30 text-sm text-neutral-400">b</div>
-              <div class="flex items-center justify-center rounded-xl border border-white/10 bg-black/30 text-sm text-neutral-400">c</div>
-              <div class="flex items-center justify-center rounded-xl border border-white/10 bg-black/30 text-sm text-neutral-400">d</div>
+        <main class="flex-1 px-4 pb-6 sm:px-6">
+          <!-- hero banner -->
+          <section class="relative mb-5 overflow-hidden rounded-2xl bg-linear-to-r from-[#2878F0] to-[#1d4fb8] px-5 py-4 text-white shadow-lg shadow-[#2878F0]/20">
+            <span class="absolute -top-8 -right-6 h-28 w-28 rounded-full bg-white/10"></span>
+            <span class="absolute -right-2 -bottom-10 h-24 w-24 rounded-full bg-[#34D399]/25"></span>
+            <span class="absolute top-3 right-28 hidden h-3 w-3 rounded-full bg-[#FBBF24] sm:block"></span>
+            <span class="absolute right-16 bottom-4 hidden h-2 w-2 rounded-full bg-[#34D399] sm:block"></span>
+            <div class="relative">
+              <h1 class="text-xl font-bold tracking-tight sm:text-2xl">Good morning, welcome back 👋</h1>
+              <p class="mt-0.5 text-xs text-blue-100 sm:text-sm">A fresh start. A little focus. Your next step begins here.</p>
             </div>
+          </section>
+
+          <h2 class="mb-2 flex items-center gap-2 text-base font-bold">
+            <span class="h-4 w-1.5 rounded-full bg-[#2878F0]"></span>Your workspace
+          </h2>
+          <div id="workspaceGrid" class="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4"></div>
+
+          <h2 class="mb-2 flex items-center gap-2 text-base font-bold">
+            <span class="h-4 w-1.5 rounded-full bg-[#34D399]"></span>Your progress
+          </h2>
+          <div class="mb-5 h-56 rounded-2xl border border-white/5 bg-[#172337] p-3 shadow-lg shadow-black/30">
+            <div class="grid h-full grid-cols-2 gap-3 sm:grid-cols-4">
+              <div class="flex items-center justify-center rounded-xl border border-[#2878F0]/30 bg-[#2878F0]/10 text-lg font-bold text-[#2878F0]">a</div>
+              <div class="flex items-center justify-center rounded-xl border border-[#34D399]/30 bg-[#34D399]/10 text-lg font-bold text-[#34D399]">b</div>
+              <div class="flex items-center justify-center rounded-xl border border-[#FBBF24]/30 bg-[#FBBF24]/10 text-lg font-bold text-[#FBBF24]">c</div>
+              <div class="flex items-center justify-center rounded-xl border border-[#2878F0]/30 bg-[#2878F0]/10 text-lg font-bold text-[#2878F0]">d</div>
+            </div>
+          </div>
+
+          <!-- leaderboard -->
+          <div class="mb-2 flex items-center justify-between">
+            <h2 class="flex items-center gap-2 text-base font-bold">
+              <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-[#FBBF24] text-[#0B1220]" data-icon="trophy" data-class="h-4 w-4"></span>
+              Leaderboard
+            </h2>
+            <button id="seeAllBtn" type="button" class="cursor-pointer rounded-full border border-[#2878F0]/40 bg-[#2878F0]/10 px-3.5 py-1.5 text-xs font-semibold text-[#6aa5ff] transition hover:bg-[#2878F0] hover:text-white">See all</button>
+          </div>
+          <div id="leaderboard" class="flex flex-col gap-2 rounded-2xl border border-white/5 bg-[#172337] p-3 shadow-lg shadow-black/30">
+            <p class="py-8 text-center text-sm text-slate-500">Loading leaderboard...</p>
+          </div>
+          <div class="mt-3 flex justify-center">
+            <button id="seeAllBtn2" type="button" class="cursor-pointer rounded-full bg-[#2878F0] px-6 py-2 text-sm font-semibold text-white shadow-lg shadow-[#2878F0]/30 transition hover:brightness-110">See all</button>
           </div>
         </main>
 
         <!-- footer -->
-        <footer class="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 px-6 py-5 text-xs text-neutral-500">
+        <footer class="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 px-4 py-4 text-xs text-slate-500 sm:px-6">
           <p>© 2026 Highkey. All rights reserved.</p>
-          <div id="footerLinks" class="flex flex-wrap gap-6">
-             <a href="/about" class="transition hover:text-white">About Us</a>
-         <a href="/help" class="transition hover:text-white">Help</a>
-         <a href="/policy" class="transition hover:text-white">Privacy Policy</a>
-         <a href="/terms" class="transition hover:text-white">Terms</a>
-
+          <div class="flex flex-wrap gap-5">
+            <a href="/about" class="transition hover:text-white">About Us</a>
+            <a href="/help" class="transition hover:text-white">Help</a>
+            <a href="/policy" class="transition hover:text-white">Privacy Policy</a>
+            <a href="/terms" class="transition hover:text-white">Terms</a>
           </div>
         </footer>
       </div>
     </div>
 
     <script>
-   
-
       // ---------- icons ----------
       const icons = {
         home: `<path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" /><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />`,
@@ -114,6 +143,7 @@
         support: `<circle cx="12" cy="12" r="10" /><path d="m4.93 4.93 4.24 4.24" /><path d="m14.83 9.17 4.24-4.24" /><path d="m14.83 14.83 4.24 4.24" /><path d="m9.17 14.83-4.24 4.24" /><circle cx="12" cy="12" r="4" />`,
         search: `<circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />`,
         crown: `<path d="M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.519l4.276 3.664a1 1 0 0 0 1.516-.294z" /><path d="M5 21h14" />`,
+        trophy: `<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />`,
         chevron: `<path d="m6 9 6 6 6-6" />`,
         arrow: `<path d="M7 7h10v10" /><path d="M7 17 17 7" />`,
         menu: `<path d="M4 6h16" /><path d="M4 12h16" /><path d="M4 18h16" />`,
@@ -122,6 +152,10 @@
 
       function icon(name, cls = "h-5 w-5") {
         return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="${cls}">${icons[name]}</svg>`;
+      }
+
+      function esc(s) {
+        return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
       }
 
       // ---------- data ----------
@@ -134,12 +168,12 @@
         { label: "PYQ", icon: "copy", href: "/pyq" },
       ];
 
-      // put your images next to this file (or change the paths / links here)
+      // each card gets an accent from the palette
       const workspaceCards = [
-        { title: "Explore books", text: "Find your next chapter.", icon: "book", href: "/books", bg: "/assets/Explorebooks.png" },
-        { title: "Study notes", text: "Keep every idea in focus.", icon: "notes", href: "/notes", bg: "/assets/Studynotes.png" },
-        { title: "Practice", text: "Build confidence every day.", icon: "help", href: "/practice", bg: "/assets/Practice.png" },
-        { title: "Take a test", text: "Put your knowledge to the test.", icon: "test", href: "/test", bg: "/assets/Taketest.png" },
+        { title: "Explore books", text: "Find your next chapter.", icon: "book", href: "/books", bg: "/assets/Explorebooks.png", glow: "from-[#2878F0]/35 hover:border-[#2878F0]/60", chip: "bg-[#2878F0] text-white" },
+        { title: "Study notes", text: "Keep every idea in focus.", icon: "notes", href: "/notes", bg: "/assets/Studynotes.png", glow: "from-[#34D399]/30 hover:border-[#34D399]/60", chip: "bg-[#34D399] text-[#0B1220]" },
+        { title: "Practice", text: "Build confidence every day.", icon: "help", href: "/practice", bg: "/assets/Practice.png", glow: "from-[#FBBF24]/30 hover:border-[#FBBF24]/60", chip: "bg-[#FBBF24] text-[#0B1220]" },
+        { title: "Take a test", text: "Put your knowledge to the test.", icon: "test", href: "/test", bg: "/assets/Taketest.png", glow: "from-[#2878F0]/35 via-[#34D399]/15 hover:border-[#2878F0]/60", chip: "bg-linear-to-br from-[#2878F0] to-[#34D399] text-white" },
       ];
 
       // ---------- render ----------
@@ -147,25 +181,27 @@
         const items = navItems
           .map((item) =>
             item.active
-              ? `<a href="${item.href}" class="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-medium text-white">${icon(item.icon, "h-4 w-4 text-indigo-300")}${item.label}</a>`
-              : `<a href="${item.href}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-neutral-400 transition hover:bg-white/5 hover:text-white">${icon(item.icon, "h-4 w-4")}${item.label}</a>`,
+              ? `<a href="${item.href}" class="flex items-center gap-2.5 rounded-xl bg-[#2878F0] px-3 py-2 text-[13px] font-semibold text-white shadow-lg shadow-[#2878F0]/30">${icon(item.icon, "h-4 w-4")}${item.label}</a>`
+              : `<a href="${item.href}" class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] text-slate-400 transition hover:bg-white/5 hover:text-white">${icon(item.icon, "h-4 w-4")}${item.label}</a>`,
           )
           .join("");
 
         return `
-          <div class="flex items-center gap-2 px-5 py-5">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" class="h-6 w-6">
-              <path d="M12 3 2.5 21h19L12 3Z" />
-              <path d="m12 9-4 12M12 9l4 12" />
-            </svg>
-            <span class="text-xl font-medium tracking-tight">Highkey</span>
+          <div class="flex items-center gap-2 px-4 py-4">
+            <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-[#2878F0] text-white shadow-lg shadow-[#2878F0]/30">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" class="h-5 w-5">
+                <path d="M12 3 2.5 21h19L12 3Z" />
+                <path d="m12 9-4 12M12 9l4 12" />
+              </svg>
+            </span>
+            <span class="text-lg font-bold tracking-tight">Highkey</span>
           </div>
-          <nav class="flex flex-col gap-1 px-3 py-2">
+          <nav class="flex flex-col gap-1 px-2.5 py-1">
             ${items}
             <div class="my-2 border-t border-white/5"></div>
-            <a href="/help" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-neutral-400 transition hover:bg-white/5 hover:text-white">${icon("support", "h-4 w-4")}Help</a>
+            <a href="/help" class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] text-slate-400 transition hover:bg-white/5 hover:text-white">${icon("support", "h-4 w-4")}Help</a>
           </nav>
-          <p class="mt-auto px-5 py-5 text-xs text-neutral-500">Your space for what’s next.</p>`;
+          <div class="mx-3 mt-auto mb-4 rounded-xl border border-[#FBBF24]/20 bg-[#FBBF24]/10 p-3 text-xs text-[#FBBF24]">Your space for what’s next. ✨</div>`;
       }
 
       document.getElementById("desktopSidebar").innerHTML = sidebarHTML();
@@ -174,29 +210,90 @@
       document.getElementById("workspaceGrid").innerHTML = workspaceCards
         .map(
           (card) => `
-          <a href="${card.href}" class="group relative flex h-40 flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-neutral-900/50 p-5 transition hover:border-white/20">
-            <img src="${card.bg}" alt="" loading="eager" class="absolute inset-0 h-full w-full object-cover opacity-30 transition duration-300 group-hover:scale-105 group-hover:opacity-40" />
-            <div class="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent"></div>
+          <a href="${card.href}" class="group relative flex h-32 flex-col justify-between overflow-hidden rounded-2xl border border-white/5 bg-[#172337] p-3.5 shadow-lg shadow-black/30 transition duration-300 hover:-translate-y-1 sm:h-36 ${card.glow.split(" ").filter((c) => c.startsWith("hover:")).join(" ")}">
+            <img src="${card.bg}" alt="" loading="eager" class="absolute inset-0 h-full w-full object-cover opacity-15 transition duration-300 group-hover:scale-110 group-hover:opacity-25" onerror="this.style.display='none'" />
+            <div class="absolute inset-0 bg-linear-to-br ${card.glow.split(" ").filter((c) => !c.startsWith("hover:")).join(" ")} to-transparent"></div>
 
             <div class="relative flex items-start justify-between">
-              <span class="flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 bg-black/40 text-indigo-300 backdrop-blur-md">${icon(card.icon, "h-5 w-5")}</span>
-              <span class="text-neutral-400 transition group-hover:text-white">${icon("arrow", "h-4 w-4")}</span>
+              <span class="flex h-9 w-9 items-center justify-center rounded-xl shadow-md ${card.chip}">${icon(card.icon, "h-4 w-4")}</span>
+              <span class="text-slate-500 transition group-hover:text-white">${icon("arrow", "h-4 w-4")}</span>
             </div>
 
             <div class="relative">
-              <h3 class="text-sm font-medium">${card.title}</h3>
-              <p class="mt-1 text-xs text-neutral-400">${card.text}</p>
+              <h3 class="text-sm font-bold text-white">${card.title}</h3>
+              <p class="mt-0.5 text-xs text-slate-400">${card.text}</p>
             </div>
           </a>`,
         )
         .join("");
 
-    
-
-      // fill the static icon placeholders
       document.querySelectorAll("[data-icon]").forEach((el) => {
         el.innerHTML = icon(el.dataset.icon, el.dataset.class);
       });
+
+      // ---------- leaderboard ----------
+      // index 0 = 1st ... index 9 = 10th. Biggest for 1st, shrinking each rank.
+      const lbStyles = [
+        { row: "p-5 bg-linear-to-r from-[#FBBF24] to-[#f59e0b] text-[#0B1220] shadow-xl shadow-[#FBBF24]/25 ring-2 ring-[#FBBF24]/50", badge: "h-14 w-14 text-2xl bg-[#0B1220] text-[#FBBF24]", avatar: "h-14 w-14 text-2xl bg-[#0B1220]/15 text-[#0B1220]", name: "text-2xl sm:text-3xl font-extrabold", stat: "text-sm", score: "text-3xl sm:text-4xl font-extrabold", sub: "text-[#0B1220]/70", medal: "👑" },
+        { row: "p-4 bg-linear-to-r from-[#2878F0] to-[#1d4fb8] text-white shadow-lg shadow-[#2878F0]/25", badge: "h-12 w-12 text-xl bg-white text-[#2878F0]", avatar: "h-12 w-12 text-xl bg-white/20 text-white", name: "text-xl sm:text-2xl font-bold", stat: "text-sm", score: "text-2xl sm:text-3xl font-bold", sub: "text-blue-100", medal: "🥈" },
+        { row: "p-3.5 bg-linear-to-r from-[#34D399] to-[#10b981] text-[#0B1220] shadow-lg shadow-[#34D399]/20", badge: "h-10 w-10 text-lg bg-[#0B1220] text-[#34D399]", avatar: "h-10 w-10 text-lg bg-[#0B1220]/15 text-[#0B1220]", name: "text-lg sm:text-xl font-bold", stat: "text-xs", score: "text-xl sm:text-2xl font-bold", sub: "text-[#0B1220]/70", medal: "🥉" },
+        { row: "p-3 bg-[#0B1220]/70 border border-white/5 text-white", badge: "h-9 w-9 text-base bg-[#2878F0]/20 text-[#6aa5ff]", avatar: "h-9 w-9 text-base bg-white/5 text-slate-300", name: "text-base font-semibold", stat: "text-xs", score: "text-lg font-bold text-[#34D399]", sub: "text-slate-400", medal: "" },
+        { row: "p-3 bg-[#0B1220]/70 border border-white/5 text-white", badge: "h-8 w-8 text-sm bg-[#2878F0]/20 text-[#6aa5ff]", avatar: "h-8 w-8 text-sm bg-white/5 text-slate-300", name: "text-[15px] font-semibold", stat: "text-xs", score: "text-base font-bold text-[#34D399]", sub: "text-slate-400", medal: "" },
+        { row: "px-3 py-2.5 bg-[#0B1220]/70 border border-white/5 text-white", badge: "h-8 w-8 text-sm bg-[#2878F0]/20 text-[#6aa5ff]", avatar: "h-8 w-8 text-sm bg-white/5 text-slate-300", name: "text-sm font-semibold", stat: "text-xs", score: "text-base font-bold text-[#34D399]", sub: "text-slate-400", medal: "" },
+        { row: "px-3 py-2 bg-[#0B1220]/70 border border-white/5 text-white", badge: "h-7 w-7 text-xs bg-[#2878F0]/20 text-[#6aa5ff]", avatar: "h-7 w-7 text-xs bg-white/5 text-slate-300", name: "text-sm font-medium", stat: "text-[11px]", score: "text-sm font-bold text-[#34D399]", sub: "text-slate-400", medal: "" },
+        { row: "px-3 py-2 bg-[#0B1220]/70 border border-white/5 text-white", badge: "h-7 w-7 text-xs bg-[#2878F0]/20 text-[#6aa5ff]", avatar: "h-7 w-7 text-xs bg-white/5 text-slate-300", name: "text-[13px] font-medium", stat: "text-[11px]", score: "text-sm font-bold text-[#34D399]", sub: "text-slate-400", medal: "" },
+        { row: "px-3 py-1.5 bg-[#0B1220]/70 border border-white/5 text-white", badge: "h-6 w-6 text-[11px] bg-[#2878F0]/20 text-[#6aa5ff]", avatar: "h-6 w-6 text-[11px] bg-white/5 text-slate-300", name: "text-xs font-medium", stat: "text-[10px]", score: "text-xs font-bold text-[#34D399]", sub: "text-slate-400", medal: "" },
+        { row: "px-3 py-1.5 bg-[#0B1220]/70 border border-white/5 text-white", badge: "h-6 w-6 text-[11px] bg-[#2878F0]/20 text-[#6aa5ff]", avatar: "h-6 w-6 text-[11px] bg-white/5 text-slate-300", name: "text-xs font-medium", stat: "text-[10px]", score: "text-xs font-bold text-[#34D399]", sub: "text-slate-400", medal: "" },
+      ];
+
+      function renderLeaderboard(list) {
+        const box = document.getElementById("leaderboard");
+        if (!list.length) {
+          box.innerHTML = `<p class="py-8 text-center text-sm text-slate-500">No leaderboard data yet.</p>`;
+          return;
+        }
+        box.innerHTML = list
+          .slice(0, 10)
+          .map((s, i) => {
+            const st = lbStyles[i];
+            const avg = Number(s.avgScore);
+            const avgText = Number.isFinite(avg) ? avg.toFixed(1) : "0.0";
+            const tests = Number(s.totalTest) || 0;
+            const initial = s.name ? String(s.name).charAt(0).toUpperCase() : "?";
+            return `
+              <div class="flex items-center gap-3 rounded-2xl transition hover:scale-[1.01] ${st.row}">
+                <span class="flex shrink-0 items-center justify-center rounded-full font-extrabold ${st.badge}">${esc(s.rank ?? i + 1)}</span>
+                <span class="hidden shrink-0 items-center justify-center rounded-full font-bold sm:flex ${st.avatar}">${esc(initial)}</span>
+                <div class="min-w-0 flex-1">
+                  <p class="truncate ${st.name}">${esc(s.name)} ${st.medal}</p>
+                  <p class="${st.stat} ${st.sub}">${tests} ${tests === 1 ? "test" : "tests"} taken</p>
+                </div>
+                <div class="shrink-0 text-right">
+                  <p class="leading-none ${st.score}">${avgText}</p>
+                  <p class="mt-0.5 ${st.stat} ${st.sub}">avg score</p>
+                </div>
+              </div>`;
+          })
+          .join("");
+      }
+
+      async function loadLeaderboard() {
+        try {
+          const res = await fetch("/leaderboard");
+          const data = await res.json();
+          // accepts a plain array, or { data: [...] } / { leaderboard: [...] }
+          const list = Array.isArray(data) ? data : data.data || data.leaderboard || [];
+          renderLeaderboard(list);
+        } catch (err) {
+          console.error("Could not load leaderboard", err);
+          document.getElementById("leaderboard").innerHTML = `<p class="py-8 text-center text-sm text-slate-500">Could not load leaderboard.</p>`;
+        }
+      }
+      loadLeaderboard();
+
+      const goAll = () => (window.location.href = "/allleaderboard");
+      document.getElementById("seeAllBtn").addEventListener("click", goAll);
+      document.getElementById("seeAllBtn2").addEventListener("click", goAll);
 
       // ---------- mobile sidebar ----------
       const overlay = document.getElementById("mobileOverlay");
@@ -206,10 +303,7 @@
       document.getElementById("openSidebar").addEventListener("click", openSidebar);
       document.getElementById("closeSidebar").addEventListener("click", closeSidebar);
       document.getElementById("overlayBackdrop").addEventListener("click", closeSidebar);
-      document
-        .getElementById("mobileSidebarContent")
-        .querySelectorAll("a")
-        .forEach((a) => a.addEventListener("click", closeSidebar));
+      document.getElementById("mobileSidebarContent").querySelectorAll("a").forEach((a) => a.addEventListener("click", closeSidebar));
 
       // ---------- profile menu ----------
       const profileWrap = document.getElementById("profileWrap");
@@ -219,7 +313,6 @@
         profileMenu.classList.toggle("hidden");
       });
 
-      // close the profile menu when clicking anywhere outside it
       document.addEventListener("mousedown", (e) => {
         if (!profileWrap.contains(e.target)) profileMenu.classList.add("hidden");
       });
@@ -231,22 +324,18 @@
           const data = await res.json();
 
           if (!data.success) {
-            window.location.href = '/login';
+            window.location.href = "/login";
             return;
           }
 
           document.getElementById("userName").textContent = `Name - ${data.username}`;
           document.getElementById("userEmail").textContent = `Email - ${data.useremail}`;
-          document.getElementById("avatar").textContent = data.username
-            ? data.username.charAt(0).toUpperCase()
-            : "";
+          document.getElementById("avatar").textContent = data.username ? data.username.charAt(0).toUpperCase() : "";
         } catch (err) {
           console.error("Could not load user info", err);
         }
       }
       getUserInfo();
-
-    
     </script>
   </body>
 </html>

@@ -69,7 +69,6 @@ router2.post(
         .select("email,password , username , user_id , is_premium , class")
         .eq("email", email)
         .maybeSingle();
-      console.log("Supabase query result:", { data, error });
       if (data) {
         const isMatch = await bcrypt.compare(password, data.password);
 

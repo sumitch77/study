@@ -3,69 +3,113 @@ const path = require("path");
 const routerssc = express.Router();
 const dotenv = require("dotenv");
 dotenv.config();
-const { Resend } = require("resend");
-const resendClient = new Resend(process.env.TOKEN);
-const { check } = require("express-validator");
-const { EmailLimiter, TimeLimiter, validate } = require("../utils/ratelimit");
-
-const { type } = require("os");
 const { supabase } = require("../utils/supabase");
 const { loginother } = require("../utils/helper");
+const {
+  client,
+  cacheData,
+  clearUserDashboardCache,
+  clearPublicDashboardCache,
+} = require("../utils/redisHelper");
+const {
+  practicelimiter,
+  generallimiter,
+  highlimiter,
+  maxlimiter,
+} = require("../utils/practicelimiter");
 
-routerssc.get("/sscpractice", loginother, async (req, res) => {
-  const { subject } = req.query;
-  if (!subject) {
-    return res.json({ success: false, message: "Invalid Request" });
-  }
+routerssc.get(
+  "/practice",
+  loginother,
+  generallimiter,
+  highlimiter,
+  maxlimiter,
+  async (req, res) => {
+    return res.sendFile(path.join(__dirname, "../views/practice.html"));
+  },
+);
+routerssc.get(
+  "/sscpractice",
+  loginother,
+  practicelimiter,
+  highlimiter,
+  maxlimiter,
+  async (req, res) => {
+    const subject = String(req.query.subject || "")
+      .trim()
+      .toLowerCase();
 
-  const { data, error } = await supabase
-    .schema("study")
-    .from("sscpractice")
-    .select("*")
-    .ilike("subject", subject);
-  if (error) {
-    console.error("Error fetching data from Supabase:", error);
-    return res.json({ success: false, message: "Error fetching data" });
-  }
-  if (!data || data.length === 0) {
-    console.error("No data found for the given subject:", subject);
-    return res.json({ success: false, message: "No data found" });
-  }
-  if (data) {
-    return res.json({ success: true, data: data });
-  }
-});
-
-routerssc.get("/paperpractice", loginother, async (req, res) => {
-  return res.sendFile(path.join(__dirname, "../views/paper.html"));
-});
-
-routerssc.get("/getpaperpractice", loginother, async (req, res) => {
-  let { subject, chapter, test } = req.query;
-  if (!subject || !chapter || !test) {
-    return res.status(400).json({ success: false, message: "Invalid Request" });
-  }
-  subject = subject.toLowerCase();
-  if (subject === "geography") {
-    const { data, error } = await supabase
-      .schema("study")
-      .from("practice_questions")
-      .select("*")
-      .limit(50);
-    if (error) {
-      console.error("Error fetching data from Supabase:", error);
+    // letters and spaces only: no % or _ wildcards reach ilike
+    if (!/^[a-z ]{1,30}$/.test(subject)) {
       return res
-        .status(500)
-        .json({ success: false, message: "Error fetching data" });
+        .status(400)
+        .json({ success: false, message: "Invalid Request" });
     }
-    if (!data || data.length === 0) {
-      console.error("No data found for the given subject:", subject);
-      return res.status(404).json({ success: false, message: "No data found" });
+    if (!req.session.premium) {
+      try {
+        const data = await cacheData(
+          `sscpractice:${subject}:${req.session.premium}`,
+          600,
+          async () => {
+            const { data, error } = await supabase
+              .schema("study")
+              .from("sscpractice")
+              .select("*")
+              .ilike("subject", subject)
+              .limit(1);
+            if (error) throw error;
+            return data;
+          },
+          (data) => Array.isArray(data) && data.length > 0,
+        );
+
+        if (!data || data.length === 0) {
+          return res.json({ success: false, message: "No data found" });
+        }
+
+        return res.json({
+          success: true,
+          data,
+          premium: false,
+          total_chapter: 5,
+        });
+      } catch (error) {
+        console.error("Error fetching data from Supabase:", error);
+        return res
+          .status(500)
+          .json({ success: false, message: "Error fetching data" });
+      }
     }
-    if (data) {
-      return res.status(200).json({ success: true, data: data });
+    if (req.session.premium) {
+      try {
+        const data = await cacheData(
+          `sscpractice:${subject}:${req.session.premium}`,
+          600,
+          async () => {
+            const { data, error } = await supabase
+              .schema("study")
+              .from("sscpractice")
+              .select("*")
+              .ilike("subject", subject);
+            if (error) throw error;
+            return data;
+          },
+          (data) => Array.isArray(data) && data.length > 0,
+        );
+
+        if (!data || data.length === 0) {
+          return res.json({ success: false, message: "No data found" });
+        }
+
+        return res.json({ success: true, data, premium: true });
+      } catch (error) {
+        console.error("Error fetching data from Supabase:", error);
+        return res
+          .status(500)
+          .json({ success: false, message: "Error fetching data" });
+      }
     }
-  }
-});
+  },
+);
 
 module.exports = { routerssc };

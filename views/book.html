@@ -33,24 +33,32 @@
     </style>
   </head>
   <body>
-    <div class="flex min-h-screen bg-neutral-950 text-white">
+    <!--
+      Palette
+      Blue   #2878F0  primary buttons, active navigation
+      Green  #34D399  completed / download / chapter
+      Yellow #FBBF24  highlights, class label, premium
+      Navy   #0B1220  main background
+      Slate  #172337  cards and surfaces
+    -->
+    <div class="flex min-h-screen bg-[#0B1220] text-slate-100">
       <!-- desktop sidebar -->
       <aside
         id="desktopSidebar"
-        class="sticky top-0 hidden h-screen w-60 shrink-0 flex-col border-r border-white/5 bg-black/40 md:flex"
+        class="sticky top-0 hidden h-screen w-52 shrink-0 flex-col border-r border-white/5 bg-[#172337] md:flex"
       ></aside>
 
       <!-- mobile sidebar overlay (half of the page) -->
       <div id="mobileOverlay" class="fixed inset-0 z-40 hidden md:hidden">
         <div id="overlayBackdrop" class="absolute inset-0 bg-black/60"></div>
         <aside
-          class="relative flex h-full w-1/2 min-w-56 flex-col border-r border-white/10 bg-neutral-950/95 backdrop-blur-xl"
+          class="relative flex h-full w-1/2 min-w-52 flex-col border-r border-white/10 bg-[#172337] shadow-xl"
         >
           <button
             id="closeSidebar"
             type="button"
             aria-label="Close menu"
-            class="absolute top-5 right-4 cursor-pointer text-neutral-400 transition hover:text-white"
+            class="absolute top-4 right-3 cursor-pointer text-slate-400 transition hover:text-white"
           >
             <span data-icon="close" data-class="h-5 w-5"></span>
           </button>
@@ -61,23 +69,19 @@
       <!-- right side -->
       <div class="flex min-w-0 flex-1 flex-col">
         <!-- top bar -->
-        <header
-          class="flex items-center justify-between gap-4 border-b border-white/5 px-6 py-4"
-        >
+        <header class="flex items-center justify-between gap-3 px-4 py-3 sm:px-6">
           <div class="flex min-w-0 flex-1 items-center gap-3">
             <button
               id="openSidebar"
               type="button"
               aria-label="Open menu"
-              class="cursor-pointer text-neutral-300 transition hover:text-white md:hidden"
+              class="cursor-pointer text-slate-300 transition hover:text-[#2878F0] md:hidden"
             >
               <span data-icon="menu" data-class="h-6 w-6"></span>
             </button>
 
             <div class="relative w-full max-w-md">
-              <span
-                class="absolute top-1/2 left-3 -translate-y-1/2 text-neutral-500"
-              >
+              <span class="absolute top-1/2 left-3 -translate-y-1/2 text-slate-500">
                 <span data-icon="search" data-class="h-4 w-4"></span>
               </span>
               <input
@@ -85,15 +89,15 @@
                 type="search"
                 autocomplete="off"
                 placeholder="Search subject, chapter… e.g. maths 3"
-                class="w-full rounded-lg border border-white/10 bg-black/40 py-2.5 pr-3 pl-10 text-sm text-white placeholder-neutral-500 outline-none transition focus:border-white/30"
+                class="w-full rounded-full border border-white/5 bg-[#172337] py-2 pr-3 pl-10 text-sm text-white placeholder-slate-500 outline-none transition focus:border-[#2878F0] focus:ring-4 focus:ring-[#2878F0]/20"
               />
             </div>
           </div>
 
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-3">
             <a
               href="#"
-              class="flex items-center gap-2 rounded-lg bg-linear-to-b from-white to-slate-200 px-4 py-2 text-sm font-medium whitespace-nowrap text-black transition hover:from-slate-100 hover:to-slate-300"
+              class="flex items-center gap-2 rounded-full bg-[#FBBF24] px-4 py-2 text-sm font-semibold whitespace-nowrap text-[#0B1220] shadow-lg shadow-[#FBBF24]/20 transition hover:brightness-110"
             >
               <span data-icon="crown" data-class="h-4 w-4"></span>
               <span class="hidden sm:inline">Get Premium</span>
@@ -105,27 +109,21 @@
                 id="profileBtn"
                 type="button"
                 aria-label="Open profile menu"
-                class="flex cursor-pointer items-center gap-1 text-neutral-400 transition hover:text-white"
+                class="flex cursor-pointer items-center gap-1 text-slate-400 transition hover:text-white"
               >
                 <span
                   id="avatar"
-                  class="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-neutral-900 text-sm font-medium text-white"
+                  class="flex h-9 w-9 items-center justify-center rounded-full bg-[#2878F0] text-sm font-semibold text-white ring-2 ring-[#2878F0]/30"
                 ></span>
                 <span data-icon="chevron" data-class="h-4 w-4"></span>
               </button>
 
               <div
                 id="profileMenu"
-                class="absolute right-0 z-20 mt-2 hidden w-64 rounded-xl border border-white/10 bg-neutral-900/90 p-4 shadow-2xl shadow-black/50 backdrop-blur-xl"
+                class="absolute right-0 z-20 mt-2 hidden w-64 rounded-2xl border border-white/10 bg-[#172337] p-4 shadow-2xl shadow-black/50"
               >
-                <p
-                  id="userName"
-                  class="text-sm font-medium text-white md:text-base"
-                ></p>
-                <p
-                  id="userEmail"
-                  class="mt-1 text-xs break-all text-neutral-400 md:text-base"
-                ></p>
+                <p id="userName" class="text-sm font-medium text-white"></p>
+                <p id="userEmail" class="mt-1 text-xs break-all text-slate-400"></p>
                 <a
                   href="/logout"
                   class="mt-4 block w-full cursor-pointer rounded-lg bg-red-600 py-2 text-center text-sm font-medium text-white transition hover:bg-red-500"
@@ -137,134 +135,110 @@
         </header>
 
         <!-- content -->
-        <main class="flex-1 px-6 py-8">
+        <main class="flex-1 px-4 pb-6 sm:px-6">
           <!-- loading state: shown until the first /getbooks call finishes -->
           <div id="shimmer" aria-busy="true" aria-label="Loading books">
-            <div
-              class="shimmer h-9 w-48 max-w-full rounded-lg bg-white/10"
-            ></div>
+            <div class="shimmer h-7 w-32 max-w-full rounded-lg bg-white/10"></div>
 
-            <div class="mt-5 mb-8 flex flex-wrap items-end gap-3">
-              <div>
-                <div class="shimmer mb-2 h-4 w-24 rounded-md bg-white/5"></div>
-                <div
-                  class="shimmer h-10 w-56 max-w-full rounded-lg bg-white/10"
-                ></div>
-              </div>
-              <div class="shimmer h-10 w-24 rounded-lg bg-white/10"></div>
+            <div class="mt-3 mb-4 flex flex-wrap items-center gap-2">
+              <div class="shimmer h-9 w-40 max-w-full rounded-lg bg-white/10"></div>
+              <div class="shimmer h-9 w-16 rounded-lg bg-white/10"></div>
             </div>
 
             <div
               id="pageSkeletonGrid"
-              class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              class="grid grid-cols-2 gap-3 lg:grid-cols-4"
             ></div>
           </div>
 
           <!-- real content -->
           <div id="aftershimmer" class="hidden">
-            <h1 class="text-3xl font-semibold tracking-tight">Books</h1>
+            <div class="flex flex-wrap items-baseline gap-x-3">
+              <h1 class="flex items-center gap-2 text-xl font-bold tracking-tight sm:text-2xl">
+                <span class="h-5 w-1.5 rounded-full bg-[#2878F0]"></span>Books
+              </h1>
+              <p id="resultCount" class="hidden text-xs text-slate-400"></p>
+            </div>
 
-            <!-- controls: select subject (server) + filter (cards on screen) -->
-            <div class="mt-5 mb-6 flex flex-wrap items-end gap-x-6 gap-y-4">
-              <form id="subjectForm" class="flex flex-wrap items-end gap-3">
-                <div>
-                  <label
-                    for="subjectSelect"
-                    class="mb-2 block text-sm font-medium text-neutral-300"
-                    >Select Subject</label
-                  >
-                  <div class="relative">
-                    <select
-                      id="subjectSelect"
-                      class="scheme-dark w-56 max-w-full cursor-pointer appearance-none rounded-lg border border-white/10 bg-black/40 py-2.5 pr-10 pl-4 text-sm text-white capitalize outline-none transition"
-                    ></select>
-                    <span
-                      class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-neutral-400"
-                    >
-                      <span data-icon="chevron" data-class="h-4 w-4"></span>
-                    </span>
-                  </div>
+            <!-- controls: one compact row -->
+            <div class="mt-3 mb-4 flex flex-wrap items-center gap-2">
+              <form id="subjectForm" class="flex items-center gap-2">
+                <label for="subjectSelect" class="sr-only">Select Subject</label>
+                <div class="relative">
+                  <select
+                    id="subjectSelect"
+                    class="scheme-dark w-40 max-w-full cursor-pointer appearance-none rounded-lg border border-white/10 bg-[#172337] py-2 pr-8 pl-3 text-sm text-white capitalize outline-none transition focus:border-[#2878F0] sm:w-48"
+                  ></select>
+                  <span class="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-slate-400">
+                    <span data-icon="chevron" data-class="h-4 w-4"></span>
+                  </span>
                 </div>
 
                 <button
                   id="selectBtn"
                   type="submit"
-                  class="cursor-pointer rounded-lg bg-linear-to-b from-white to-slate-200 px-5 py-2.5 text-sm font-medium text-black transition hover:from-slate-100 hover:to-slate-300 disabled:cursor-not-allowed disabled:from-neutral-500 disabled:to-neutral-600 disabled:text-neutral-300 disabled:opacity-60"
+                  class="cursor-pointer rounded-lg bg-[#2878F0] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[#2878F0]/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Select
                 </button>
               </form>
 
-              <!-- filter: options come from the subject names on the cards -->
-              <div class="flex items-end gap-3">
-                <div>
-                  <label
-                    for="filterSelect"
-                    class="mb-2 block text-sm font-medium text-neutral-300"
-                    >Filter</label
-                  >
-                  <div class="relative">
-                    <span
-                      class="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-neutral-400"
-                    >
-                      <span data-icon="filter" data-class="h-4 w-4"></span>
-                    </span>
-                    <select
-                      id="filterSelect"
-                      class="scheme-dark w-56 max-w-full cursor-pointer appearance-none rounded-lg border border-white/10 bg-black/40 py-2.5 pr-10 pl-9 text-sm text-white outline-none transition disabled:cursor-not-allowed disabled:opacity-60"
-                    ></select>
-                    <span
-                      class="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-neutral-400"
-                    >
-                      <span data-icon="chevron" data-class="h-4 w-4"></span>
-                    </span>
-                  </div>
+              <!-- second filter: only for social science (sst), hidden otherwise -->
+              <div id="filterWrap" class="hidden items-center gap-2">
+                <label for="filterSelect" class="sr-only">Filter</label>
+                <div class="relative">
+                  <span class="pointer-events-none absolute top-1/2 left-2.5 -translate-y-1/2 text-[#FBBF24]">
+                    <span data-icon="filter" data-class="h-3.5 w-3.5"></span>
+                  </span>
+                  <select
+                    id="filterSelect"
+                    class="scheme-dark w-40 max-w-full cursor-pointer appearance-none rounded-lg border border-white/10 bg-[#172337] py-2 pr-8 pl-8 text-sm text-white capitalize outline-none transition focus:border-[#FBBF24] disabled:cursor-not-allowed disabled:opacity-60 sm:w-44"
+                  ></select>
+                  <span class="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-slate-400">
+                    <span data-icon="chevron" data-class="h-4 w-4"></span>
+                  </span>
                 </div>
-
-                <button
-                  id="clearBtn"
-                  type="button"
-                  class="hidden cursor-pointer rounded-lg border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-white/10"
-                >
-                  Clear
-                </button>
               </div>
+
+              <button
+                id="clearBtn"
+                type="button"
+                class="hidden cursor-pointer rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+              >
+                Clear
+              </button>
             </div>
 
             <!-- empty / error message -->
             <p
               id="practiceMessage"
-              class="mb-5 hidden rounded-2xl border border-white/10 bg-white/5 px-5 py-4 text-sm text-neutral-300"
+              class="mb-4 hidden rounded-xl border border-[#FBBF24]/20 bg-[#FBBF24]/10 px-4 py-3 text-sm text-[#FBBF24]"
             ></p>
-
-            <p id="resultCount" class="mb-4 hidden text-sm text-neutral-400"></p>
 
             <!-- loading cards while a new subject is fetched -->
             <div
               id="gridSkeleton"
-              class="hidden grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              class="hidden grid-cols-2 gap-3 lg:grid-cols-4"
               aria-busy="true"
             ></div>
 
             <!-- books -->
             <div
               id="practiceGrid"
-              class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+              class="grid grid-cols-2 gap-3 lg:grid-cols-4"
             ></div>
           </div>
         </main>
 
         <!-- footer -->
         <footer
-          class="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 px-6 py-5 text-xs text-neutral-500"
+          class="flex flex-wrap items-center justify-between gap-3 border-t border-white/5 px-4 py-4 text-xs text-slate-500 sm:px-6"
         >
           <p>© 2026 Highkey. All rights reserved.</p>
-          <div id="footerLinks" class="flex flex-wrap gap-6">
+          <div id="footerLinks" class="flex flex-wrap gap-5">
             <a href="/about" class="transition hover:text-white">About Us</a>
             <a href="/help" class="transition hover:text-white">Help</a>
-            <a href="/policy" class="transition hover:text-white"
-              >Privacy Policy</a
-            >
+            <a href="/policy" class="transition hover:text-white">Privacy Policy</a>
             <a href="/terms" class="transition hover:text-white">Terms</a>
           </div>
         </footer>
@@ -305,35 +279,37 @@
       const navItems = [
         { label: "Home", icon: "home", href: "/" },
         { label: "Books", icon: "book", href: "/books" },
-        { label: "Notes", icon: "notes", href: "/notes" },
+        // { label: "Notes", icon: "notes", href: "/notes" },
         { label: "Practice Questions", icon: "help", href: "/practice" },
         { label: "Test", icon: "test", href: "/test" },
-        { label: "PYQ", icon: "copy", href: "/pyq" },
+        // { label: "PYQ", icon: "copy", href: "/pyq" },
       ];
 
       function sidebarHTML() {
         const items = navItems
           .map((item) =>
             item.href === activeHref
-              ? `<a href="${item.href}" class="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-sm font-medium text-white">${icon(item.icon, "h-4 w-4 text-indigo-300")}${item.label}</a>`
-              : `<a href="${item.href}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-neutral-400 transition hover:bg-white/5 hover:text-white">${icon(item.icon, "h-4 w-4")}${item.label}</a>`,
+              ? `<a href="${item.href}" class="flex items-center gap-2.5 rounded-xl bg-[#2878F0] px-3 py-2 text-[13px] font-semibold text-white shadow-lg shadow-[#2878F0]/30">${icon(item.icon, "h-4 w-4")}${item.label}</a>`
+              : `<a href="${item.href}" class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] text-slate-400 transition hover:bg-white/5 hover:text-white">${icon(item.icon, "h-4 w-4")}${item.label}</a>`,
           )
           .join("");
 
         return `
-          <div class="flex items-center gap-2 px-5 py-5">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" class="h-6 w-6">
-              <path d="M12 3 2.5 21h19L12 3Z" />
-              <path d="m12 9-4 12M12 9l4 12" />
-            </svg>
-            <span class="text-xl font-medium tracking-tight">Highkey</span>
+          <div class="flex items-center gap-2 px-4 py-4">
+            <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-[#2878F0] text-white shadow-lg shadow-[#2878F0]/30">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" class="h-5 w-5">
+                <path d="M12 3 2.5 21h19L12 3Z" />
+                <path d="m12 9-4 12M12 9l4 12" />
+              </svg>
+            </span>
+            <span class="text-lg font-bold tracking-tight">Highkey</span>
           </div>
-          <nav class="flex flex-col gap-1 px-3 py-2">
+          <nav class="flex flex-col gap-1 px-2.5 py-1">
             ${items}
             <div class="my-2 border-t border-white/5"></div>
-            <a href="/help" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-neutral-400 transition hover:bg-white/5 hover:text-white">${icon("support", "h-4 w-4")}Help</a>
+            <a href="/help" class="flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] text-slate-400 transition hover:bg-white/5 hover:text-white">${icon("support", "h-4 w-4")}Help</a>
           </nav>
-          <p class="mt-auto px-5 py-5 text-xs text-neutral-500">Your space for what’s next.</p>`;
+          <div class="mx-3 mt-auto mb-4 rounded-xl border border-[#FBBF24]/20 bg-[#FBBF24]/10 p-3 text-xs text-[#FBBF24]">Your space for what’s next. ✨</div>`;
       }
 
       document.getElementById("desktopSidebar").innerHTML = sidebarHTML();
@@ -345,6 +321,10 @@
 
       // ---------- books ----------
       const DEFAULT_SUBJECT = "social science"; // used only if it exists in the subject list
+      // the second filter is shown only when one of these subjects is loaded
+      const SST_SUBJECTS = ["social science", "sst"];
+      const isSst = (s) => SST_SUBJECTS.includes(String(s || "").trim().toLowerCase());
+
       const subjectForm = document.getElementById("subjectForm");
       const subjectSelect = document.getElementById("subjectSelect");
       const selectBtn = document.getElementById("selectBtn");
@@ -352,12 +332,14 @@
       const gridSkeleton = document.getElementById("gridSkeleton");
       const practiceMessage = document.getElementById("practiceMessage");
       const searchInput = document.getElementById("searchInput");
+      const filterWrap = document.getElementById("filterWrap");
       const filterSelect = document.getElementById("filterSelect");
       const clearBtn = document.getElementById("clearBtn");
       const resultCount = document.getElementById("resultCount");
 
       // cards currently on screen: [{ node, subject, mainsub, chapter, classRaw, text }]
       let allCards = [];
+      let loadedSubject = ""; // the subject whose books are on screen
 
       // create an element safely (text is never parsed as HTML)
       function el(tag, className, text) {
@@ -431,69 +413,80 @@
 
         const card = el(
           "div",
-          "flex flex-col gap-3 rounded-2xl border border-white/10 bg-linear-to-b from-neutral-800/60 via-neutral-950 to-neutral-900 p-4 shadow-xl shadow-black/40 transition hover:border-white/20",
+          "relative flex flex-col gap-2 overflow-hidden rounded-2xl border border-white/5 bg-[#172337] p-3 shadow-lg shadow-black/30 transition hover:-translate-y-0.5 hover:border-[#2878F0]/50 sm:p-3.5",
+        );
+
+        // thin blue accent line along the top
+        card.appendChild(
+          el("span", "absolute inset-x-0 top-0 h-0.5 bg-[#2878F0]"),
         );
 
         // subject heading
         card.appendChild(
-          el("h3", "text-lg font-semibold tracking-tight capitalize", subject),
+          el(
+            "h3",
+            "mt-1 text-sm leading-tight font-bold tracking-tight text-white capitalize sm:text-base",
+            subject,
+          ),
         );
 
-        // class (9th, 10th ...)
-        card.appendChild(
+        // class + chapter chips
+        const chips = el("div", "flex flex-wrap gap-1.5");
+        chips.appendChild(
           el(
-            "p",
-            "text-sm font-medium tracking-wide text-indigo-300",
+            "span",
+            "rounded-md bg-[#FBBF24]/15 px-2 py-0.5 text-[11px] font-semibold text-[#FBBF24]",
             classLabel ? "Class " + classLabel : "Class —",
           ),
         );
-
-        // chapter
-        card.appendChild(
+        chips.appendChild(
           el(
-            "p",
-            "text-sm font-medium tracking-wide text-indigo-300",
+            "span",
+            "rounded-md bg-[#34D399]/15 px-2 py-0.5 text-[11px] font-semibold text-[#34D399]",
             chapter !== "" ? "Chapter " + chapter : "Chapter —",
           ),
         );
+        card.appendChild(chips);
 
-        // buttons
-        const actions = el("div", "mt-auto flex gap-2 pt-1");
+        // buttons (icon only on phones, icon + text from sm up)
+        const actions = el("div", "mt-auto flex gap-1.5 pt-1");
         const primary =
-          "flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition";
+          "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition sm:text-[13px]";
 
         if (url) {
           const view = el(
             "a",
             primary +
-              " bg-linear-to-b from-white to-slate-200 text-black hover:from-slate-100 hover:to-slate-300",
+              " bg-[#2878F0] text-white shadow-md shadow-[#2878F0]/25 hover:brightness-110",
           );
           view.href = url;
           view.target = "_blank";
           view.rel = "noopener noreferrer";
+          view.setAttribute("aria-label", "View book");
           view.insertAdjacentHTML("beforeend", icon("eye", "h-4 w-4"));
-          view.append(el("span", "", "View"));
+          view.append(el("span", "hidden sm:inline", "View"));
 
           const download = el(
             "a",
             primary +
-              " border border-white/10 bg-white/5 text-white hover:bg-white/10",
+              " border border-[#34D399]/40 bg-[#34D399]/10 text-[#34D399] hover:bg-[#34D399] hover:text-[#0B1220]",
           );
           download.href = url;
           download.setAttribute(
             "download",
             fileNameFor(subject, classRaw, chapter),
           );
+          download.setAttribute("aria-label", "Download book");
           download.rel = "noopener noreferrer";
           download.insertAdjacentHTML("beforeend", icon("download", "h-4 w-4"));
-          download.append(el("span", "", "Download"));
+          download.append(el("span", "hidden sm:inline", "Download"));
 
           actions.append(view, download);
         } else {
           actions.appendChild(
             el(
               "span",
-              primary + " cursor-not-allowed bg-white/5 text-neutral-500",
+              primary + " cursor-not-allowed bg-white/5 text-slate-500",
               "PDF not available",
             ),
           );
@@ -607,7 +600,7 @@
         resultCount.classList.remove("hidden");
       }
 
-      // filter options come from the subject names on the cards
+      // filter options come from the subject names on the cards (sst only)
       function buildFilter() {
         const subjects = [...new Set(allCards.map((c) => c.subject))].filter(
           Boolean,
@@ -626,6 +619,11 @@
         );
         filterSelect.value = "";
         filterSelect.disabled = subjects.length < 2;
+
+        // only social science (sst) gets the second filter
+        const show = isSst(loadedSubject) && subjects.length >= 2;
+        filterWrap.classList.toggle("hidden", !show);
+        filterWrap.classList.toggle("flex", show);
       }
 
       function resetControls() {
@@ -643,11 +641,13 @@
       // ---------- loading ----------
       function skeletonCardHTML() {
         return `
-          <div class="shimmer flex flex-col gap-3 rounded-2xl border border-white/10 bg-neutral-900/70 p-4 shadow-xl shadow-black/40">
-            <div class="h-6 w-24 rounded-md bg-white/10"></div>
-            <div class="h-4 w-28 rounded-md bg-white/5"></div>
-            <div class="h-4 w-20 rounded-md bg-white/5"></div>
-            <div class="mt-1 h-9 w-full rounded-lg bg-white/10"></div>
+          <div class="shimmer flex flex-col gap-2 rounded-2xl border border-white/5 bg-[#172337] p-3 shadow-lg shadow-black/30">
+            <div class="h-5 w-20 rounded-md bg-white/10"></div>
+            <div class="flex gap-1.5">
+              <div class="h-5 w-14 rounded-md bg-white/5"></div>
+              <div class="h-5 w-16 rounded-md bg-white/5"></div>
+            </div>
+            <div class="mt-1 h-8 w-full rounded-lg bg-white/10"></div>
           </div>`;
       }
       document.getElementById("pageSkeletonGrid").innerHTML =
@@ -694,6 +694,7 @@
             ? data
             : data.books || data.papers || data.data || [];
 
+          loadedSubject = subject;
           allCards = items.map((item) => bookCard(item, subject));
           practiceGrid.replaceChildren(...allCards.map((c) => c.node));
           buildFilter();
@@ -706,6 +707,7 @@
         } catch (error) {
           if (requestId !== latestRequest) return;
           console.error("Error loading books:", error);
+          loadedSubject = subject;
           allCards = [];
           practiceGrid.replaceChildren();
           buildFilter();

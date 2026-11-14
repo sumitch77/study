@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Practice Test Highkey</title>
+    <link rel="stylesheet" href="/output.css" />
+  </head>
+  <body>
+    <!--
+      Palette
+      Blue   #2878F0  primary buttons, progress
+      Green  #34D399  correct answer
+      Yellow #FBBF24  warnings, timer
+      Red    #EF4444  wrong answer
+      Navy   #0B1220  main background
+      Slate  #172337  cards and surfaces
+    -->
+    <div class="flex min-h-screen flex-col bg-[#0B1220] text-slate-100 select-none">
+      <!-- top bar: info, timer, progress -->
+      <div class="sticky top-0 z-10 border-b border-white/5 bg-[#0B1220]/95 backdrop-blur">
+        <div class="mx-auto flex w-full max-w-2xl items-center justify-between gap-3 px-4 py-3">
+          <div class="min-w-0">
+            <p id="testInfo" class="truncate text-xs font-semibold text-slate-400 capitalize">Practice test</p>
+            <p id="counter" class="text-sm font-bold">—</p>
+          </div>
+          <div class="flex items-center gap-2 rounded-full border border-[#FBBF24]/30 bg-[#FBBF24]/10 px-3.5 py-1.5 text-[#FBBF24]">
+            <span data-icon="clock" data-class="h-4 w-4"></span>
+            <span id="timer" class="text-sm font-bold tabular-nums">00:00</span>
+          </div>
+        </div>
+        <div class="h-1 w-full bg-white/5">
+          <div id="progressBar" class="h-full w-0 bg-[#2878F0] transition-all duration-300"></div>
+        </div>
+      </div>
+
+      <!-- loading / error -->
+      <div id="stateBox" class="mx-auto flex w-full max-w-2xl flex-1 items-center justify-center px-4 text-center">
+        <p id="stateText" class="text-sm text-slate-400">Loading questions…</p>
+      </div>
+
+      <!-- question area -->
+      <main id="quiz" class="mx-auto hidden w-full max-w-2xl flex-1 flex-col px-4 py-5">
+        <h1 id="question" class="rounded-2xl border border-white/5 bg-[#172337] p-4 text-base leading-relaxed font-semibold whitespace-pre-line shadow-lg shadow-black/30 sm:text-lg"></h1>
+
+        <div id="options" class="mt-4 flex flex-col gap-2.5"></div>
+
+        <p id="explanation" class="mt-4 hidden rounded-xl border-l-4 border-[#FBBF24] bg-[#FBBF24]/10 px-4 py-3 text-sm leading-relaxed whitespace-pre-line text-slate-200"></p>
+
+        <!-- navigation -->
+        <div class="mt-auto flex items-center justify-between gap-3 pt-6">
+          <button id="prevBtn" type="button" class="cursor-pointer rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40">Previous</button>
+          <button id="nextBtn" type="button" class="cursor-pointer rounded-xl bg-[#2878F0] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#2878F0]/25 transition hover:brightness-110">Next</button>
+          <button id="submitBtn" type="button" class="hidden cursor-pointer rounded-xl bg-[#34D399] px-6 py-2.5 text-sm font-bold text-[#0B1220] shadow-lg shadow-[#34D399]/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60">Submit</button>
+        </div>
+      </main>
+    </div>
+
+    <!-- warning / confirm popup -->
+    <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/70 p-4">
+      <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-[#172337] p-5 text-center shadow-2xl shadow-black/60">
+        <div id="modalIcon" class="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#FBBF24]/15 text-[#FBBF24]"></div>
+        <h2 id="modalTitle" class="text-lg font-bold"></h2>
+        <p id="modalText" class="mt-2 text-sm leading-relaxed text-slate-300"></p>
+        <div id="modalActions" class="mt-5 flex justify-center gap-2"></div>
+      </div>
+    </div>
+
+    <!-- result screen -->
+    <div id="result" class="fixed inset-0 z-40 hidden flex-col items-center justify-center bg-[#0B1220] p-4 text-center">
+      <div class="w-full max-w-sm rounded-2xl border border-white/10 bg-[#172337] p-6 shadow-2xl shadow-black/50">
+        <div id="resultIcon" class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#34D399]/15 text-[#34D399]"></div>
+        <h2 id="resultTitle" class="text-xl font-bold">Test submitted</h2>
+        <p id="resultNote" class="mt-1 hidden text-sm text-[#FBBF24]"></p>
+        <p id="resultScore" class="mt-4 text-5xl font-extrabold text-white"></p>
+        <p id="resultPercent" class="mt-1 text-sm text-slate-400"></p>
+        <p id="resultTime" class="mt-3 text-sm text-slate-300"></p>
+        <p id="resultError" class="mt-3 hidden text-sm text-red-400"></p>
+        <div class="mt-5 flex justify-center gap-2">
+          <button id="retryBtn" type="button" class="hidden cursor-pointer rounded-xl bg-[#FBBF24] px-5 py-2.5 text-sm font-bold text-[#0B1220] transition hover:brightness-110">Retry submit</button>
+          <a id="backBtn" href="/practice" class="cursor-pointer rounded-xl bg-[#2878F0] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#2878F0]/25 transition hover:brightness-110">Back to practice</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ---------- icons ----------
+      const icons = {
+        clock: `<circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />`,
+        check: `<path d="M20 6 9 17l-5-5" />`,
+        x: `<path d="M18 6 6 18" /><path d="m6 6 12 12" />`,
+        alert: `<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4" /><path d="M12 17h.01" />`,
+        flag: `<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><path d="M4 22v-7" />`,
+      };
+
+      function icon(name, cls = "h-5 w-5") {
+        return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="${cls}">${icons[name]}</svg>`;
+      }
+
+      document.querySelectorAll("[data-icon]").forEach((el) => {
+        el.innerHTML = icon(el.dataset.icon, el.dataset.class);
+      });
+
+      // ---------- helpers ----------
+      function el(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
+      }
+
+      const $ = (id) => document.getElementById(id);
+
+      // ---------- test info (from the link: /dopractice?subject=..&chapter=..&test=..) ----------
+      const params = new URLSearchParams(window.location.search);
+      const subject = params.get("subject") || "";
+      const chapter = params.get("chapter") || "";
+      const test = params.get("test") || "";
+
+      $("testInfo").textContent = [
+        subject,
+        chapter ? "Chapter " + chapter : "",
+        test ? "Test " + test : "",
+      ]
+        .filter(Boolean)
+        .join(" · ");
+
+      // ---------- state ----------
+      const LETTERS = ["a", "b", "c", "d"];
+      let questions = []; // [{ question, options: {a,b,c,d}, answer: "a", explanation }]
+      let selected = []; // selected letter per question, or null
+      let current = 0;
+      let submitted = false;
+      let lastPayload = null;
+
+      // ---------- timer (never resets on next / previous) ----------
+      const startTime = Date.now();
+      const elapsedSeconds = () => Math.floor((Date.now() - startTime) / 1000);
+
+      function formatTime(total) {
+        const h = Math.floor(total / 3600);
+        const m = Math.floor((total % 3600) / 60);
+        const s = total % 60;
+        const mm = String(m).padStart(2, "0");
+        const ss = String(s).padStart(2, "0");
+        return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
+      }
+
+      const timerEl = $("timer");
+      const timerId = setInterval(() => {
+        timerEl.textContent = formatTime(elapsedSeconds());
+      }, 1000);
+
+      // ---------- modal ----------
+      function showModal({ title, text, tone = "warn", actions }) {
+        const iconBox = $("modalIcon");
+        iconBox.className =
+          "mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full " +
+          (tone === "danger"
+            ? "bg-red-500/15 text-red-400"
+            : "bg-[#FBBF24]/15 text-[#FBBF24]");
+        iconBox.innerHTML = icon("alert", "h-6 w-6");
+        $("modalTitle").textContent = title;
+        $("modalText").textContent = text;
+        $("modalActions").replaceChildren(...actions);
+        $("modal").classList.remove("hidden");
+        $("modal").classList.add("flex");
+      }
+
+      function hideModal() {
+        $("modal").classList.add("hidden");
+        $("modal").classList.remove("flex");
+      }
+
+      function modalButton(label, onClick, style = "primary") {
+        const cls =
+          style === "primary"
+            ? "bg-[#2878F0] text-white shadow-lg shadow-[#2878F0]/25 hover:brightness-110"
+            : "border border-white/10 bg-white/5 text-white hover:bg-white/10";
+        const b = el(
+          "button",
+          "cursor-pointer rounded-xl px-5 py-2.5 text-sm font-semibold transition " + cls,
+          label,
+        );
+        b.type = "button";
+        b.addEventListener("click", onClick);
+        return b;
+      }
+
+      // ---------- rendering ----------
+      function showState(text) {
+        $("stateText").textContent = text;
+        $("stateBox").classList.remove("hidden");
+        $("quiz").classList.add("hidden");
+        $("quiz").classList.remove("flex");
+      }
+
+      function render() {
+        const q = questions[current];
+        const picked = selected[current];
+        const answered = picked !== null;
+
+        $("counter").textContent = `Question ${current + 1} of ${questions.length}`;
+        $("progressBar").style.width =
+          ((current + 1) / questions.length) * 100 + "%";
+        $("question").textContent = q.question;
+
+        // options
+        const list = $("options");
+        list.replaceChildren();
+
+        LETTERS.forEach((letter) => {
+          const text = q.options[letter];
+          if (text === undefined || text === null || String(text).trim() === "") return;
+
+          let style = "border-white/10 bg-[#172337] text-slate-100";
+          let chip = "bg-white/10 text-slate-300";
+          let mark = "";
+
+          if (!answered) {
+            style += " hover:border-[#2878F0] hover:bg-[#2878F0]/10 cursor-pointer";
+          } else if (letter === q.answer) {
+            style = "border-[#34D399] bg-[#34D399]/15 text-white cursor-default";
+            chip = "bg-[#34D399] text-[#0B1220]";
+            mark = icon("check", "h-5 w-5 text-[#34D399]");
+          } else if (letter === picked) {
+            style = "border-red-500 bg-red-500/15 text-white cursor-default";
+            chip = "bg-red-500 text-white";
+            mark = icon("x", "h-5 w-5 text-red-400");
+          } else {
+            style += " opacity-50 cursor-default";
+          }
+
+          const btn = el(
+            "button",
+            "flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left text-sm transition sm:text-base " + style,
+          );
+          btn.type = "button";
+          btn.disabled = answered; // lock the inputs once answered
+          btn.appendChild(
+            el(
+              "span",
+              "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold uppercase " + chip,
+              letter,
+            ),
+          );
+          btn.appendChild(el("span", "flex-1 whitespace-pre-line", String(text)));
+          if (mark) btn.insertAdjacentHTML("beforeend", mark);
+
+          btn.addEventListener("click", () => choose(letter));
+          list.appendChild(btn);
+        });
+
+        // explanation (below all the options)
+        const exp = $("explanation");
+        if (answered && q.explanation) {
+          exp.textContent = q.explanation;
+          exp.classList.remove("hidden");
+        } else {
+          exp.classList.add("hidden");
+        }
+
+        // navigation buttons
+        const last = current === questions.length - 1;
+        $("prevBtn").disabled = current === 0;
+        $("nextBtn").classList.toggle("hidden", last);
+        $("submitBtn").classList.toggle("hidden", !last);
+      }
+
+      function choose(letter) {
+        if (submitted || selected[current] !== null) return;
+        selected[current] = letter;
+        render();
+      }
+
+      $("prevBtn").addEventListener("click", () => {
+        if (current > 0) {
+          current--;
+          render();
+        }
+      });
+
+      $("nextBtn").addEventListener("click", () => {
+        if (current < questions.length - 1) {
+          current++;
+          render();
+        }
+      });
+
+      // ---------- submit ----------
+      function buildPayload(visibility) {
+        const score = questions.reduce(
+          (sum, q, i) => sum + (selected[i] === q.answer ? 1 : 0),
+          0,
+        );
+        return {
+          subject,
+          chapter,
+          test,
+          score,
+          total: questions.length,
+          attempted: selected.filter((s) => s !== null).length,
+          timetaken: elapsedSeconds(), // seconds
+          visibility, // true = test ended because the user left the page
+          answers: selected.map((s) => (s ? "option_" + s : null)),
+        };
+      }
+
+      function showResult(payload, { error = false } = {}) {
+        $("resultScore").textContent = `${payload.score} / ${payload.total}`;
+        $("resultPercent").textContent = payload.total
+          ? Math.round((payload.score / payload.total) * 100) + "%"
+          : "";
+        $("resultTime").textContent = "Time taken: " + formatTime(payload.timetaken);
+
+        const note = $("resultNote");
+        if (payload.visibility) {
+          note.textContent = "Your test was submitted because you left the page too many times.";
+          note.classList.remove("hidden");
+        } else {
+          note.classList.add("hidden");
+        }
+
+        const err = $("resultError");
+        const retry = $("retryBtn");
+        if (error) {
+          err.textContent = "We couldn’t save your result. Please check your connection and retry.";
+          err.classList.remove("hidden");
+          retry.classList.remove("hidden");
+          $("resultTitle").textContent = "Test finished";
+          $("resultIcon").innerHTML = icon("alert", "h-7 w-7");
+        } else {
+          err.classList.add("hidden");
+          retry.classList.add("hidden");
+          $("resultTitle").textContent = "Test submitted";
+          $("resultIcon").innerHTML = icon("flag", "h-7 w-7");
+        }
+
+        $("result").classList.remove("hidden");
+        $("result").classList.add("flex");
+      }
+
+      async function sendPayload(payload) {
+        const res = await fetch("/submitpractice", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+          keepalive: true, // lets the request finish even if the tab is hidden
+        });
+        if (res.status === 401) {
+          window.location.href = "/login";
+          return false;
+        }
+        if (!res.ok) return false;
+        try {
+          const data = await res.json();
+          return data.success !== false;
+        } catch {
+          return true;
+        }
+      }
+
+      async function submitTest(visibility = false) {
+        if (submitted) return;
+        submitted = true;
+        clearInterval(timerId);
+        hideModal();
+        $("submitBtn").disabled = true;
+
+        lastPayload = buildPayload(visibility);
+        showResult(lastPayload);
+
+        try {
+          const ok = await sendPayload(lastPayload);
+          if (!ok) showResult(lastPayload, { error: true });
+        } catch (err) {
+          console.error("Submit failed", err);
+          showResult(lastPayload, { error: true });
+        }
+      }
+
+      $("retryBtn").addEventListener("click", async () => {
+        if (!lastPayload) return;
+        const btn = $("retryBtn");
+        btn.disabled = true;
+        btn.textContent = "Sending…";
+        try {
+          const ok = await sendPayload(lastPayload);
+          if (ok) showResult(lastPayload);
+        } catch (err) {
+          console.error("Retry failed", err);
+        }
+        btn.disabled = false;
+        btn.textContent = "Retry submit";
+      });
+
+      $("submitBtn").addEventListener("click", () => {
+        if (submitted) return;
+        const unanswered = selected.filter((s) => s === null).length;
+
+        if (unanswered === 0) {
+          submitTest(false);
+          return;
+        }
+
+        showModal({
+          title: "Submit test?",
+          text: `You have ${unanswered} unanswered question${unanswered === 1 ? "" : "s"}. They will count as wrong.`,
+          actions: [
+            modalButton("Keep going", hideModal, "secondary"),
+            modalButton("Submit", () => submitTest(false)),
+          ],
+        });
+      });
+
+      // ---------- leaving the page (Page Visibility API) ----------
+      // 1st and 2nd time: warning popup. 3rd time: submit with visibility: true.
+      let leaveCount = 0;
+      let pendingWarning = 0;
+
+      document.addEventListener("visibilitychange", () => {
+        if (submitted || questions.length === 0) return;
+
+        if (document.visibilityState === "hidden") {
+          leaveCount++;
+          if (leaveCount >= 3) {
+            submitTest(true);
+          } else {
+            pendingWarning = leaveCount; // show it as soon as the user is back
+          }
+        } else if (pendingWarning) {
+          const n = pendingWarning;
+          pendingWarning = 0;
+          showModal({
+            title: n === 1 ? "Warning 1 of 2" : "Final warning",
+            text:
+              n === 1
+                ? "Please stay on this page during the test. If you leave again you will get a final warning, and leaving a third time submits your test automatically."
+                : "You left the page again. If you leave one more time, your test will be submitted automatically.",
+            tone: n === 1 ? "warn" : "danger",
+            actions: [modalButton("I understand, continue", hideModal)],
+          });
+        }
+      });
+
+      // ---------- load questions ----------
+      function normalizeAnswer(raw) {
+        const a = String(raw ?? "").trim().toLowerCase().replace(/^option[\s_-]*/, "");
+        return LETTERS.includes(a) ? a : "";
+      }
+
+      async function loadQuestions() {
+        if (!subject || !chapter || !test) {
+          showState("This test link is incomplete. Please go back and choose a test.");
+          return;
+        }
+
+        try {
+          const res = await fetch(
+            "/getpracticequestions?subject=" +
+              encodeURIComponent(subject) +
+              "&chapter=" +
+              encodeURIComponent(chapter) +
+              "&test=" +
+              encodeURIComponent(test),
+          );
+
+          if (res.status === 401) {
+            window.location.href = "/login";
+            return;
+          }
+          if (res.status === 403) {
+            window.location.href = "/premium";
+            return;
+          }
+          if (!res.ok) throw new Error("Failed to load questions");
+
+          const data = await res.json();
+          const rows = Array.isArray(data)
+            ? data
+            : data.data || data.questions || [];
+
+          questions = rows
+            .map((r) => ({
+              question: String(r.question ?? "").trim(),
+              options: {
+                a: r.option_a,
+                b: r.option_b,
+                c: r.option_c,
+                d: r.option_d,
+              },
+              answer: normalizeAnswer(r.answer),
+              explanation: String(r.explanation ?? "").trim(),
+            }))
+            .filter((q) => q.question);
+
+          if (questions.length === 0) {
+            showState("No questions found for this test yet.");
+            return;
+          }
+
+          selected = questions.map(() => null);
+          $("stateBox").classList.add("hidden");
+          $("quiz").classList.remove("hidden");
+          $("quiz").classList.add("flex");
+          render();
+        } catch (err) {
+          console.error("Could not load questions", err);
+          showState("We couldn’t load the questions right now. Please go back and try again.");
+        }
+      }
+      loadQuestions();
+    </script>
+  </body>
+</html>

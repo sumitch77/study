@@ -181,10 +181,10 @@
             })
         });
         const result2 = await captchaResponse.json();
-        if(!result2.success){
-          messageEl.innerText = "captcha verification failed , Please Reload site before trying again";
-          return;
-        }
+        // if(!result2.success){
+        //   messageEl.innerText = "captcha verification failed , Please Reload site before trying again";
+        //   return;
+        // }
 
         try {
           const res = await fetch('/login', {

@@ -10,40 +10,35 @@ client.on("error", (err) => {
 
 const inFlight = new Map();
 
-async function cacheData(key, ttlSeconds, fetchData) {
+async function cacheData(key, ttlSeconds, fetchData, shouldCache = () => true) {
   try {
     const cached = await client.get(key);
-
-    if (cached !== null) {
-      return JSON.parse(cached);
-    }
+    if (cached !== null) return JSON.parse(cached);
   } catch (err) {
     console.error("Redis cache read error:", err.message);
   }
 
-  if (inFlight.has(key)) {
-    return inFlight.get(key);
-  }
+  if (inFlight.has(key)) return inFlight.get(key);
 
-  const promise = (async () => {
-    try {
-      const data = await fetchData();
-
-      try {
-        await client.set(key, JSON.stringify(data), {
-          EX: ttlSeconds,
-        });
-      } catch (err) {
-        console.error("Redis cache write error:", err.message);
+  const promise = Promise.resolve()
+    .then(fetchData)
+    .then(async (data) => {
+      if (shouldCache(data)) {
+        try {
+          await client.set(key, JSON.stringify(data), { EX: ttlSeconds });
+        } catch (err) {
+          console.error("Redis cache write error:", err.message);
+        }
       }
-
       return data;
-    } finally {
-      inFlight.delete(key);
-    }
-  })();
+    });
 
   inFlight.set(key, promise);
+
+  const cleanup = () => {
+    if (inFlight.get(key) === promise) inFlight.delete(key);
+  };
+  promise.then(cleanup, cleanup);
 
   return promise;
 }
