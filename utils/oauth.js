@@ -83,6 +83,7 @@ passport.use(
                 email: email,
                 username: name,
                 googlephoto: photo,
+                class: "10",
               },
             ])
             .select()
@@ -102,7 +103,6 @@ passport.use(
               totaltest: 0,
               avgscorepractice: 0,
               avgscoretest: 0,
-              final_score: 0,
             })
             .maybeSingle();
 
