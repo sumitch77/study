@@ -156,18 +156,20 @@ router.get("/finalleaderboard", async (req, res) => {
 });
 
 // ---------- progress (per user, 5 minutes) ----------
+const PROGRESS_SUBJECTS = ["geography", "civics", "history", "economics"];
+
 async function fetchProgress(useremail) {
   const { data, error } = await supabase
     .schema("study")
     .from("scoretable")
     .select("subject, test_score")
     .eq("useremail", useremail)
-    .in("subject", ["geography", "civics", "history", "economics"]);
+    .in("subject", PROGRESS_SUBJECTS);
 
   if (error) throw error;
 
   const out = {};
-  for (const s of ["geography", "civics", "history", "economics"]) {
+  for (const s of PROGRESS_SUBJECTS) {
     out[s] = { attempted: 0, avgscore: 0, avgpercent: 0, _sum: 0 };
   }
 
@@ -178,18 +180,19 @@ async function fetchProgress(useremail) {
     bucket._sum += Number(row.test_score) || 0;
   }
 
-  for (const s of Object.keys(out)) {
+  for (const s of PROGRESS_SUBJECTS) {
     const b = out[s];
+    // test_score is stored out of 100, so the average is already a percentage
     b.avgscore = b.attempted
       ? Math.round((b._sum / b.attempted) * 100) / 100
-      : 0; // out of 50
-    b.avgpercent = b.attempted
-      ? Math.round((b._sum / b.attempted / 50) * 10000) / 100
-      : 0; // out of 100
+      : 0;
+    b.avgpercent = b.avgscore;
     delete b._sum;
   }
   return out;
 }
+
+const progressKey = (email) => `progress:${email}`;
 
 router.get("/getprogressdata", async (req, res) => {
   if (!req.session.useremail) {
@@ -198,7 +201,7 @@ router.get("/getprogressdata", async (req, res) => {
 
   try {
     const data = await cacheData(
-      `progress:${req.session.useremail}`, // one key per user
+      progressKey(req.session.useremail), // one key per user
       300,
       () => fetchProgress(req.session.useremail),
     );
@@ -259,7 +262,7 @@ router.post("/captcha", async (req, res) => {
   }
 });
 
-// ---- shared layout (same one /getpracticequestions uses) ----
+// ---- shared layout (must be the same one /getpracticequestions uses) ----
 const SUBJECT_LAYOUT = {
   civics: { start: 1, chapters: 5 },
   economics: { start: 501, chapters: 5 },
@@ -268,11 +271,11 @@ const SUBJECT_LAYOUT = {
 };
 const QUESTIONS_PER_TEST = 50;
 const TESTS_PER_CHAPTER = 2;
-const LETTERS = ["a", "b", "c", "d"];
 const MAX_TEST_SECONDS = 3 * 60 * 60; // sanity cap: 3 hours
+const MAX_LEAVES = 3; // same rule as dopractice.html
 
 // Returns the correct answers ("a".."d") for one test, in id order.
-// Uses id range (no offset) and the same Redis cache as /getpracticequestions.
+// Uses an id range (no offset) and a Redis cache.
 async function getCorrectAnswers(subject, chapter, test) {
   const layout = SUBJECT_LAYOUT[subject];
   const firstId =
@@ -287,7 +290,7 @@ async function getCorrectAnswers(subject, chapter, test) {
     async () => {
       const { data, error } = await supabase
         .schema("study")
-        .from("practicequestion10th") // <- your table name
+        .from("practicequestion10th")
         .select("answer")
         .gte("id", firstId)
         .lte("id", lastId)
@@ -295,7 +298,8 @@ async function getCorrectAnswers(subject, chapter, test) {
       if (error) throw error;
       return data;
     },
-    (d) => Array.isArray(d) && d.length > 0,
+    // only cache a complete test, so a short result is never stuck in Redis
+    (d) => Array.isArray(d) && d.length === QUESTIONS_PER_TEST,
   );
 
   return rows.map((r) =>
@@ -389,6 +393,12 @@ router.post("/submitpractice", async (req, res) => {
     // ---------- 2. correct answers from the DB ----------
     const correct = await getCorrectAnswers(subject, chapter, test);
     if (correct.length !== QUESTIONS_PER_TEST) {
+      console.error("submitpractice: wrong number of answers in DB", {
+        subject,
+        chapter,
+        test,
+        got: correct.length,
+      });
       return res
         .status(404)
         .json({ success: false, message: "Test not found" });
@@ -408,7 +418,7 @@ router.post("/submitpractice", async (req, res) => {
 
     const total = QUESTIONS_PER_TEST;
     const unattempted = total - attempted;
-    const percentage = Math.round((right / total) * 10000) / 100; // 2 decimals
+    const percentage = Math.round((right / total) * 10000) / 100; // out of 100
 
     // ---------- 4. time in minutes ----------
     const safeSec = Math.min(timeSec, MAX_TEST_SECONDS);
@@ -418,11 +428,10 @@ router.post("/submitpractice", async (req, res) => {
 
     // ---------- 5. clean record, ready for the DB ----------
     const record = {
-      user_id: req.session.userId,
       subject,
       chapter,
       test,
-      score: right * 2,
+      score: percentage, // out of 100 (right * 2 for 50 questions)
       total,
       attempted,
       wrong,
@@ -433,40 +442,56 @@ router.post("/submitpractice", async (req, res) => {
       leaves,
       auto_submitted: visibility,
     };
-    const test_info = `ch_${record.chapter}_test_${record.test}`;
-    if (leaves > 2) {
-      const ischeating = true;
-    }
-    const { data, error } = await supabase
-      .schema("study")
-      .from("scoretable")
-      .insert({
-        username: req.session.username,
-        useremail: req.session.useremail,
-        test_info: test_info,
-        test_score: record.score,
-        test_timing: record.time_taken,
-        cheating: ischeating,
-        subject: record.subject,
-        class: req.session.class,
-      });
-    if (error) {
-      console.log("this one submit error", error);
 
-      return res.json({
-        success: false,
-      });
+    const test_info = `ch_${record.chapter}_test_${record.test}`;
+    const ischeating = leaves >= MAX_LEAVES || visibility;
+
+    // ---------- 6. save the score (only the first attempt of a test counts) ----------
+    const { error } = await supabase.schema("study").from("scoretable").insert({
+      username: req.session.username,
+      useremail: req.session.useremail,
+      test_info,
+      test_score: record.score,
+      test_timing: record.time_taken,
+      cheating: ischeating,
+      subject: record.subject,
+      class: req.session.class,
+    });
+
+    if (error) {
+      // unique (useremail, subject, test_info) -> first attempt already saved
+      if (error.code === "23505") {
+        return res.status(409).json({
+          success: false,
+          alreadySubmitted: true,
+          message: "You have already attempted this test.",
+        });
+      }
+      console.error("scoretable insert error:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Could not save result" });
     }
+
+    // ---------- 7. leaderboard (practice count + average) ----------
     const { error: lbError } = await supabase
       .schema("study")
       .rpc("update_practice_leaderboard", {
         p_email: req.session.useremail,
         p_username: req.session.username,
-        p_pct: record.percentage, // score out of 100, e.g. 72
+        p_pct: record.percentage, // out of 100
       });
 
     if (lbError) {
+      // the score is already saved, so don't fail the student
       console.error("leaderboard update error:", lbError);
+    }
+
+    // dashboard progress should show the new attempt right away
+    try {
+      await client.del(progressKey(req.session.useremail));
+    } catch (e) {
+      console.error("progress cache clear failed:", e);
     }
 
     return res.json({
