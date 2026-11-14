@@ -332,6 +332,7 @@ If you didn't request this email, you can safely ignore it.
           username: username,
           password: password,
           role: "notverified",
+          class: "10",
         });
       if (userError) {
         console.error("Supabase user insert error:", userError);
@@ -469,7 +470,6 @@ router2.get("/linklogin", generalLimiter, login, async (req, res) => {
         totaltest: 0,
         avgscorepractice: 0,
         avgscoretest: 0,
-        final_score: 0,
       })
       .maybeSingle();
 
