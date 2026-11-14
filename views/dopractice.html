@@ -5,12 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Practice Test Highkey</title>
     <link rel="stylesheet" href="/output.css" />
+    <style>
+      /* ===== quick controls (change the numbers here) ===== */
+      :root {
+        --side-gap: 8px; /* left + right space of header, question, options, buttons (phone) */
+        --q-text: 13.2px; /* question text size (phone) */
+        --opt-text: 11.8px; /* options text size (phone) */
+      }
+      @media (min-width: 640px) {
+        :root {
+          --side-gap: 9.6px; /* left + right space (tablet / desktop) */
+          --q-text: 17.6px; /* question text size (tablet / desktop) */
+          --opt-text: 15.2px; /* options text size (tablet / desktop) */
+        }
+      }
+      .side-pad {
+        padding-left: var(--side-gap);
+        padding-right: var(--side-gap);
+      }
+      .q-text {
+        font-size: var(--q-text);
+      }
+      .opt-text {
+        font-size: var(--opt-text);
+      }
+    </style>
   </head>
   <body>
     <!--
       Palette
-      Blue   #2878F0  primary buttons, progress
-      Green  #34D399  correct answer
+      Blue   #2878F0  primary buttons, question, options
+      Green  #34D399  correct answer, progress
       Yellow #FBBF24  warnings, timer
       Red    #EF4444  wrong answer
       Navy   #0B1220  main background
@@ -18,42 +43,71 @@
     -->
     <div class="flex min-h-screen flex-col bg-[#0B1220] text-slate-100 select-none">
       <!-- top bar: info, timer, progress -->
-      <div class="sticky top-0 z-10 border-b border-white/5 bg-[#0B1220]/95 backdrop-blur">
-        <div class="mx-auto flex w-full max-w-2xl items-center justify-between gap-3 px-4 py-3">
+      <div class="sticky top-0 z-10 overflow-hidden bg-linear-to-r from-[#2878F0] to-[#1d4fb8] shadow-lg shadow-[#2878F0]/25">
+        <span class="pointer-events-none absolute -top-10 -right-8 h-28 w-28 rounded-full bg-white/10"></span>
+        <span class="pointer-events-none absolute -bottom-12 left-1/3 h-24 w-24 rounded-full bg-[#34D399]/20"></span>
+        <div class="side-pad relative mx-auto flex w-full max-w-2xl items-center justify-between gap-3 py-3">
           <div class="min-w-0">
-            <p id="testInfo" class="truncate text-xs font-semibold text-slate-400 capitalize">Practice test</p>
-            <p id="counter" class="text-sm font-bold">—</p>
+            <p id="testInfo" class="truncate text-xs font-semibold tracking-wide text-blue-100 capitalize">Practice test</p>
+            <p id="counter" class="text-base font-extrabold text-white">—</p>
           </div>
-          <div class="flex items-center gap-2 rounded-full border border-[#FBBF24]/30 bg-[#FBBF24]/10 px-3.5 py-1.5 text-[#FBBF24]">
+          <div class="flex items-center gap-2 rounded-full bg-[#FBBF24] px-3.5 py-1.5 text-[#0B1220] shadow-md shadow-black/20">
             <span data-icon="clock" data-class="h-4 w-4"></span>
-            <span id="timer" class="text-sm font-bold tabular-nums">00:00</span>
+            <span id="timer" class="text-sm font-extrabold tabular-nums">00:00</span>
           </div>
         </div>
-        <div class="h-1 w-full bg-white/5">
-          <div id="progressBar" class="h-full w-0 bg-[#2878F0] transition-all duration-300"></div>
+        <div class="relative h-1.5 w-full bg-white/20">
+          <div id="progressBar" class="h-full w-0 rounded-r-full bg-[#34D399] transition-all duration-300"></div>
         </div>
       </div>
 
       <!-- loading / error -->
-      <div id="stateBox" class="mx-auto flex w-full max-w-2xl flex-1 items-center justify-center px-4 text-center">
+      <div id="stateBox" class="side-pad mx-auto flex w-full max-w-2xl flex-1 items-center justify-center text-center">
         <p id="stateText" class="text-sm text-slate-400">Loading questions…</p>
       </div>
 
       <!-- question area -->
-      <main id="quiz" class="mx-auto hidden w-full max-w-2xl flex-1 flex-col px-4 py-5">
-        <h1 id="question" class="rounded-2xl border border-white/5 bg-[#172337] p-4 text-base leading-relaxed font-semibold whitespace-pre-line shadow-lg shadow-black/30 sm:text-lg"></h1>
+      <main id="quiz" class="side-pad mx-auto hidden w-full max-w-2xl flex-1 flex-col pt-6 pb-8">
+        <!-- question -->
+        <section class="rounded-2xl border border-[#2878F0]/40 bg-linear-to-br from-[#2878F0]/35 via-[#1b3a6b] to-[#172337] p-3.5 shadow-lg shadow-black/30 sm:p-4">
+          <span class="mb-2 inline-block rounded-md bg-[#FBBF24] px-2 py-0.5 text-[10px] font-extrabold tracking-wide text-[#0B1220] uppercase">Question</span>
+          <h1 id="question" class="q-text leading-relaxed font-semibold whitespace-pre-line text-white"></h1>
+        </section>
 
+        <!-- options -->
         <div id="options" class="mt-4 flex flex-col gap-2.5"></div>
 
-        <p id="explanation" class="mt-4 hidden rounded-xl border-l-4 border-[#FBBF24] bg-[#FBBF24]/10 px-4 py-3 text-sm leading-relaxed whitespace-pre-line text-slate-200"></p>
+        <p id="explanation" class="mt-5 hidden rounded-xl border-l-4 border-[#FBBF24] bg-[#FBBF24]/10 px-4 py-3 text-sm leading-relaxed whitespace-pre-line text-slate-200"></p>
+      </main>
 
-        <!-- navigation -->
-        <div class="mt-auto flex items-center justify-between gap-3 pt-6">
+      <!-- navigation bar (outside the content, so nothing can overlap it) -->
+      <div id="navBar" class="sticky bottom-0 z-10 hidden border-t border-white/10 bg-[#172337] shadow-2xl shadow-black/50">
+        <div class="side-pad mx-auto flex w-full max-w-2xl items-center justify-between gap-3 py-3">
           <button id="prevBtn" type="button" class="cursor-pointer rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40">Previous</button>
           <button id="nextBtn" type="button" class="cursor-pointer rounded-xl bg-[#2878F0] px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#2878F0]/25 transition hover:brightness-110">Next</button>
           <button id="submitBtn" type="button" class="hidden cursor-pointer rounded-xl bg-[#34D399] px-6 py-2.5 text-sm font-bold text-[#0B1220] shadow-lg shadow-[#34D399]/25 transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60">Submit</button>
         </div>
-      </main>
+      </div>
+    </div>
+
+    <!-- start screen (a click is needed to enter fullscreen) -->
+    <div id="startScreen" class="fixed inset-0 z-30 hidden items-center justify-center bg-[#0B1220] p-4">
+      <div class="w-full max-w-sm rounded-2xl border border-[#2878F0]/30 bg-[#172337] p-6 text-center shadow-2xl shadow-black/60">
+        <div class="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[#2878F0]/20 text-[#6aa5ff]" data-icon="play" data-class="h-7 w-7"></div>
+        <h2 class="text-xl text-white font-bold">Ready to start?</h2>
+        <p id="startInfo" class="mt-1 text-sm text-slate-400"></p>
+
+        <ul class="mt-4 space-y-2 text-left text-sm text-slate-300">
+          <h3 class="text-xl text-white font-bold">Instructions - </h3>
+
+          <li class="rounded-lg bg-[#2878F0]/10 px-3 py-2">The test opens in <b class="text-white">fullscreen</b>.</li>
+          <li class="rounded-lg bg-[#FBBF24]/10 px-3 py-2">Do not leave this page. Leaving <b class="text-[#FBBF24]">3 times</b> submits the test.</li>
+          <li class="rounded-lg bg-red-500/10 px-3 py-2">Staying away for more than <b class="text-red-400" id="startAway">1 minute</b> submits it immediately.</li>
+          <li class="rounded-lg bg-[#34D399]/10 px-3 py-2">The timer starts when you press Start.</li>
+          <li class="rounded-lg bg-[#2878F0]/10 px-3 py-2">You can attempt a test many times, but only your <b class="text-white">first attempt's score</b> is saved.</li>
+        </ul>
+        <button id="startBtn" type="button" class="mt-5 w-full cursor-pointer rounded-xl bg-[#2878F0] py-3 text-sm font-bold text-white shadow-lg shadow-[#2878F0]/30 transition hover:brightness-110">Start test</button>
+      </div>
     </div>
 
     <!-- warning / confirm popup -->
@@ -75,15 +129,19 @@
         <p id="resultScore" class="mt-4 text-5xl font-extrabold text-white"></p>
         <p id="resultPercent" class="mt-1 text-sm text-slate-400"></p>
         <p id="resultTime" class="mt-3 text-sm text-slate-300"></p>
+        <p id="resultDup" class="mt-4 hidden rounded-xl border border-[#FBBF24]/30 bg-[#FBBF24]/10 px-3 py-2 text-sm leading-relaxed text-[#FBBF24]"></p>
         <p id="resultError" class="mt-3 hidden text-sm text-red-400"></p>
         <div class="mt-5 flex justify-center gap-2">
-          <button id="retryBtn" type="button" class="hidden cursor-pointer rounded-xl bg-[#FBBF24] px-5 py-2.5 text-sm font-bold text-[#0B1220] transition hover:brightness-110">Retry submit</button>
           <a id="backBtn" href="/practice" class="cursor-pointer rounded-xl bg-[#2878F0] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-[#2878F0]/25 transition hover:brightness-110">Back to practice</a>
         </div>
       </div>
     </div>
 
     <script>
+      // ===== rules (change here) =====
+      const MAX_LEAVES = 3; // leaving the page this many times submits the test
+      const MAX_AWAY_SECONDS = 60; // being away longer than this (one single leave) submits the test
+
       // ---------- icons ----------
       const icons = {
         clock: `<circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />`,
@@ -91,6 +149,8 @@
         x: `<path d="M18 6 6 18" /><path d="m6 6 12 12" />`,
         alert: `<path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" /><path d="M12 9v4" /><path d="M12 17h.01" />`,
         flag: `<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><path d="M4 22v-7" />`,
+        play: `<polygon points="6 3 20 12 6 21 6 3" />`,
+        expand: `<path d="M8 3H5a2 2 0 0 0-2 2v3" /><path d="M21 8V5a2 2 0 0 0-2-2h-3" /><path d="M3 16v3a2 2 0 0 0 2 2h3" /><path d="M16 21h3a2 2 0 0 0 2-2v-3" />`,
       };
 
       function icon(name, cls = "h-5 w-5") {
@@ -111,6 +171,11 @@
 
       const $ = (id) => document.getElementById(id);
 
+      $("startAway").textContent =
+        MAX_AWAY_SECONDS % 60 === 0
+          ? MAX_AWAY_SECONDS / 60 + (MAX_AWAY_SECONDS === 60 ? " minute" : " minutes")
+          : MAX_AWAY_SECONDS + " seconds";
+
       // ---------- test info (from the link: /dopractice?subject=..&chapter=..&test=..) ----------
       const params = new URLSearchParams(window.location.search);
       const subject = params.get("subject") || "";
@@ -127,15 +192,25 @@
 
       // ---------- state ----------
       const LETTERS = ["a", "b", "c", "d"];
+      // A / B / C / D chip colours (green and red are kept for correct / wrong only)
+      const CHIPS = {
+        a: "bg-[#2878F0] text-white",
+        b: "bg-[#FBBF24] text-[#0B1220]",
+        c: "bg-[#6aa5ff] text-[#0B1220]",
+        d: "bg-slate-200 text-[#0B1220]",
+      };
       let questions = []; // [{ question, options: {a,b,c,d}, answer: "a", explanation }]
       let selected = []; // selected letter per question, or null
       let current = 0;
+      let started = false;
       let submitted = false;
       let lastPayload = null;
 
-      // ---------- timer (never resets on next / previous) ----------
-      const startTime = Date.now();
-      const elapsedSeconds = () => Math.floor((Date.now() - startTime) / 1000);
+      // ---------- timer (starts on "Start test", never resets on next / previous) ----------
+      let startTime = null;
+      let timerId = null;
+      const elapsedSeconds = () =>
+        startTime ? Math.floor((Date.now() - startTime) / 1000) : 0;
 
       function formatTime(total) {
         const h = Math.floor(total / 3600);
@@ -147,9 +222,6 @@
       }
 
       const timerEl = $("timer");
-      const timerId = setInterval(() => {
-        timerEl.textContent = formatTime(elapsedSeconds());
-      }, 1000);
 
       // ---------- modal ----------
       function showModal({ title, text, tone = "warn", actions }) {
@@ -187,12 +259,61 @@
         return b;
       }
 
+      // ---------- fullscreen ----------
+      let wantFullscreen = false; // true once fullscreen was entered successfully
+
+      const isFullscreen = () =>
+        !!(document.fullscreenElement || document.webkitFullscreenElement);
+
+      function enterFullscreen() {
+        const root = document.documentElement;
+        const fn = root.requestFullscreen || root.webkitRequestFullscreen;
+        if (!fn) return Promise.resolve(false); // e.g. iPhone Safari
+        try {
+          return Promise.resolve(fn.call(root))
+            .then(() => true)
+            .catch(() => false);
+        } catch {
+          return Promise.resolve(false);
+        }
+      }
+
+      function leaveFullscreen() {
+        wantFullscreen = false;
+        if (!isFullscreen()) return;
+        const fn = document.exitFullscreen || document.webkitExitFullscreen;
+        try {
+          if (fn) Promise.resolve(fn.call(document)).catch(() => {});
+        } catch {
+          /* ignore */
+        }
+      }
+
+      function onFullscreenChange() {
+        if (!started || submitted || !wantFullscreen) return;
+        if (!isFullscreen()) {
+          showModal({
+            title: "Fullscreen is required",
+            text: "You left fullscreen. Please return to fullscreen to continue your test. Your timer is still running.",
+            actions: [
+              modalButton("Return to fullscreen", async () => {
+                hideModal();
+                await enterFullscreen();
+              }),
+            ],
+          });
+        }
+      }
+      document.addEventListener("fullscreenchange", onFullscreenChange);
+      document.addEventListener("webkitfullscreenchange", onFullscreenChange);
+
       // ---------- rendering ----------
       function showState(text) {
         $("stateText").textContent = text;
         $("stateBox").classList.remove("hidden");
         $("quiz").classList.add("hidden");
         $("quiz").classList.remove("flex");
+        $("navBar").classList.add("hidden");
       }
 
       function render() {
@@ -213,34 +334,35 @@
           const text = q.options[letter];
           if (text === undefined || text === null || String(text).trim() === "") return;
 
-          let style = "border-white/10 bg-[#172337] text-slate-100";
-          let chip = "bg-white/10 text-slate-300";
+          const base = "border-[#2878F0]/30 bg-[#2878F0]/10 text-slate-100";
+          let style = base;
+          let chip = CHIPS[letter];
           let mark = "";
 
           if (!answered) {
-            style += " hover:border-[#2878F0] hover:bg-[#2878F0]/10 cursor-pointer";
+            style += " cursor-pointer hover:border-[#2878F0] hover:bg-[#2878F0]/25";
           } else if (letter === q.answer) {
-            style = "border-[#34D399] bg-[#34D399]/15 text-white cursor-default";
+            style = "border-[#34D399] bg-[#34D399]/20 text-white cursor-default";
             chip = "bg-[#34D399] text-[#0B1220]";
-            mark = icon("check", "h-5 w-5 text-[#34D399]");
+            mark = icon("check", "h-4 w-4 text-[#34D399]");
           } else if (letter === picked) {
-            style = "border-red-500 bg-red-500/15 text-white cursor-default";
+            style = "border-red-500 bg-red-500/20 text-white cursor-default";
             chip = "bg-red-500 text-white";
-            mark = icon("x", "h-5 w-5 text-red-400");
+            mark = icon("x", "h-4 w-4 text-red-400");
           } else {
             style += " opacity-50 cursor-default";
           }
 
           const btn = el(
             "button",
-            "flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left text-sm transition sm:text-base " + style,
+            "opt-text flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition " + style,
           );
           btn.type = "button";
           btn.disabled = answered; // lock the inputs once answered
           btn.appendChild(
             el(
               "span",
-              "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold uppercase " + chip,
+              "flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[11px] font-bold uppercase " + chip,
               letter,
             ),
           );
@@ -287,6 +409,26 @@
         }
       });
 
+      // ---------- time spent away from the page ----------
+      let leaveCount = 0; // how many times the user left
+      let awayTotalMs = 0; // total time spent away (finished leaves)
+      let hiddenAt = null; // when the current leave started
+      let awayTimer = null; // fires if the user stays away too long
+      let pendingWarning = 0;
+
+      // total seconds away, including a leave that is still going on
+      const awaySeconds = () =>
+        Math.floor((awayTotalMs + (hiddenAt ? Date.now() - hiddenAt : 0)) / 1000);
+
+      function closeAway() {
+        if (hiddenAt) {
+          awayTotalMs += Date.now() - hiddenAt;
+          hiddenAt = null;
+        }
+        clearTimeout(awayTimer);
+        awayTimer = null;
+      }
+
       // ---------- submit ----------
       function buildPayload(visibility) {
         const score = questions.reduce(
@@ -302,11 +444,14 @@
           attempted: selected.filter((s) => s !== null).length,
           timetaken: elapsedSeconds(), // seconds
           visibility, // true = test ended because the user left the page
+          leaves: leaveCount, // how many times the user left the page
+          awaytime: awaySeconds(), // total seconds spent away from the page
           answers: selected.map((s) => (s ? "option_" + s : null)),
         };
       }
 
-      function showResult(payload, { error = false } = {}) {
+      // status: "saving" | "saved" | "duplicate" (score already saved before) | "error"
+      function showResult(payload, status = "saving") {
         $("resultScore").textContent = `${payload.score} / ${payload.total}`;
         $("resultPercent").textContent = payload.total
           ? Math.round((payload.score / payload.total) * 100) + "%"
@@ -315,31 +460,37 @@
 
         const note = $("resultNote");
         if (payload.visibility) {
-          note.textContent = "Your test was submitted because you left the page too many times.";
+          note.textContent = "Your test was submitted because you left the page.";
           note.classList.remove("hidden");
         } else {
           note.classList.add("hidden");
         }
 
+        const dup = $("resultDup");
         const err = $("resultError");
-        const retry = $("retryBtn");
-        if (error) {
-          err.textContent = "We couldn’t save your result. Please check your connection and retry.";
-          err.classList.remove("hidden");
-          retry.classList.remove("hidden");
+        dup.classList.add("hidden");
+        err.classList.add("hidden");
+
+        $("resultTitle").textContent = "Test submitted";
+        $("resultIcon").innerHTML = icon("flag", "h-7 w-7");
+
+        if (status === "duplicate") {
+          $("resultTitle").textContent = "Practice complete";
+          dup.textContent =
+            "Score can be submitted only once, but you can attempt this test multiple times. Your first attempt's score is the one counted on the leaderboard.";
+          dup.classList.remove("hidden");
+        } else if (status === "error") {
           $("resultTitle").textContent = "Test finished";
           $("resultIcon").innerHTML = icon("alert", "h-7 w-7");
-        } else {
-          err.classList.add("hidden");
-          retry.classList.add("hidden");
-          $("resultTitle").textContent = "Test submitted";
-          $("resultIcon").innerHTML = icon("flag", "h-7 w-7");
+          err.textContent = "We couldn’t save your result. Please check your connection.";
+          err.classList.remove("hidden");
         }
 
         $("result").classList.remove("hidden");
         $("result").classList.add("flex");
       }
 
+      // returns "saved" | "duplicate" | "error"
       async function sendPayload(payload) {
         const res = await fetch("/submitpractice", {
           method: "POST",
@@ -349,50 +500,47 @@
         });
         if (res.status === 401) {
           window.location.href = "/login";
-          return false;
+          return "error";
         }
-        if (!res.ok) return false;
+        if (res.status === 409) return "duplicate"; // first attempt already saved
+        if (!res.ok) return "error";
         try {
           const data = await res.json();
-          return data.success !== false;
+          return data.success === false ? "error" : "saved";
         } catch {
-          return true;
+          return "saved";
         }
+      }
+
+      // one silent retry if the network fails (no retry button)
+      async function saveResult(payload) {
+        for (let i = 0; i < 2; i++) {
+          try {
+            const status = await sendPayload(payload);
+            if (status !== "error") return status;
+          } catch (err) {
+            console.error("Submit failed", err);
+          }
+          if (i === 0) await new Promise((r) => setTimeout(r, 1500));
+        }
+        return "error";
       }
 
       async function submitTest(visibility = false) {
         if (submitted) return;
         submitted = true;
         clearInterval(timerId);
+        clearTimeout(awayTimer);
         hideModal();
+        leaveFullscreen();
         $("submitBtn").disabled = true;
 
-        lastPayload = buildPayload(visibility);
+        lastPayload = buildPayload(visibility); // away time is counted up to this moment
+        closeAway();
         showResult(lastPayload);
 
-        try {
-          const ok = await sendPayload(lastPayload);
-          if (!ok) showResult(lastPayload, { error: true });
-        } catch (err) {
-          console.error("Submit failed", err);
-          showResult(lastPayload, { error: true });
-        }
+        showResult(lastPayload, await saveResult(lastPayload));
       }
-
-      $("retryBtn").addEventListener("click", async () => {
-        if (!lastPayload) return;
-        const btn = $("retryBtn");
-        btn.disabled = true;
-        btn.textContent = "Sending…";
-        try {
-          const ok = await sendPayload(lastPayload);
-          if (ok) showResult(lastPayload);
-        } catch (err) {
-          console.error("Retry failed", err);
-        }
-        btn.disabled = false;
-        btn.textContent = "Retry submit";
-      });
 
       $("submitBtn").addEventListener("click", () => {
         if (submitted) return;
@@ -414,33 +562,78 @@
       });
 
       // ---------- leaving the page (Page Visibility API) ----------
-      // 1st and 2nd time: warning popup. 3rd time: submit with visibility: true.
-      let leaveCount = 0;
-      let pendingWarning = 0;
-
+      // - leaving MAX_LEAVES times -> auto submit (visibility: true)
+      // - one single leave longer than MAX_AWAY_SECONDS -> auto submit (visibility: true)
+      // - otherwise a warning popup is shown when the user comes back
       document.addEventListener("visibilitychange", () => {
-        if (submitted || questions.length === 0) return;
+        if (!started || submitted) return;
 
         if (document.visibilityState === "hidden") {
           leaveCount++;
-          if (leaveCount >= 3) {
+          hiddenAt = Date.now();
+
+          if (leaveCount >= MAX_LEAVES) {
             submitTest(true);
-          } else {
-            pendingWarning = leaveCount; // show it as soon as the user is back
+            return;
           }
-        } else if (pendingWarning) {
-          const n = pendingWarning;
-          pendingWarning = 0;
-          showModal({
-            title: n === 1 ? "Warning 1 of 2" : "Final warning",
-            text:
-              n === 1
-                ? "Please stay on this page during the test. If you leave again you will get a final warning, and leaving a third time submits your test automatically."
-                : "You left the page again. If you leave one more time, your test will be submitted automatically.",
-            tone: n === 1 ? "warn" : "danger",
-            actions: [modalButton("I understand, continue", hideModal)],
-          });
+
+          // submit even if the user never comes back
+          clearTimeout(awayTimer);
+          awayTimer = setTimeout(() => submitTest(true), MAX_AWAY_SECONDS * 1000);
+          pendingWarning = leaveCount;
+        } else {
+          const awayNow = hiddenAt ? Date.now() - hiddenAt : 0;
+
+          if (awayNow > MAX_AWAY_SECONDS * 1000) {
+            submitTest(true);
+            return;
+          }
+
+          closeAway();
+
+          if (pendingWarning) {
+            const n = pendingWarning;
+            pendingWarning = 0;
+            const secs = Math.max(1, Math.round(awayNow / 1000));
+            const left = MAX_LEAVES - n;
+            showModal({
+              title: n >= MAX_LEAVES - 1 ? "Final warning" : `Warning ${n} of ${MAX_LEAVES - 1}`,
+              text:
+                `You were away for ${secs} second${secs === 1 ? "" : "s"}. ` +
+                `Please stay on this page. ` +
+                (left === 1
+                  ? "If you leave one more time, your test will be submitted automatically. "
+                  : `You can leave ${left - 1} more time${left - 1 === 1 ? "" : "s"} before the test is submitted. `) +
+                `Staying away for more than ${MAX_AWAY_SECONDS} seconds submits it immediately.`,
+              tone: n >= MAX_LEAVES - 1 ? "danger" : "warn",
+              actions: [modalButton("I understand, continue", hideModal)],
+            });
+          }
         }
+      });
+
+      // ---------- start (needs a click to enter fullscreen) ----------
+      $("startBtn").addEventListener("click", () => {
+        if (started) return;
+
+        // must be called straight from the click
+        enterFullscreen().then((ok) => {
+          wantFullscreen = ok;
+        });
+
+        started = true;
+        startTime = Date.now();
+        timerEl.textContent = "00:00";
+        timerId = setInterval(() => {
+          timerEl.textContent = formatTime(elapsedSeconds());
+        }, 1000);
+
+        $("startScreen").classList.add("hidden");
+        $("startScreen").classList.remove("flex");
+        $("quiz").classList.remove("hidden");
+        $("quiz").classList.add("flex");
+        $("navBar").classList.remove("hidden");
+        render();
       });
 
       // ---------- load questions ----------
@@ -501,9 +694,13 @@
 
           selected = questions.map(() => null);
           $("stateBox").classList.add("hidden");
-          $("quiz").classList.remove("hidden");
-          $("quiz").classList.add("flex");
-          render();
+          $("startInfo").textContent =
+            `${questions.length} question${questions.length === 1 ? "" : "s"} · ` +
+            [subject, chapter ? "Chapter " + chapter : "", test ? "Test " + test : ""]
+              .filter(Boolean)
+              .join(" · ");
+          $("startScreen").classList.remove("hidden");
+          $("startScreen").classList.add("flex");
         } catch (err) {
           console.error("Could not load questions", err);
           showState("We couldn’t load the questions right now. Please go back and try again.");

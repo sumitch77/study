@@ -98,8 +98,8 @@ routerdopractice.get(
             .select(
               "question, option_a, option_b, option_c, option_d, answer, explanation",
             )
-            .gte("id", startId)
-            .lte("id", endId)
+            .gte("id", 1)
+            .lte("id", 50)
             .order("id", { ascending: true });
           if (error) throw error;
           return data;

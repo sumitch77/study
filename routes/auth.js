@@ -169,6 +169,23 @@ router2.post(
     email = email.toLowerCase().trim();
     const ip = req.ip || req.headers["x-forwarded-for"] || "unknown";
 
+    const { data: check, error: checkerr } = await supabase
+      .schema("study")
+      .from("userTable")
+      .eq("email", email)
+      .select("email")
+      .maybeSingle();
+
+    if (check) {
+      return res.status(403).json({
+        success: false,
+        message: "This account already exist , Please Login",
+      });
+    }
+    if (checkerr) {
+      console.log(checkerr);
+    }
+
     const token = crypto.randomBytes(32).toString("hex");
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
 
@@ -442,7 +459,23 @@ router2.get("/linklogin", generalLimiter, login, async (req, res) => {
       console.error("User update error:", userError || updateError);
       return res.status(500).send("Failed to contact with database.");
     }
+    const { data: userData, error: userDataError } = await supabase
+      .schema("study")
+      .from("leaderboard")
+      .insert({
+        username: user.username,
+        useremail: user.email,
+        totalpractice: 0,
+        totaltest: 0,
+        avgscorepractice: 0,
+        avgscoretest: 0,
+        final_score: 0,
+      })
+      .maybeSingle();
 
+    if (userDataError) {
+      console.log(userDataError);
+    }
     req.session.userId = user.user_id;
     req.session.useremail = user.email;
     req.session.username = user.username;

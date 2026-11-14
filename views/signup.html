@@ -191,15 +191,15 @@
         
      
         if (signupBtn.disabled) return;
-   if (!body.terms) {
+  
+        cooldownButton(signupBtn, SIGNUP_COOLDOWN);
+
+        const body = Object.fromEntries(new FormData(form).entries());
+ if (!body.terms) {
     cooldownButton(signupBtn , 3000);
           showMessage("Please accept the Privacy Policy and Terms and Conditions");
           return;
         }
-        cooldownButton(signupBtn, SIGNUP_COOLDOWN);
-
-        const body = Object.fromEntries(new FormData(form).entries());
-
         if (
           !body.email?.trim() ||
           !body.username?.trim() ||

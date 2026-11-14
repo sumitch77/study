@@ -92,6 +92,23 @@ passport.use(
             console.error("Supabase insert error:", insertError);
             return done(new Error(insertError.message), null);
           }
+          const { data: userData, error: userDataError } = await supabase
+            .schema("study")
+            .from("leaderboard")
+            .insert({
+              username: name,
+              useremail: email,
+              totalpractice: 0,
+              totaltest: 0,
+              avgscorepractice: 0,
+              avgscoretest: 0,
+              final_score: 0,
+            })
+            .maybeSingle();
+
+          if (userDataError) {
+            console.log(userDataError);
+          }
           user = newUser;
         }
 
