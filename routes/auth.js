@@ -8,7 +8,6 @@ const resendClient = new Resend(process.env.TOKEN);
 const { check } = require("express-validator");
 const { EmailLimiter, TimeLimiter, validate } = require("../utils/ratelimit");
 
-const { type } = require("os");
 const { supabase } = require("../utils/supabase");
 const { login } = require("../utils/helper");
 const {
@@ -60,51 +59,62 @@ router2.post(
         });
       }
 
-      email = String(email || "").trim();
-      password = String(password || "").trim();
+      // emails are stored lowercase; do NOT trim the password (signup doesn't)
+      email = String(email).trim().toLowerCase();
+      password = String(password);
 
       const { data, error } = await supabase
         .schema("study")
         .from("userTable")
-        .select("email,password , username , user_id , is_premium , class")
+        .select("email,password,username,user_id,is_premium,class,role")
         .eq("email", email)
         .maybeSingle();
-      if (data) {
-        const isMatch = await bcrypt.compare(password, data.password);
 
-        if (isMatch) {
-          if (data.email === process.env.ADMINEMAIL) {
-            req.session.admin = true;
-          }
-          req.session.userId = data.user_id;
-          req.session.useremail = data.email;
-          req.session.username = data.username;
-          req.session.premium = data.is_premium;
-          req.session.class = "10";
-          return res.json({
-            success: true,
-            message: `Login successful`,
-          });
-        }
-        return res.json({
+      if (error) {
+        console.error("Supabase error:", error);
+        return res.status(500).json({
           success: false,
-          message: `Invalid email or password`,
+          message: "Server error occurred during login",
         });
       }
 
-      if (!data) {
+      const isMatch = data
+        ? await bcrypt.compare(password, data.password)
+        : false;
+      if (!isMatch) {
         return res.status(401).json({
           success: false,
           message: "Invalid email or password",
         });
       }
-      if (error) {
-        console.error("Supabase error:", error);
-        return res.json({
+
+      // the password is right, but the email was never verified
+      if (data.role === "notverified") {
+        return res.status(403).json({
           success: false,
-          message: `Invalid email or password`,
+          message:
+            "Please verify your email first. Open the sign-in link we sent you (or sign up again to get a new one).",
         });
       }
+
+      // new session id on login (prevents session fixation)
+      await new Promise((resolve, reject) =>
+        req.session.regenerate((e) => (e ? reject(e) : resolve())),
+      );
+
+      if (data.email === process.env.ADMINEMAIL) {
+        req.session.admin = true;
+      }
+      req.session.userId = data.user_id;
+      req.session.useremail = data.email;
+      req.session.username = data.username;
+      req.session.premium = data.is_premium;
+      req.session.class = data.class || "10";
+
+      return res.json({
+        success: true,
+        message: `Login successful`,
+      });
     } catch (err) {
       console.error("Login error:", err);
 
@@ -115,106 +125,17 @@ router2.post(
     }
   },
 );
-router2.post(
-  "/signup",
-  login,
-  fingerprintLimiter,
-  emailLimiter,
-  emailLimiter2,
-  [
-    check("email")
-      .notEmpty()
-      .withMessage("Email is required")
-      .isEmail()
-      .withMessage("Invalid email format")
-      .normalizeEmail(),
-    check("password")
-      .notEmpty()
-      .withMessage("Password is required")
-      .isLength({ min: 6, max: 20 })
-      .withMessage("Password must be between 6 and 20 characters long"),
-    check("username")
-      .notEmpty()
-      .withMessage("Name is required")
-      .isLength({ min: 2, max: 20 })
-      .withMessage("Name must be between 2 and 20 characters long"),
-  ],
-  validate,
-  async (req, res, next) => {
-    let { email, username, password, confirmPassword } = req.body;
 
-    if (password !== confirmPassword) {
-      return res.status(400).json({
-        success: false,
-        message: "Passwords do not match",
-      });
-    }
-    password = await bcrypt.hash(password, 10);
+// ---------- sign-in link email ----------
+const LINK_MINUTES = 10;
 
-    const captcha = req.session.captcha;
-    const captchaIsValid =
-      captcha &&
-      captcha.valid === true &&
-      captcha.email === email &&
-      typeof captcha.issuedAt === "number" &&
-      Date.now() - captcha.issuedAt <= 3 * 60 * 1000;
+async function sendLoginEmail(email, loginLink) {
+  await resendClient.emails.send({
+    from: "Highkey <Sumit@sumit7.website>",
+    to: email,
+    subject: "Your Highkey sign-in link",
 
-    if (!captchaIsValid) {
-      req.session.captcha = null;
-      return res.status(400).json({
-        success: false,
-        message: "Captcha Verification failed , please try again",
-      });
-    }
-    email = email.toLowerCase().trim();
-    const ip = req.ip || req.headers["x-forwarded-for"] || "unknown";
-
-    const { data: check, error: checkerr } = await supabase
-      .schema("study")
-      .from("userTable")
-      .select("email")
-      .eq("email", email)
-      .maybeSingle();
-
-    if (check) {
-      return res.status(403).json({
-        success: false,
-        message: "This account already exist , Please Login",
-      });
-    }
-    if (checkerr) {
-      console.log(checkerr);
-    }
-
-    const token = crypto.randomBytes(32).toString("hex");
-    const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
-
-    const { data, error } = await supabase
-      .schema("study")
-      .from("email_verify")
-      .insert({
-        token: tokenHash,
-        email: email,
-      });
-
-    if (error) {
-      console.error("Supabase insert error:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Signup is currently not working",
-        error: error.message,
-      });
-    }
-
-    try {
-      const loginLink = `https://sumit7.website/linklogin?token=${token}`;
-
-      await resendClient.emails.send({
-        from: "Highkey <Sumit@sumit7.website>",
-        to: email,
-        subject: "Your Highkey sign-in link",
-
-        html: `
+    html: `
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -310,7 +231,7 @@ router2.post(
 </html>
   `,
 
-        text: `Sign in to Highkey
+    text: `Sign in to Highkey
 
 Use the link below to sign in:
 ${loginLink}
@@ -320,77 +241,223 @@ This link expires in 10 minutes and can only be used once.
 If you didn't request this email, you can safely ignore it.
 
 © 2026 Highkey`,
-      });
+  });
+}
 
-      console.log(` login link sent to ${email}`);
+router2.post(
+  "/signup",
+  login,
+  fingerprintLimiter,
+  emailLimiter,
+  emailLimiter2,
+  [
+    // no .normalizeEmail(): it strips dots from gmail addresses, so login by the
+    // email the user typed would never match the stored one
+    check("email")
+      .notEmpty()
+      .withMessage("Email is required")
+      .isEmail()
+      .withMessage("Invalid email format"),
+    check("password")
+      .notEmpty()
+      .withMessage("Password is required")
+      .isLength({ min: 6, max: 20 })
+      .withMessage("Password must be between 6 and 20 characters long"),
+    check("username")
+      .notEmpty()
+      .withMessage("Name is required")
+      .isLength({ min: 2, max: 20 })
+      .withMessage("Name must be between 2 and 20 characters long"),
+  ],
+  validate,
+  async (req, res) => {
+    try {
+      let { email, username, password, confirmPassword } = req.body;
 
-      const { data: user, error: userError } = await supabase
+      if (password !== confirmPassword) {
+        return res.status(400).json({
+          success: false,
+          message: "Passwords do not match",
+        });
+      }
+
+      email = String(email).trim().toLowerCase();
+
+      // captcha first (cheap), bcrypt after (expensive)
+      const captcha = req.session.captcha;
+      const captchaIsValid =
+        captcha &&
+        captcha.valid === true &&
+        String(captcha.email || "")
+          .trim()
+          .toLowerCase() === email &&
+        typeof captcha.issuedAt === "number" &&
+        Date.now() - captcha.issuedAt <= 3 * 60 * 1000;
+
+      if (!captchaIsValid) {
+        req.session.captcha = null;
+        return res.status(400).json({
+          success: false,
+          message: "Captcha Verification failed , please try again",
+        });
+      }
+
+      const { data: existing, error: existingErr } = await supabase
         .schema("study")
         .from("userTable")
-        .insert({
-          email: email,
-          username: username,
-          password: password,
-          role: "notverified",
-          class: "10",
-        });
-      if (userError) {
-        console.error("Supabase user insert error:", userError);
+        .select("email, role")
+        .eq("email", email)
+        .maybeSingle();
+
+      if (existingErr) {
+        console.error("Signup lookup error:", existingErr);
         return res.status(500).json({
           success: false,
           message: "Signup is currently not working",
-          error: userError.message,
         });
       }
+
+      // a verified account already exists
+      if (existing && existing.role !== "notverified") {
+        return res.status(403).json({
+          success: false,
+          message: "This account already exist , Please Login",
+        });
+      }
+
+      const passwordHash = await bcrypt.hash(password, 10);
+
+      if (!existing) {
+        const { error: userError } = await supabase
+          .schema("study")
+          .from("userTable")
+          .insert({
+            email,
+            username,
+            password: passwordHash,
+            role: "notverified",
+            class: "10",
+          });
+        if (userError) {
+          console.error("Supabase user insert error:", userError);
+          return res.status(500).json({
+            success: false,
+            message: "Signup is currently not working",
+          });
+        }
+      } else {
+        // signed up before but never verified: refresh the details and send a new link
+        const { error: updErr } = await supabase
+          .schema("study")
+          .from("userTable")
+          .update({ username, password: passwordHash })
+          .eq("email", email);
+        if (updErr) {
+          console.error("Supabase user update error:", updErr);
+          return res.status(500).json({
+            success: false,
+            message: "Signup is currently not working",
+          });
+        }
+      }
+
+      const token = crypto.randomBytes(32).toString("hex");
+      const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+
+      const { error } = await supabase
+        .schema("study")
+        .from("email_verify")
+        .insert({
+          token: tokenHash,
+          email,
+          // set explicitly, so a database default / timezone can't expire it early
+          expires_at: new Date(
+            Date.now() + LINK_MINUTES * 60 * 1000,
+          ).toISOString(),
+        });
+
+      if (error) {
+        console.error("Supabase insert error:", error);
+        return res.status(500).json({
+          success: false,
+          message: "Signup is currently not working",
+        });
+      }
+
+      try {
+        const loginLink = `https://sumit7.website/linklogin?token=${token}`;
+        await sendLoginEmail(email, loginLink);
+        console.log(` login link sent to ${email}`);
+      } catch (mailErr) {
+        console.log("Email error:", mailErr);
+        return res.status(500).json({
+          success: false,
+          message: "Failed to send email",
+        });
+      }
+
+      req.session.captcha = null; // one captcha = one signup
       return res.json({
         success: true,
         message: `Login link sent to ${email}`,
       });
-    } catch (error) {
-      console.log("Email error:", error);
-
+    } catch (err) {
+      console.error("Signup error:", err);
       return res.status(500).json({
         success: false,
-        message: "Failed to send email",
-        error: error.message,
+        message: "Signup is currently not working",
       });
     }
   },
 );
 
+// ---------- small status pages for the sign-in link ----------
+function linkPage(title, text, { ok = false, extra = "" } = {}) {
+  const color = ok ? "#34d399" : "#f87171";
+  const icon = ok ? "&#10003;" : "&#10005;";
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${title}</title>
+  <style>
+    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;background:#0B1220;color:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+    .card{width:100%;max-width:420px;background:#172337;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;text-align:center}
+    .ic{width:56px;height:56px;margin:0 auto 18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;color:${color};background:${color}22}
+    h1{margin:0;font-size:20px}
+    p{margin:8px 0 0;font-size:14px;color:#94a3b8;line-height:1.5}
+    button,a.btn{display:inline-block;margin-top:22px;padding:12px 28px;border:0;border-radius:12px;background:#2878F0;color:#fff;font-size:15px;font-weight:600;text-decoration:none;cursor:pointer}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="ic">${icon}</div>
+    <h1>${title}</h1>
+    <p>${text}</p>
+    ${extra}
+  </div>
+</body>
+</html>`;
+}
+
+const TOKEN_RE = /^[a-f0-9]{64}$/;
+
+// Step 1 (GET): only CHECKS the link and shows a button. It never uses the link up.
+// Email scanners / link previews open GET links automatically; if GET signed the
+// user in, the scanner would burn the link and the real click would say "expired".
 router2.get("/linklogin", generalLimiter, login, async (req, res) => {
   try {
-    const { token } = req.query;
-
-    if (!token) {
-      return res.status(400).send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <link rel="stylesheet" href="/css/output.css">
-            <title>Invalid Login Link</title>
-        </head>
-        <body class="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center px-4">
-            <div class="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-900 p-8 text-center">
-                <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-red-500/10 text-red-400">
-                    <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M6 18 18 6M6 6l12 12" />
-                    </svg>
-                </div>
-
-                <h1 class="text-xl font-semibold">Invalid login link</h1>
-
-                <p class="mt-2 text-sm text-neutral-400">
-                    This login link is invalid or incomplete.
-                </p>
-            </div>
-        </body>
-        </html>
-    `);
+    const token = String(req.query.token || "");
+    if (!TOKEN_RE.test(token)) {
+      return res
+        .status(400)
+        .send(
+          linkPage(
+            "Invalid login link",
+            "This login link is invalid or incomplete.",
+          ),
+        );
     }
 
     const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
@@ -398,7 +465,7 @@ router2.get("/linklogin", generalLimiter, login, async (req, res) => {
     const { data, error } = await supabase
       .schema("study")
       .from("email_verify")
-      .select("email, expires_at")
+      .select("email")
       .eq("token", tokenHash)
       .eq("used", false)
       .gt("expires_at", new Date().toISOString())
@@ -408,122 +475,151 @@ router2.get("/linklogin", generalLimiter, login, async (req, res) => {
       console.error("Token lookup error:", error);
       return res
         .status(500)
-        .send("Something went wrong with server. Try again later.");
+        .send(linkPage("Something went wrong", "Please try again later."));
     }
 
     if (!data) {
-      return res.status(401).send(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <link rel="stylesheet" href="/css/output.css">
-            <title>Login Link Expired</title>
-        </head>
-        <body class="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center px-4">
-            <div class="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-900 p-8 text-center">
-                <div class="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-red-500/10 text-red-400">
-                    <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                            d="M6 18 18 6M6 6l12 12" />
-                    </svg>
-                </div>
-
-                <h1 class="text-xl font-semibold">Login link expired</h1>
-
-                <p class="mt-2 text-sm text-neutral-400">
-                    This login link is invalid, expired, or has already been used.
-                </p>
-            </div>
-        </body>
-        </html>
-    `);
+      return res
+        .status(401)
+        .send(
+          linkPage(
+            "Login link expired",
+            "This login link is invalid, expired, or has already been used.",
+            { extra: `<a class="btn" href="/login">Go to login</a>` },
+          ),
+        );
     }
 
-    const { data: user, error: userError } = await supabase
-      .schema("study")
-      .from("userTable")
-      .update({ role: "user" })
-      .eq("email", data.email)
-      .select("user_id, email, username , is_premium , class")
-      .maybeSingle();
-
-    const { error: updateError } = await supabase
-      .schema("study")
-      .from("email_verify")
-      .update({ used: true })
-      .eq("token", tokenHash);
-
-    if (userError || updateError) {
-      console.error("User update error:", userError || updateError);
-      return res.status(500).send("Failed to contact with database.");
-    }
-    const { data: userData, error: userDataError } = await supabase
-      .schema("study")
-      .from("leaderboard")
-      .insert({
-        username: user.username,
-        useremail: user.email,
-        totalpractice: 0,
-        totaltest: 0,
-        avgscorepractice: 0,
-        avgscoretest: 0,
-      })
-      .maybeSingle();
-
-    if (userDataError) {
-      console.log(userDataError);
-    }
-    req.session.userId = user.user_id;
-    req.session.useremail = user.email;
-    req.session.username = user.username;
-    req.session.premium = user.is_premium;
-    req.session.class = "10";
-
-    res.send(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Login successful</title>
-        <script src="https://cdn.tailwindcss.com"></script>
-      </head>
-
-      <body class="min-h-screen bg-neutral-950 text-neutral-100 flex items-center justify-center px-4">
-
-        <div class="w-full max-w-md rounded-2xl border border-neutral-800 bg-neutral-900 p-8 text-center">
-
-          <div class="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/10">
-            <div class="h-8 w-8 animate-spin rounded-full border-4 border-neutral-700 border-t-blue-500"></div>
-          </div>
-
-          <h1 class="text-xl font-semibold">
-            Login successful
-          </h1>
-
-          <p class="mt-2 text-sm text-neutral-400">
-            Taking you to your dashboard...
-          </p>
-
-        </div>
-
-        <script>
-          setTimeout(() => {
-            window.location.href = '/';
-          }, 1200);
-        </script>
-
-      </body>
-      </html>
-    `);
+    return res.send(
+      linkPage(
+        "Confirm sign in",
+        "Tap the button to finish signing in to Highkey.",
+        {
+          ok: true,
+          extra: `<form method="POST" action="/linklogin"><input type="hidden" name="token" value="${token}"><button type="submit">Sign in</button></form>`,
+        },
+      ),
+    );
   } catch (error) {
     console.error("email login error:", error);
-    res.status(500).send("Login failed.");
+    res.status(500).send(linkPage("Login failed", "Please try again."));
   }
 });
+
+// Step 2 (POST): uses the link up (atomically), verifies the user, signs in, redirects.
+router2.post(
+  "/linklogin",
+  generalLimiter,
+  login,
+  express.urlencoded({ extended: false }),
+  async (req, res) => {
+    try {
+      const token = String((req.body && req.body.token) || "");
+      if (!TOKEN_RE.test(token)) {
+        return res
+          .status(400)
+          .send(
+            linkPage(
+              "Invalid login link",
+              "This login link is invalid or incomplete.",
+            ),
+          );
+      }
+
+      const tokenHash = crypto.createHash("sha256").update(token).digest("hex");
+
+      // claim the link in ONE query: only one request can ever flip used false -> true
+      const { data: claimed, error: claimError } = await supabase
+        .schema("study")
+        .from("email_verify")
+        .update({ used: true })
+        .eq("token", tokenHash)
+        .eq("used", false)
+        .gt("expires_at", new Date().toISOString())
+        .select("email")
+        .maybeSingle();
+
+      if (claimError) {
+        console.error("Token claim error:", claimError);
+        return res
+          .status(500)
+          .send(linkPage("Something went wrong", "Please try again later."));
+      }
+
+      if (!claimed) {
+        return res
+          .status(401)
+          .send(
+            linkPage(
+              "Login link expired",
+              "This login link is invalid, expired, or has already been used.",
+              { extra: `<a class="btn" href="/login">Go to login</a>` },
+            ),
+          );
+      }
+
+      const { data: user, error: userError } = await supabase
+        .schema("study")
+        .from("userTable")
+        .update({ role: "user" })
+        .eq("email", claimed.email)
+        .select("user_id, email, username, is_premium, class")
+        .maybeSingle();
+
+      if (userError || !user) {
+        console.error("User update error:", userError || "user not found");
+        // give the link back so the user can try again
+        await supabase
+          .schema("study")
+          .from("email_verify")
+          .update({ used: false })
+          .eq("token", tokenHash);
+        return res
+          .status(500)
+          .send(linkPage("Something went wrong", "Please try again later."));
+      }
+
+      // leaderboard row (ignore "already exists")
+      const { error: lbError } = await supabase
+        .schema("study")
+        .from("leaderboard")
+        .insert({
+          username: user.username,
+          useremail: user.email,
+          totalpractice: 0,
+          totaltest: 0,
+          avgscorepractice: 0,
+          avgscoretest: 0,
+        });
+      if (lbError && lbError.code !== "23505") {
+        console.error("Leaderboard insert error:", lbError);
+      }
+
+      await new Promise((resolve, reject) =>
+        req.session.regenerate((e) => (e ? reject(e) : resolve())),
+      );
+      req.session.userId = user.user_id;
+      req.session.useremail = user.email;
+      req.session.username = user.username;
+      req.session.premium = user.is_premium;
+      req.session.class = user.class || "10";
+
+      // saved first, then redirect (no inline script needed)
+      return req.session.save((e) => {
+        if (e) {
+          console.error("Session save error:", e);
+          return res
+            .status(500)
+            .send(linkPage("Login failed", "Please try again."));
+        }
+        return res.redirect("/");
+      });
+    } catch (error) {
+      console.error("email login error:", error);
+      res.status(500).send(linkPage("Login failed", "Please try again."));
+    }
+  },
+);
 
 module.exports = {
   router2,

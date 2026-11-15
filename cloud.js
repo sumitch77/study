@@ -11,6 +11,7 @@ const { routertest } = require("./routes/test");
 const { routerssc } = require("./routes/sscpractice");
 const { routerbooks } = require("./routes/books");
 const { routerdopractice } = require("./routes/dopractice");
+const { routerdotest } = require("./routes/dotest");
 
 const { client } = require("./utils/redisHelper");
 const multer = require("multer");
@@ -117,6 +118,7 @@ app.use(routertest);
 app.use(routerssc);
 app.use(routerbooks);
 app.use(routerdopractice);
+app.use(routerdotest);
 
 app.use((req, res, next) => {
   return res.status(404).render("error", {
