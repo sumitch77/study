@@ -172,8 +172,8 @@ router2.post(
     const { data: check, error: checkerr } = await supabase
       .schema("study")
       .from("userTable")
-      .eq("email", email)
       .select("email")
+      .eq("email", email)
       .maybeSingle();
 
     if (check) {

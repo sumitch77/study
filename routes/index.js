@@ -137,6 +137,7 @@ router.get("/userinfo", async (req, res) => {
     success: true,
     username: req.session.username,
     useremail: req.session.useremail,
+    premium: req.session.premium,
   });
 });
 
