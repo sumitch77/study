@@ -123,9 +123,9 @@ router8.post(
         return res.json({ success: true, message: FORGOT_MESSAGE });
       }
 
-      const loginLink = `https://sumit7.website/linklogin?token=${selector}.${verifier}`;
+      const loginLink = `https://highkeyy.tech/linklogin?token=${selector}.${verifier}`;
       await resendClient.emails.send({
-        from: "Highkey <Sumit@sumit7.website>",
+        from: "Highkey <Sumit@highkeyy.tech>",
         to: email,
         subject: "Your Highkey sign-in link",
 

@@ -131,7 +131,7 @@ const LINK_MINUTES = 10;
 
 async function sendLoginEmail(email, loginLink) {
   await resendClient.emails.send({
-    from: "Highkey <Sumit@sumit7.website>",
+    from: "Highkey <Sumit@highkeyy.tech>",
     to: email,
     subject: "Your Highkey sign-in link",
 
@@ -385,7 +385,7 @@ router2.post(
       }
 
       try {
-        const loginLink = `https://sumit7.website/linklogin?token=${token}`;
+        const loginLink = `https://highkeyy.tech/linklogin?token=${token}`;
         await sendLoginEmail(email, loginLink);
         console.log(` login link sent to ${email}`);
       } catch (mailErr) {
