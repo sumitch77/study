@@ -253,7 +253,8 @@
             const st = lbStyles[i];
             const avg = Number(s.final_score);
             const avgText = Number.isFinite(avg) ? avg.toFixed(1) : "0.0";
-            const tests = Number(s.totaltest + s.totalpractice) || 0;
+            const practice = Number(s.totalpractice) || 0;
+            const tests = Number(s.totaltest) || 0;
             const initial = s.username ? String(s.username).charAt(0).toUpperCase() : "?";
             return `
               <div class="flex items-center gap-[9.6px] rounded-xl transition hover:scale-[1.01] ${st.row}">
@@ -261,7 +262,7 @@
                 <span class="hidden shrink-0 items-center justify-center rounded-full font-bold sm:flex ${st.avatar}">${esc(initial)}</span>
                 <div class="min-w-0 flex-1">
                   <p class="truncate ${st.name}">${esc(s.username)} ${st.medal}</p>
-                  <p class="${st.stat} ${st.sub}">${tests} ${tests === 1 ? "test" : "tests"} taken</p>
+                  <p class="${st.stat} ${st.sub}">${practice} practice · ${tests} ${tests === 1 ? "test" : "tests"}</p>
                 </div>
                 <div class="shrink-0 text-right">
                   <p class="leading-none ${st.score}">${avgText}</p>
@@ -291,6 +292,7 @@
       document.getElementById("seeAllBtn2").addEventListener("click", goAll);
 
       // ---------- progress ----------
+      const TESTS_PER_SUBJECT = 2; // full tests per subject
       // each subject gets its own palette colour
       const progressSubjects = [
         { key: "geography", label: "Geography", total: 14, bar: "from-[#34D399] to-[#10b981]", box: "border-[#34D399]/30 from-[#34D399]/20", text: "text-[#34D399]", chip: "bg-[#34D399] text-[#0B1220]", emoji: "🌍" },
@@ -309,6 +311,9 @@
             const hasAvg = attempted > 0 && Number.isFinite(Number(d.avgpercent));
             const avgPct = hasAvg ? Number(d.avgpercent).toFixed(0) : "–";
             const avgRaw = hasAvg && Number.isFinite(Number(d.avgscore)) ? Number(d.avgscore).toFixed(1) : null;
+            const testsDone = Math.min(Number(d.testattempted) || 0, TESTS_PER_SUBJECT);
+            const testPct = Math.round((testsDone / TESTS_PER_SUBJECT) * 100);
+            const testAvg = testsDone > 0 && Number.isFinite(Number(d.testavg)) ? Number(d.testavg).toFixed(0) + "%" : "–";
             return `
               <a href="/practice" class="relative flex flex-col justify-between gap-3 overflow-hidden rounded-2xl border bg-linear-to-br ${s.box} to-[#172337] p-3.5 shadow-lg shadow-black/30 transition duration-300 hover:-translate-y-1">
                 <div class="flex items-center justify-between">
@@ -317,13 +322,17 @@
                 </div>
                 <div>
                   <h3 class="text-sm font-bold text-white">${s.label}</h3>
-                  <p class="mt-0.5 text-xs text-slate-400">Attempted <b class="text-white">${attempted}/${total}</b></p>
+                  <p class="mt-0.5 text-xs text-slate-400">Practice <b class="text-white">${attempted}/${total}</b></p>
                   <div class="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-white/10">
                     <div class="h-full rounded-full bg-linear-to-r ${s.bar} transition-all duration-700" style="width:${pct}%"></div>
                   </div>
+                  <p class="mt-2 text-xs text-slate-400">Tests <b class="text-white">${testsDone}/${TESTS_PER_SUBJECT}</b> · avg <b class="${s.text}">${testAvg}</b></p>
+                  <div class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+                    <div class="h-full rounded-full bg-[#FBBF24] transition-all duration-700" style="width:${testPct}%"></div>
+                  </div>
                 </div>
                 <div class="flex items-end justify-between border-t border-white/10 pt-2">
-                  <span class="text-[11px] text-slate-400">Avg score</span>
+                  <span class="text-[11px] text-slate-400">Practice avg</span>
                   <span class="text-right leading-none">
                     <span class="text-xl font-extrabold ${s.text}">${avgPct}${hasAvg ? "%" : ""}</span>
                     ${avgRaw !== null ? `<span class="block text-[10px] text-slate-500">${avgRaw} / 100</span>` : ""}

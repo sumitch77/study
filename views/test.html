@@ -36,7 +36,7 @@
     <!--
       Palette
       Blue   #2878F0  primary buttons, active navigation
-      Green  #34D399  chapter label
+      Green  #34D399  full test label
       Yellow #FBBF24  subject label, premium
       Navy   #0B1220  main background
       Slate  #172337  cards and surfaces
@@ -88,7 +88,7 @@
                 id="searchInput"
                 type="search"
                 autocomplete="off"
-                placeholder="Search chapter… e.g. ch 3, climate, test 2"
+                placeholder="Search tests… e.g. test 2, geography"
                 class="w-full rounded-full border border-white/5 bg-[#172337] py-2 pr-3 pl-10 text-sm text-white placeholder-slate-500 outline-none transition focus:border-[#2878F0] focus:ring-4 focus:ring-[#2878F0]/20"
               />
             </div>
@@ -136,8 +136,8 @@
 
         <!-- content -->
         <main class="flex-1 px-4 pb-6 sm:px-6">
-          <!-- loading state: shown until the first /sscTest call finishes -->
-          <div id="shimmer" aria-busy="true" aria-label="Loading Test tests">
+          <!-- loading state: shown until the first /sscpractice call finishes -->
+          <div id="shimmer" aria-busy="true" aria-label="Loading tests">
             <div class="shimmer h-7 w-48 max-w-full rounded-lg bg-white/10"></div>
 
             <div class="mt-3 mb-4 flex flex-wrap items-center gap-2">
@@ -155,7 +155,7 @@
           <div id="aftershimmer" class="hidden">
             <div class="flex flex-wrap items-baseline gap-x-3">
               <h1 class="flex items-center gap-2 text-xl font-bold tracking-tight sm:text-2xl">
-                <span class="h-5 w-1.5 rounded-full bg-[#2878F0]"></span>Test Questions
+                <span class="h-5 w-1.5 rounded-full bg-[#2878F0]"></span>Full Subject Tests
               </h1>
               <p id="resultCount" class="hidden text-xs text-slate-400"></p>
             </div>
@@ -194,7 +194,7 @@
 
             <!-- empty / error message -->
             <p
-              id="TestMessage"
+              id="practiceMessage"
               class="mb-4 hidden rounded-xl border border-[#FBBF24]/20 bg-[#FBBF24]/10 px-4 py-3 text-sm text-[#FBBF24]"
             ></p>
 
@@ -207,7 +207,7 @@
 
             <!-- chapters -->
             <div
-              id="TestGrid"
+              id="practiceGrid"
               class="grid grid-cols-2 gap-3 lg:grid-cols-4"
             ></div>
           </div>
@@ -301,28 +301,27 @@
         el.innerHTML = icon(el.dataset.icon, el.dataset.class);
       });
 
-      // ---------- Test ----------
+      // ---------- tests ----------
       // the 4 SST parts, shown in the subject dropdown
       const SUBJECTS = ["geography", "civics", "economics", "history"];
       const DEFAULT_SUBJECT = "geography";
 
-      // premium users: a test button opens
-      //   /doTest?subject=geography&chapter=1&test=2
-      const DO_Test_PAGE = "/doTest";
-      // locked chapters (free users): every button opens this page
+      // "Start Test 1" opens  /dotest?subject=geography&test=1
+      const DO_TEST_PAGE = "/dotest";
+      // locked tests (free users): every button opens this page
       const PREMIUM_PAGE = "/premium";
 
       const subjectForm = document.getElementById("subjectForm");
       const subjectSelect = document.getElementById("subjectSelect");
       const selectBtn = document.getElementById("selectBtn");
-      const TestGrid = document.getElementById("TestGrid");
+      const practiceGrid = document.getElementById("practiceGrid");
       const gridSkeleton = document.getElementById("gridSkeleton");
-      const TestMessage = document.getElementById("TestMessage");
+      const practiceMessage = document.getElementById("practiceMessage");
       const searchInput = document.getElementById("searchInput");
       const clearBtn = document.getElementById("clearBtn");
       const resultCount = document.getElementById("resultCount");
 
-      // one entry per chapter on screen: [{ node, chapter, tests: Set, text }]
+      // one entry per test on screen: [{ node, test, text }]
       let allCards = [];
 
       // create an element safely (text is never parsed as HTML)
@@ -339,59 +338,42 @@
         node.classList.toggle("grid", visible);
       }
 
-      // "ch_1_test_2" -> { chapter: 1, test: 2 }
-      function parseInfo(info) {
-        const m = /ch(?:apter)?[\s_-]*(\d+)[\s_-]*test[\s_-]*(\d+)/i.exec(
-          String(info ?? ""),
-        );
-        return m
-          ? { chapter: parseInt(m[1], 10), test: parseInt(m[2], 10) }
-          : { chapter: NaN, test: NaN };
+      // test number from the row: test / test_no / info ("test_2", "2" ...)
+      function testNumber(item) {
+        const raw = item.test ?? item.test_no ?? item.test_number ?? item.info ?? "";
+        const m = /(\d+)/.exec(String(raw));
+        return m ? parseInt(m[1], 10) : NaN;
       }
 
-      // group the rows (one row per test) into one card per chapter
-      function groupByChapter(items, subject) {
-        const map = new Map();
+      const num = (v) => (Number.isFinite(Number(v)) && Number(v) > 0 ? Number(v) : null);
 
-        for (const item of items) {
-          const { chapter, test } = parseInfo(item.info);
-          const key = Number.isNaN(chapter)
-            ? "x:" + String(item.chapter_name ?? item.info ?? "")
-            : "c:" + chapter;
+      // rows from the server -> [{ subject, test, title, questions, minutes }] (sorted, no repeats)
+      function normalizeTests(items, subject) {
+        const seen = new Set();
+        const out = [];
 
-          if (!map.has(key)) {
-            map.set(key, {
-              subject: String(item.subject || subject || ""),
-              chapter,
-              name: String(item.chapter_name ?? "").trim(),
-              tests: [],
-            });
-          }
-          const group = map.get(key);
-          if (!group.name && item.chapter_name) {
-            group.name = String(item.chapter_name).trim();
-          }
-          group.tests.push({ test, info: String(item.info ?? "") });
-        }
+        items.forEach((item, i) => {
+          let test = testNumber(item);
+          if (Number.isNaN(test)) test = i + 1;
+          if (seen.has(test)) return;
+          seen.add(test);
 
-        return [...map.values()]
-          .map((g) => ({
-            ...g,
-            tests: g.tests.sort((a, b) => (a.test || 0) - (b.test || 0)),
-          }))
-          .sort(
-            (a, b) =>
-              (Number.isNaN(a.chapter) ? 9999 : a.chapter) -
-              (Number.isNaN(b.chapter) ? 9999 : b.chapter),
-          );
+          out.push({
+            subject: String(item.subject || subject || ""),
+            test,
+            title: String(item.test_name ?? item.title ?? item.name ?? "").trim(),
+            questions: num(item.total_questions ?? item.questions ?? item.total),
+            minutes: num(item.duration ?? item.minutes ?? item.time),
+          });
+        });
+
+        return out.sort((a, b) => a.test - b.test);
       }
 
-      // locked = true -> faded card with a lock + chain, buttons go to /premium
-      function chapterCard(group, locked = false) {
-        const chapterLabel = Number.isNaN(group.chapter)
-          ? "Chapter —"
-          : "Chapter " + group.chapter;
-        const title = locked ? "Premium content" : group.name || chapterLabel;
+      // locked = true -> faded card with a lock + chain, button goes to /premium
+      function testCard(t, locked = false) {
+        const label = "Test " + t.test;
+        const title = t.title || "Full " + (t.subject || "subject") + " test";
 
         const card = el(
           "div",
@@ -400,82 +382,51 @@
 
         // thin accent line along the top (blue, or yellow when locked)
         card.appendChild(
-          el(
-            "span",
-            "absolute inset-x-0 top-0 h-0.5 " +
-              (locked ? "bg-[#FBBF24]/60" : "bg-[#2878F0]"),
-          ),
+          el("span", "absolute inset-x-0 top-0 h-0.5 " + (locked ? "bg-[#FBBF24]/60" : "bg-[#2878F0]")),
         );
 
         // everything inside the card (faded when locked)
-        const inner = el(
-          "div",
-          "flex flex-1 flex-col gap-2" + (locked ? " opacity-40" : ""),
-        );
+        const inner = el("div", "flex flex-1 flex-col gap-2" + (locked ? " opacity-40" : ""));
         card.appendChild(inner);
 
-        // subject + chapter chips
+        // subject + "Full test" chips
         const chips = el("div", "mt-1 flex flex-wrap gap-1.5");
         chips.appendChild(
-          el(
-            "span",
-            "rounded-md bg-[#FBBF24]/15 px-2 py-0.5 text-[11px] font-semibold text-[#FBBF24] capitalize",
-            group.subject || "—",
-          ),
+          el("span", "rounded-md bg-[#FBBF24]/15 px-2 py-0.5 text-[11px] font-semibold text-[#FBBF24] capitalize", t.subject || "—"),
         );
         chips.appendChild(
-          el(
-            "span",
-            "rounded-md bg-[#34D399]/15 px-2 py-0.5 text-[11px] font-semibold text-[#34D399]",
-            chapterLabel,
-          ),
+          el("span", "rounded-md bg-[#34D399]/15 px-2 py-0.5 text-[11px] font-semibold text-[#34D399]", "Full test"),
         );
         inner.appendChild(chips);
 
-        // chapter name
+        // title + big test number
         inner.appendChild(
-          el(
-            "h3",
-            "text-sm leading-snug font-bold tracking-tight text-white sm:text-base",
-            title,
-          ),
+          el("h3", "text-sm leading-snug font-bold tracking-tight text-white sm:text-base", title),
         );
+        inner.appendChild(el("p", "text-2xl leading-none font-extrabold text-[#6aa5ff] sm:text-3xl", label));
 
-        // test buttons (one per row from the server, normally Test 1 and Test 2)
-        const actions = el("div", "mt-auto flex gap-1.5 pt-1");
-        const base =
-          "flex flex-1 items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold transition sm:text-[13px]";
+        // optional details from the server
+        const meta = [];
+        if (t.questions) meta.push(t.questions + " questions");
+        if (t.minutes) meta.push(t.minutes + " min");
+        if (meta.length) inner.appendChild(el("p", "text-xs text-slate-400", meta.join(" · ")));
 
-        group.tests.forEach((t, i) => {
-          const label = Number.isNaN(t.test) ? "Test" : "Test " + t.test;
-          const link = el(
-            "a",
-            base +
-              (i === 0
-                ? " bg-[#2878F0] text-white shadow-md shadow-[#2878F0]/25 hover:brightness-110"
-                : " border border-[#2878F0]/50 bg-[#2878F0]/10 text-[#6aa5ff] hover:bg-[#2878F0] hover:text-white"),
-          );
-          if (locked) {
-            link.href = PREMIUM_PAGE;
-          } else {
-            link.href =
-              DO_Test_PAGE +
-              "?subject=" +
-              encodeURIComponent(group.subject) +
-              "&chapter=" +
-              encodeURIComponent(group.chapter) +
-              "&test=" +
-              encodeURIComponent(t.test);
-          }
-          link.setAttribute("aria-label", title + " " + label);
-          link.insertAdjacentHTML("beforeend", icon("play", "h-3.5 w-3.5"));
-          link.append(el("span", "", label));
-          actions.appendChild(link);
-        });
+        // start button
+        const link = el(
+          "a",
+          "mt-auto flex items-center justify-center gap-1.5 rounded-lg bg-[#2878F0] px-2 py-2 text-xs font-semibold text-white shadow-md shadow-[#2878F0]/25 transition hover:brightness-110 sm:text-[13px]",
+        );
+        link.href = locked
+          ? PREMIUM_PAGE
+          : DO_TEST_PAGE +
+            "?subject=" + encodeURIComponent(t.subject) +
+            "&test=" + encodeURIComponent(t.test);
+        link.setAttribute("aria-label", "Start " + label);
+        link.insertAdjacentHTML("beforeend", icon("play", "h-3.5 w-3.5"));
+        link.append(el("span", "", "Start " + label));
+        inner.appendChild(link);
 
-        inner.appendChild(actions);
-
-        // locked: faded chained lock over the card (clicks pass through to the buttons)
+        // locked: faded chained lock over the card (clicks pass through to the button)
         if (locked) {
           const overlay = el(
             "div",
@@ -491,118 +442,55 @@
           card.appendChild(overlay);
         }
 
-        // searchable text for this card
-        const text = [
-          group.subject,
-          group.name,
-          Number.isNaN(group.chapter) ? "" : "chapter " + group.chapter,
-          locked ? "premium locked" : "",
-          ...group.tests.map((t) => t.info.replace(/_/g, " ")),
-        ]
+        const text = [t.subject, title, label, "full test", locked ? "premium locked" : ""]
           .join(" ")
           .toLowerCase()
           .replace(/\s+/g, " ")
           .trim();
 
-        return {
-          node: card,
-          chapter: group.chapter,
-          tests: new Set(group.tests.map((t) => t.test)),
-          text,
-        };
+        return { node: card, test: t.test, text };
       }
 
       // ---------- search (hide / show the cards) ----------
-      function escapeRegex(s) {
-        return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      }
-
-      // "ch 3", "chapter 1,2", "4-6", "climate", "test 2", "ch 3 test 1"
-      function parseQuery(raw) {
-        const q = raw.toLowerCase().trim().replace(/\s+/g, " ");
-        const words = [];
-        const nums = []; // { from, to, kind: "chapter" | "test" }
+      // "test 2", "2", "geography", "full"
+      function matchesQuery(card, q) {
+        if (!q) return true;
         const tokens = q.split(/[\s,;]+/).filter(Boolean);
-        let ctx = "chapter"; // a bare number means a chapter number
-
-        for (const t of tokens) {
-          let m;
-          if (t === "test") {
-            ctx = "test";
-          } else if (t === "chapter" || t === "ch") {
-            ctx = "chapter";
-          } else if ((m = /^(?:ch|chapter)(\d+)$/.exec(t))) {
-            nums.push({ from: +m[1], to: +m[1], kind: "chapter" });
-          } else if ((m = /^test(\d+)$/.exec(t))) {
-            nums.push({ from: +m[1], to: +m[1], kind: "test" });
-          } else if ((m = /^(\d+)-(\d+)$/.exec(t))) {
-            nums.push({
-              from: Math.min(+m[1], +m[2]),
-              to: Math.max(+m[1], +m[2]),
-              kind: ctx,
-            });
-          } else if (/^\d+$/.test(t)) {
-            nums.push({ from: +t, to: +t, kind: ctx });
-          } else {
-            words.push(t);
-          }
-        }
-        return { q, words, nums };
-      }
-
-      function matchesQuery(card, parsed) {
-        if (!parsed.q) return true;
-
-        // whole phrase on word boundaries (e.g. "chapter 1" but not "chapter 10")
-        const phrase = new RegExp("(^|\\s)" + escapeRegex(parsed.q) + "(\\s|$)");
-        if (phrase.test(card.text)) return true;
-
-        // every word must appear somewhere in the card text
-        if (!parsed.words.every((w) => card.text.includes(w))) return false;
-
-        // numbers: each chapter / test number must match
-        return parsed.nums.every((n) => {
-          if (n.kind === "chapter") {
-            return (
-              !Number.isNaN(card.chapter) &&
-              card.chapter >= n.from &&
-              card.chapter <= n.to
-            );
-          }
-          for (let t = n.from; t <= n.to; t++) {
-            if (card.tests.has(t)) return true;
-          }
-          return false;
+        return tokens.every((tok) => {
+          if (tok === "test") return true;
+          if (/^\d+$/.test(tok)) return card.test === parseInt(tok, 10);
+          const m = /^test(\d+)$/.exec(tok);
+          if (m) return card.test === parseInt(m[1], 10);
+          return card.text.includes(tok);
         });
       }
 
       function applyFilters() {
-        const parsed = parseQuery(searchInput.value);
+        const q = searchInput.value.toLowerCase().trim();
         let visible = 0;
 
         for (const card of allCards) {
-          const show = matchesQuery(card, parsed);
+          const show = matchesQuery(card, q);
           card.node.style.display = show ? "" : "none";
           if (show) visible++;
         }
 
-        const active = parsed.q !== "";
-        clearBtn.classList.toggle("hidden", !active);
+        clearBtn.classList.toggle("hidden", q === "");
 
         if (allCards.length === 0) {
           resultCount.classList.add("hidden");
-          return; // empty / error message is handled by loadTest
+          return; // empty / error message is handled by loadTests
         }
 
         if (visible === 0) {
-          showMessage("No chapters match your search.");
+          showMessage("No tests match your search.");
         } else {
-          TestMessage.classList.add("hidden");
+          practiceMessage.classList.add("hidden");
         }
 
-        resultCount.textContent = active
-          ? `Showing ${visible} of ${allCards.length} chapters`
-          : `${allCards.length} chapters`;
+        resultCount.textContent = q
+          ? `Showing ${visible} of ${allCards.length} tests`
+          : `${allCards.length} tests`;
         resultCount.classList.remove("hidden");
       }
 
@@ -622,19 +510,16 @@
               <div class="h-5 w-16 rounded-md bg-white/5"></div>
             </div>
             <div class="h-5 w-28 rounded-md bg-white/10"></div>
-            <div class="mt-1 flex gap-1.5">
-              <div class="h-8 flex-1 rounded-lg bg-white/10"></div>
-              <div class="h-8 flex-1 rounded-lg bg-white/10"></div>
-            </div>
+            <div class="h-8 w-20 rounded-md bg-white/10"></div>
+            <div class="mt-1 h-8 w-full rounded-lg bg-white/10"></div>
           </div>`;
       }
-      document.getElementById("pageSkeletonGrid").innerHTML =
-        skeletonCardHTML().repeat(8);
-      gridSkeleton.innerHTML = skeletonCardHTML().repeat(8);
+      document.getElementById("pageSkeletonGrid").innerHTML = skeletonCardHTML().repeat(4);
+      gridSkeleton.innerHTML = skeletonCardHTML().repeat(4);
 
       function showMessage(text) {
-        TestMessage.textContent = text;
-        TestMessage.classList.remove("hidden");
+        practiceMessage.textContent = text;
+        practiceMessage.classList.remove("hidden");
       }
 
       function revealPage() {
@@ -644,105 +529,69 @@
 
       let latestRequest = 0;
 
-      async function loadTest(subject) {
+      async function loadTests(subject) {
         const requestId = ++latestRequest;
 
-        TestMessage.classList.add("hidden");
+        practiceMessage.classList.add("hidden");
         resultCount.classList.add("hidden");
-        setGridVisible(TestGrid, false);
+        setGridVisible(practiceGrid, false);
         setGridVisible(gridSkeleton, true);
         selectBtn.disabled = true;
         selectBtn.textContent = "Loading…";
 
         try {
-          const res = await fetch(
-            "/sscTest?subject=" + encodeURIComponent(subject),
-          );
+          const res = await fetch("/ssctest?subject=" + encodeURIComponent(subject));
 
           if (res.status === 401) {
             window.location.href = "/login";
             return;
           }
-          if (!res.ok) throw new Error("Failed to load Test tests");
+          if (!res.ok) throw new Error("Failed to load tests");
 
           const data = await res.json();
           if (requestId !== latestRequest) return; // a newer request is running
 
-          let items = Array.isArray(data)
-            ? data
-            : data.Test || data.tests || data.books || data.data || [];
+          let items = Array.isArray(data) ? data : data.tests || data.data || [];
 
           // if the server sends every subject, keep only the selected one
           items = items.filter(
-            (it) =>
-              !it.subject ||
-              String(it.subject).trim().toLowerCase() === subject.toLowerCase(),
+            (it) => !it.subject || String(it.subject).trim().toLowerCase() === subject.toLowerCase(),
           );
 
-          // server says: { success, data, premium, total_chapter }
-          const premium = data.premium === true;
-          const groups = groupByChapter(items, subject);
+          // server says: { success, data, premium }.  premium === false -> locked
+          const locked = data.premium === false;
 
-          allCards = groups.map((g) => chapterCard(g, false));
+          allCards = normalizeTests(items, subject).map((t) => testCard(t, locked));
 
-          // free user: add locked cards up to total_chapter
-          if (!premium && groups.length > 0) {
-            const total = parseInt(data.total_chapter, 10);
-            const lastShown = Math.max(
-              0,
-              ...groups.map((g) => (Number.isNaN(g.chapter) ? 0 : g.chapter)),
-            );
-            if (!Number.isNaN(total)) {
-              for (let n = lastShown + 1; n <= total; n++) {
-                allCards.push(
-                  chapterCard(
-                    {
-                      subject,
-                      chapter: n,
-                      name: "",
-                      tests: [
-                        { test: 1, info: "" },
-                        { test: 2, info: "" },
-                      ],
-                    },
-                    true,
-                  ),
-                );
-              }
-            }
-          }
-
-          TestGrid.replaceChildren(...allCards.map((c) => c.node));
+          practiceGrid.replaceChildren(...allCards.map((c) => c.node));
           searchInput.value = "";
 
           if (allCards.length === 0) {
-            showMessage("No Test tests available for this subject yet.");
+            showMessage("No tests available for this subject yet.");
           }
           applyFilters();
         } catch (error) {
           if (requestId !== latestRequest) return;
-          console.error("Error loading Test tests:", error);
+          console.error("Error loading tests:", error);
           allCards = [];
-          TestGrid.replaceChildren();
+          practiceGrid.replaceChildren();
           applyFilters();
-          showMessage(
-            "We couldn’t load the Test tests right now. Please try again.",
-          );
+          showMessage("We couldn’t load the tests right now. Please try again.");
         }
 
         // finished: hide the loading state, show the page
         setGridVisible(gridSkeleton, false);
-        setGridVisible(TestGrid, true);
+        setGridVisible(practiceGrid, true);
         selectBtn.disabled = false;
         selectBtn.textContent = "Select";
         revealPage();
       }
 
-      // press "Select" -> fetch that subject and update all the cards
+      // press "Select" -> fetch that subject and update the cards
       subjectForm.addEventListener("submit", (e) => {
         e.preventDefault();
         if (selectBtn.disabled || !subjectSelect.value) return;
-        loadTest(subjectSelect.value);
+        loadTests(subjectSelect.value);
       });
 
       // ---------- subjects (fixed list of the 4 SST parts) ----------
@@ -755,9 +604,9 @@
         }),
       );
       subjectSelect.value = DEFAULT_SUBJECT;
-      loadTest(DEFAULT_SUBJECT);
+      loadTests(DEFAULT_SUBJECT);
 
-      // ---------- mobile sidebar ----------
+            // ---------- mobile sidebar ----------
       const overlay = document.getElementById("mobileOverlay");
       const openSidebar = () => overlay.classList.remove("hidden");
       const closeSidebar = () => overlay.classList.add("hidden");

@@ -3,26 +3,16 @@ const path = require("path");
 const routertest = express.Router();
 const dotenv = require("dotenv");
 dotenv.config();
-const { Resend } = require("resend");
-const resendClient = new Resend(process.env.TOKEN);
-const { check } = require("express-validator");
-
 const { supabase } = require("../utils/supabase");
-const { login, loginother } = require("../utils/helper");
-const crypto = require("crypto");
-const {
-  client,
-  cacheData,
-  clearUserDashboardCache,
-  clearPublicDashboardCache,
-} = require("../utils/redisHelper");
+const { loginother } = require("../utils/helper");
+const { cacheData } = require("../utils/redisHelper");
 const {
   testlimiter,
   generallimiter,
   highlimiter,
   maxlimiter,
 } = require("../utils/testlimiter");
-
+// the page
 routertest.get(
   "/test",
   loginother,
@@ -33,8 +23,10 @@ routertest.get(
     return res.sendFile(path.join(__dirname, "../views/test.html"));
   },
 );
+
+// the list of full subject tests (2 per subject)
 routertest.get(
-  "/sscTest",
+  "/ssctest",
   loginother,
   testlimiter,
   highlimiter,
@@ -50,69 +42,39 @@ routertest.get(
         .status(400)
         .json({ success: false, message: "Invalid Request" });
     }
-    if (!req.session.premium) {
-      try {
-        const data = await cacheData(
-          `sscpractice:${subject}:${req.session.premium}`,
-          600,
-          async () => {
-            const { data, error } = await supabase
-              .schema("study")
-              .from("sscpractice")
-              .select("*")
-              .ilike("subject", subject)
-              .limit(1);
-            if (error) throw error;
-            return data;
-          },
-          (data) => Array.isArray(data) && data.length > 0,
-        );
 
-        if (!data || data.length === 0) {
-          return res.json({ success: false, message: "No data found" });
-        }
+    try {
+      // same rows for everyone, so one cache key per subject
+      const data = await cacheData(
+        `ssctest:${subject}`,
+        600,
+        async () => {
+          const { data, error } = await supabase
+            .schema("study")
+            .from("ssctest")
+            .select("*")
+            .ilike("subject", subject);
+          if (error) throw error;
+          return data;
+        },
+        (d) => Array.isArray(d) && d.length > 0,
+      );
 
-        return res.json({
-          success: true,
-          data,
-          premium: false,
-          total_chapter: 5,
-        });
-      } catch (error) {
-        console.error("Error fetching data from Supabase:", error);
-        return res
-          .status(500)
-          .json({ success: false, message: "Error fetching data" });
+      if (!data || data.length === 0) {
+        return res.json({ success: false, message: "No data found" });
       }
-    }
-    if (req.session.premium) {
-      try {
-        const data = await cacheData(
-          `sscpractice:${subject}:${req.session.premium}`,
-          600,
-          async () => {
-            const { data, error } = await supabase
-              .schema("study")
-              .from("sscpractice")
-              .select("*")
-              .ilike("subject", subject);
-            if (error) throw error;
-            return data;
-          },
-          (data) => Array.isArray(data) && data.length > 0,
-        );
 
-        if (!data || data.length === 0) {
-          return res.json({ success: false, message: "No data found" });
-        }
-
-        return res.json({ success: true, data, premium: true });
-      } catch (error) {
-        console.error("Error fetching data from Supabase:", error);
-        return res
-          .status(500)
-          .json({ success: false, message: "Error fetching data" });
-      }
+      // premium === false -> test.html shows the tests locked (chain + /premium link)
+      return res.json({
+        success: true,
+        data,
+        premium: req.session.premium === true,
+      });
+    } catch (error) {
+      console.error("Error fetching tests from Supabase:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Error fetching data" });
     }
   },
 );

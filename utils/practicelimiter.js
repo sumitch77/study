@@ -33,6 +33,14 @@ const generallimiter = rateLimit({
   handler: tooMany("Too Many requests from this account , wait a minute"),
 });
 
+const generallimiterindex = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 10,
+  keyGenerator: (req) => req.session?.email,
+
+  handler: tooMany("Too Many requests from this account , wait a minute"),
+});
+
 const highlimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
   limit: 50,
@@ -51,4 +59,10 @@ const maxlimiter = rateLimit({
   handler: tooMany("Too Many requests from this account , wait few minutes"),
 });
 
-module.exports = { practicelimiter, generallimiter, highlimiter, maxlimiter };
+module.exports = {
+  practicelimiter,
+  generallimiter,
+  highlimiter,
+  maxlimiter,
+  generallimiterindex,
+};
