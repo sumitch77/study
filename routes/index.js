@@ -35,6 +35,50 @@ router.get("/alltime", async (req, res) => {
   return res.status(200).json({ success: true });
 });
 
+router.get("/premium", async (req, res) => {
+  if (req.session.userId) {
+    return res.sendFile(path.join(__dirname, "../views/premium.html"));
+  }
+  return res.redirect("/login");
+});
+
+router.post("/utr", async (req, res) => {
+  if (req.session.userId) {
+    const { utr } = req.body;
+    if (!utr || utr.length !== 12) {
+      return res
+        .status(403)
+        .json({ success: false, message: "inappropriate UTR" });
+    }
+    const { data, error } = await supabase
+      .schema("study")
+      .from("premium")
+      .insert({
+        useremail: req.session.useremail,
+        UTR: utr,
+      })
+      .select()
+      .maybeSingle();
+
+    if (error) {
+      console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: "Your Premium will be activated shortly",
+      });
+    }
+    if (data) {
+      console.log(data);
+
+      return res.status(200).json({
+        success: true,
+        message: "Your Premium will be activated shortly",
+      });
+    }
+  }
+  return res.redirect("/login");
+});
+
 router.get("/policy", async (req, res) => {
   return res.sendFile(path.join(__dirname, "../public/policy.html"));
 });
