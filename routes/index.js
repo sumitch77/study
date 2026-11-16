@@ -9,31 +9,35 @@ dns.setServers(["1.1.1.1", "8.8.8.8"]);
 const { supabase } = require("../utils/supabase");
 const { generallimiterindex } = require("../utils/practicelimiter");
 const {
+  premiumlimiter,
+  utrlimiter,
+  userinfolimiter,
+  leaderboardlimiter,
+  allleaderboardlimiter,
+  progresslimiter,
+  leaderboardpagelimiter,
+} = require("../utils/indexlimiter");
+const {
   client,
   cacheData,
   clearUserDashboardCache,
   clearPublicDashboardCache,
 } = require("../utils/redisHelper");
+const { loginother } = require("../utils/helper");
 
-router.get("/", generallimiterindex, async (req, res) => {
-  if (req.session.userId) {
-    return res.sendFile(path.join(__dirname, "../views/index.html"));
-  }
-  return res.redirect("/login");
+router.get("/", loginother, generallimiterindex, async (req, res) => {
+  return res.sendFile(path.join(__dirname, "../views/index.html"));
 });
 
-router.get("/alltime", async (req, res) => {
+router.get("/alltime", generallimiterindex, async (req, res) => {
   return res.status(200).json({ success: true });
 });
 
-router.get("/premium", async (req, res) => {
-  if (req.session.userId) {
-    return res.sendFile(path.join(__dirname, "../views/premium.html"));
-  }
-  return res.redirect("/login");
+router.get("/premium", loginother, premiumlimiter, async (req, res) => {
+  return res.sendFile(path.join(__dirname, "../views/premium.html"));
 });
 
-router.post("/utr", async (req, res) => {
+router.post("/utr", loginother, utrlimiter, async (req, res) => {
   if (!req.session.userId) {
     return res.status(401).json({ success: false, message: "Unauthorized" });
   }
@@ -123,7 +127,7 @@ router.get("/sitemap.xml", async (req, res) => {
 //   }
 //   return res.redirect("/login");
 // });
-router.get("/userinfo", async (req, res) => {
+router.get("/userinfo", loginother, userinfolimiter, async (req, res) => {
   if (!req.session.userId) {
     return res.status(401).json({ success: false, message: "Unauthorized" });
   }
@@ -176,11 +180,7 @@ async function fetchLeaderboard(limit) {
   return data.map((row, i) => ({ ...row, rank: i + 1 }));
 }
 
-router.get("/leaderboard", async (req, res) => {
-  if (!req.session.userId) {
-    return res.status(401).json({ success: false, message: "Unauthorized" });
-  }
-
+router.get("/leaderboard", loginother, leaderboardlimiter, async (req, res) => {
   try {
     const data = await cacheData(
       "leaderboard:top10",
@@ -197,26 +197,27 @@ router.get("/leaderboard", async (req, res) => {
   }
 });
 
-router.get("/finalleaderboard", async (req, res) => {
-  if (!req.session.userId) {
-    return res.status(401).json({ success: false, message: "Unauthorized" });
-  }
-
-  try {
-    const data = await cacheData(
-      "leaderboard:all",
-      600,
-      () => fetchLeaderboard(null),
-      (d) => Array.isArray(d) && d.length > 0,
-    );
-    return res.status(200).json({ success: true, data });
-  } catch (error) {
-    console.error("Error fetching leaderboard:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Internal Server Error" });
-  }
-});
+router.get(
+  "/finalleaderboard",
+  loginother,
+  allleaderboardlimiter,
+  async (req, res) => {
+    try {
+      const data = await cacheData(
+        "leaderboard:all",
+        600,
+        () => fetchLeaderboard(null),
+        (d) => Array.isArray(d) && d.length > 0,
+      );
+      return res.status(200).json({ success: true, data });
+    } catch (error) {
+      console.error("Error fetching leaderboard:", error);
+      return res
+        .status(500)
+        .json({ success: false, message: "Internal Server Error" });
+    }
+  },
+);
 
 // ---------- progress (per user, 5 minutes) ----------
 const PROGRESS_SUBJECTS = ["geography", "civics", "history", "economics"];
@@ -286,30 +287,37 @@ async function fetchProgress(useremail) {
 
 const progressKey = (email) => `progress:${email}`;
 
-router.get("/getprogressdata", async (req, res) => {
-  if (!req.session.useremail) {
-    return res.status(401).json({ success: false, message: "Unauthorized" });
-  }
+router.get(
+  "/getprogressdata",
+  loginother,
+  progresslimiter,
+  async (req, res) => {
+    if (!req.session.useremail) {
+      return res.status(401).json({ success: false, message: "Unauthorized" });
+    }
 
-  try {
-    const data = await cacheData(
-      progressKey(req.session.useremail), // one key per user
-      300,
-      () => fetchProgress(req.session.useremail),
-    );
-    return res.json({ success: true, data });
-  } catch (err) {
-    console.error("getprogressdata error:", err);
-    return res.status(500).json({ success: false, message: "Server error" });
-  }
-});
+    try {
+      const data = await cacheData(
+        progressKey(req.session.useremail), // one key per user
+        300,
+        () => fetchProgress(req.session.useremail),
+      );
+      return res.json({ success: true, data });
+    } catch (err) {
+      console.error("getprogressdata error:", err);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+  },
+);
 
-router.get("/allleaderboard", async (req, res) => {
-  if (!req.session.userId) {
-    return res.status(401).json({ success: false, message: "Unauthorized" });
-  }
-  return res.sendFile(path.join(__dirname, "../views/leaderboard.html"));
-});
+router.get(
+  "/allleaderboard",
+  loginother,
+  leaderboardpagelimiter,
+  async (req, res) => {
+    return res.sendFile(path.join(__dirname, "../views/leaderboard.html"));
+  },
+);
 
 router.post("/captcha", async (req, res) => {
   const { email, token } = req.body;

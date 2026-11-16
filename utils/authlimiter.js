@@ -21,7 +21,7 @@ const generalLimiter = rateLimit({
   handler: tooMany("Too Many requests"),
 });
 const extremeLimiter = rateLimit({
-  windowMs: 5 * 60 * 1000,
+  windowMs: 4 * 60 * 1000,
   limit: 200,
   keyGenerator: (req) => {
     const ip = ipKeyGenerator(req.ip);
