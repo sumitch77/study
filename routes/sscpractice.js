@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 dotenv.config();
 const { supabase } = require("../utils/supabase");
 const { loginother } = require("../utils/helper");
+const { refreshPremium } = require("../utils/premium");
 const {
   client,
   cacheData,
@@ -38,6 +39,7 @@ routerssc.get(
     const subject = String(req.query.subject || "")
       .trim()
       .toLowerCase();
+    refreshPremium();
 
     // letters and spaces only: no % or _ wildcards reach ilike
     if (!/^[a-z ]{1,30}$/.test(subject)) {
