@@ -72,11 +72,14 @@
           </p>
           <div class="flex items-center gap-3 sm:gap-6">
             <div class="shrink-0 rounded-xl bg-white p-1.5 sm:p-2">
-              <img src="/qr.jpeg" alt="Payment QR code" class="h-28 w-28 object-contain sm:h-44 sm:w-44" />
+              <img src="/qr.png" alt="Payment QR code" class="h-28 w-28 object-contain sm:h-44 sm:w-44" />
             </div>
 
             <form id="utrForm" class="min-w-0 flex-1" novalidate>
               <label for="utrInput" class="block text-xs font-semibold text-slate-300 sm:text-sm">Enter UTR number</label>
+              <p class="mt-1 text-[10px] leading-snug text-slate-400 sm:text-xs">
+                UTR is the <b class="text-slate-200">12 digit reference number</b> of your payment. Find it in your payment app, in the payment details, as "UTR", "UPI Ref No." or "Transaction ID".
+              </p>
               <input
                 id="utrInput"
                 type="text"
