@@ -39,7 +39,7 @@ routerssc.get(
     const subject = String(req.query.subject || "")
       .trim()
       .toLowerCase();
-    refreshPremium();
+    refreshPremium(req);
 
     // letters and spaces only: no % or _ wildcards reach ilike
     if (!/^[a-z ]{1,30}$/.test(subject)) {
