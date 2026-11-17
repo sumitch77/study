@@ -7,6 +7,7 @@ const { Resend } = require("resend");
 const resendClient = new Resend(process.env.TOKEN);
 const { check } = require("express-validator");
 const { EmailLimiter, TimeLimiter, validate } = require("../utils/ratelimit");
+const disposableDomains = require("disposable-email-domains");
 
 const { supabase } = require("../utils/supabase");
 const { login } = require("../utils/helper");
@@ -282,6 +283,15 @@ router2.post(
       }
 
       email = String(email).trim().toLowerCase();
+      const domain = email.split("@")[1]?.toLowerCase();
+      if (disposableDomains.includes(domain)) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "Please use a real email address, not a temporary one.",
+          });
+      }
 
       // captcha first (cheap), bcrypt after (expensive)
       const captcha = req.session.captcha;

@@ -27,6 +27,7 @@
     "cors": "^2.8.6",
     "crypto": "^1.0.1",
     "deep-email-validator": "^0.1.27",
+    "disposable-email-domains": "^1.0.62",
     "dotenv": "^17.3.1",
     "ejs": "^5.0.1",
     "express": "^5.2.1",
