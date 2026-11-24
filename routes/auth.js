@@ -285,13 +285,30 @@ router2.post(
       email = String(email).trim().toLowerCase();
       const domain = email.split("@")[1]?.toLowerCase();
       if (disposableDomains.includes(domain)) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "Please use a real email address, not a temporary one.",
-          });
+        return res.status(400).json({
+          success: false,
+          message: "Please use a real email address, not a temporary one.",
+        });
       }
+      // if (!disposableDomains.includes(domain)) {
+      //   try {
+      //     const r = await fetch(
+      //       `https://api.check-mail.org/v1/...&domain=${domain}`,
+      //     ); // your actual key/endpoint
+      //     const result = await r.json();
+      //     if (result.disposable) {
+      //       return res
+      //         .status(400)
+      //         .json({
+      //           success: false,
+      //           message:
+      //             "Please use a real email address, not a temporary one.",
+      //         });
+      //     }
+      //   } catch {
+      //     // if the API fails, don't block signup — fail open
+      //   }
+      // }
 
       // captcha first (cheap), bcrypt after (expensive)
       const captcha = req.session.captcha;

@@ -52,6 +52,9 @@ routerdopractice.get(
       .toLowerCase();
     const chapter = parseInt(req.query.chapter, 10);
     const test = parseInt(req.query.test, 10);
+    console.log(
+      `Practice Started by ${req.session.username} , practice name ${subject} ${chapter} ${test}`,
+    );
 
     const layout = Object.hasOwn(SUBJECT_LAYOUT, subject)
       ? SUBJECT_LAYOUT[subject]

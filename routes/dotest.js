@@ -47,6 +47,9 @@ routerdotest.get(
       .trim()
       .toLowerCase();
     const test = parseInt(req.query.test, 10);
+    console.log(
+      `Test Started by ${req.session.username} , test name ${subject} ${test}`,
+    );
 
     const layout = Object.hasOwn(SUBJECT_LAYOUT, subject)
       ? SUBJECT_LAYOUT[subject]

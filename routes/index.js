@@ -545,6 +545,9 @@ router.post("/submitpractice", async (req, res) => {
 
     const test_info = `ch_${record.chapter}_test_${record.test}`;
     const ischeating = leaves >= MAX_LEAVES || visibility;
+    console.log(
+      `Practice Submittted by ${req.session.username} , practice name ${subject} ${chapter} ${test}`,
+    );
 
     // ---------- 6. save the score (only the first attempt of a test counts) ----------
     const { error } = await supabase.schema("study").from("scoretable").insert({
@@ -766,6 +769,9 @@ router.post("/submittest", async (req, res) => {
 
     const test_info = `test_${test}`;
     const ischeating = leaves >= MAX_LEAVES || visibility;
+    console.log(
+      `Test Submittted by ${req.session.username} , practice name ${subject} ${chapter} ${test}`,
+    );
 
     // ---------- 5. save the score (only the first attempt of a test counts) ----------
     const { error } = await supabase
